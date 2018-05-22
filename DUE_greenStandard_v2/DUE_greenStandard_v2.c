@@ -1,19 +1,38 @@
-/* controller code for three nosepoke box, using five nosepoke box code
-    ONLY FOR ARDUINO DUE
-    Luke Sjulson, updated by Daniela Cassataro 2018-04
+//===================================================================================================>>
+//                                          ARDUINO DUE + CUSTOM 'GREEN' SHIELD, THREE NOSEPOKE BOX  >>
+//===================================================================================================>> 
 
-    v1: first version for custom arduino shield
-        derived from fivePoke v3
-        updated pin numbers
-        tells matlab version 9
-        no syringe pump code for 3D-printed pumps YET.
+/* 
+  Daniela Cassataro v2 5/22/2018
 
-    OF NOTE: if the mouse nosepokes the center port, the init port syringe
-    pump is activated. This is because the original box has only three pumps.
+Controller ARDUINO DUE code for three nosepoke box, using five nosepoke box code.
+Based on Luke Sjulson's DUE_fivePoke_v3
+
+Updates:
+v1: . first version for custom arduino shield
+    . derived from fivePoke v3
+    . updated pin numbers
+    . tells matlab version 9
+    . no syringe pump code for 3D-printed pumps YET.
+
+v2: . 
+    . 
+    .
+    .
+    .
+
+To do:
+    . 
+    .
+    .
+    . fix: if the mouse nosepokes the center port, the init port syringe pump is activated. This is because the original box has only three pumps.
 
 */
 
+// tell matlab version 9
 #define VERSION     9
+
+// include the functions
 #include "toInclude/greenStandardFunctions_v2.cpp"
 
 // for debugging
@@ -67,28 +86,39 @@
     4 - reward only upon nosepoke
 */
 
-void setup() { // code runs once on initial setup
+
+//===================================================================================================>>
+//                                                                                        SETUP LOOP >>
+//===================================================================================================>> 
+
+// runs once on initial setup
+void setup() { 
 
   Serial.begin(115200); // begin serial with 115200 baud rate
   Serial.setTimeout(100); // wait 100 ms for timeout (was originally 20 ms)
 
-  randomSeed(analogRead(1)); //seed rng with reading from pin 1
-  analogWriteResolution(12);      // set DACs to 12-bit resolution
+  randomSeed(analogRead(1)); // seed rng with reading from pin 1
+  analogWriteResolution(12); // set DACs to 12-bit resolution
   analogWrite(DAC0, 0);      // just to initialize this DAC
 
-  // close all doors
+  // servos have been made into objects of class: servo in the functions file.
+  // attach the servo objects to their pins, and set the servos closed.
+  // close all doors (make a function for this later).
   servoLeft.attach(servoPin1); //attach servo to pin
   servoLeft.write(ServoClosed); //set to closed
-  servoCenter.attach(servoPin2); //attach servo to pin
-  servoCenter.write(ServoClosed); //set to closed
-  servoRight.attach(servoPin3); //attach servo to pin
-  servoRight.write(ServoClosed); //set to closed
-  servoCenterRight.attach(servoPin4); //attach servo to pin
-  servoCenterRight.write(ServoClosed); //set to closed
-  servoCenterLeft.attach(servoPin5); //attach servo to pin
-  servoCenterLeft.write(ServoClosed); //set to closed
+  servoCenter.attach(servoPin2); 
+  servoCenter.write(ServoClosed); 
+  servoRight.attach(servoPin3); 
+  servoRight.write(ServoClosed); 
+  servoCenterRight.attach(servoPin4); 
+  servoCenterRight.write(ServoClosed); 
+  servoCenterLeft.attach(servoPin5); 
+  servoCenterLeft.write(ServoClosed); 
 
-  // configure output pins
+
+  // configure all pins as input/output:
+
+  // signals to the arduino that pokes have occurred.
   pinMode(initPokeTTL, INPUT);
   pinMode(leftPokeTTL, INPUT);
   pinMode(centerPokeTTL, INPUT);
@@ -96,14 +126,15 @@ void setup() { // code runs once on initial setup
   pinMode(centerRightPokeTTL, INPUT);
   pinMode(centerLeftPokeTTL, INPUT);
 
-  pinMode(syringePumpInit, OUTPUT);      // connected to init pump - in phase 6-7, used for center port
-  pinMode(syringePumpLeft, OUTPUT);      // connected to left pump
-  pinMode(syringePumpRight, OUTPUT);     // connect to right pump
-  pinMode(syringePumpCenter, OUTPUT);  // not connected
-  pinMode(syringePumpCenterLeft, OUTPUT);    // not connected
-  pinMode(syringePumpCenterRight, OUTPUT);  // not connected
+  // signals to the syringe pumps to move. 
+  pinMode(syringePumpInit, OUTPUT);           // init pump - fix: in phase 6-7, used for center port
+  pinMode(syringePumpLeft, OUTPUT);           // left pump
+  pinMode(syringePumpRight, OUTPUT);          // right pump
+  pinMode(syringePumpCenter, OUTPUT);         // center pump (fix: not connected)
+  pinMode(syringePumpCenterLeft, OUTPUT);     // not connected
+  pinMode(syringePumpCenterRight, OUTPUT);    // not connected
 
-
+  // signals to the intan for events that have occurred.
   pinMode(whiteNoiseTTL, OUTPUT);
   pinMode(auditoryCueTTL, OUTPUT);
   pinMode(visualCueTTL, OUTPUT);
@@ -113,31 +144,32 @@ void setup() { // code runs once on initial setup
   pinMode(pulsePal2, OUTPUT);
   pinMode(triggerPin, OUTPUT);
 
-  // turn all LEDs off
+  // turn all LEDs off.
   cueLED1.off();
   cueLED2.off();
   cueLED3.off();
   cueLED4.off();
   cameraLED.off();
-
-
-  state = standby; // default state
-
-  // giving pulse to shut off the init syringe pump
-  delay(100);
-  initPulse();
+  
+  // default state
+  state = standby; 
 }
 
+//===================================================================================================>>
+//                                                                              FINITE STATE MACHINE >>
+//===================================================================================================>>
 
 
-// herein lies the finite state machine
 void loop() {
 
   t.update(); // update timer with each cycle
-  if (micros() - lastLoopTimeMicros >= slowDTmicros) {
+
+  // micros() returns number of microseconds since the Arduino board began running the current program.(unsigned long)
+  if (micros() - lastCheckTimeMicros >= slowDTmicros) {
     checkDoors();   // update door state as per matlab instruction
     checkRewards(); // update reward state as per matlab instruction
     checkPokes();   // check nosepokes
+    lastCheckTimeMicros = micros(); // 
   }
 
   switch (state) {
@@ -582,8 +614,3 @@ void loop() {
       break;
   }
 }
-
-
-
-
-

@@ -71,7 +71,7 @@ using namespace std;
 
 // five extra pins (5) that are not plugged into the intan
 // Could be used with an intan with more than 16(17, w/GND) inputs
-#define extraIntan1         47
+#define extraIntan1         47 //will try to use this for ENABLE pin for syringe pumps
 #define extraIntan2         48
 #define extraIntan3         49
 #define extraIntan4         50
@@ -98,7 +98,7 @@ unsigned long nosePokeInitTime    = 0;
 long nTrial                       = 0;     // trial number
 long slowDTmicros                 = 100;   // DT of slow loop in microseconds
 long pauseLengthMicros            = 5;    // length of pause for each iteration of the fast loop
-unsigned long lastLoopTimeMicros  = 0;
+unsigned long lastCheckTimeMicros  = 0;
 int probsWritten                  = 0;     // if reward probabilities are sent to serial, turns to 1
 long useInitPumpForCenter         = 0;     // if set to 1, center poke activates the init pump instead (for boxes with only 3 pumps)
 int initPokeError                 = 0;     // gets set to 1 if the animal init pokes during standby
