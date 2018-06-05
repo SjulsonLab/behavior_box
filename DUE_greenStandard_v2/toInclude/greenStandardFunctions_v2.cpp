@@ -1,3 +1,12 @@
+/*
+Daniela Cassataro v2 5/23/18
+
+TO DO:
+  . ctrl+f "FIX:" 
+  . remove the center-right and center-left stuff
+
+*/
+
 // for debugging
 //#define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
 #ifdef DEBUG    //Macros are usually in all capital letters.
@@ -43,14 +52,14 @@ using namespace std;
 #define syringePumpCenterLeft  32  // not actually connected
 #define syringePumpCenterRight 34  // not actually connected
 
-// pins sampled by Intan
+// pins sampled by Intan:
 
 // nosepoke-related pins(6)
 #define initPokeTTL         27
 #define leftPokeTTL         29
 #define rightPokeTTL        31
-#define centerPokeTTL       33
 #define centerLeftPokeTTL   35  // not connected
+#define centerPokeTTL       33
 #define centerRightPokeTTL  37  // not connected
 
 // pulsepal pins(2)
@@ -77,15 +86,6 @@ using namespace std;
 #define extraIntan4         50
 #define extraIntan5         52
 
-// what brands of syringe pump we're using - options include harvard and braintree
-// note(DC): these will not be used anymore so update/remove this whole definition 
-// of pump type when you incorporate the new custom syringe pumps
-#define leftPump "Harvard"
-#define initPump "Braintree"
-#define rightPump "Harvard"
-#define centerLeftPump "Braintree"
-#define centerRightPump "Braintree"
-#define centerPump "Braintree"
 
 long doorCloseSpeed        = 5;    // original speed was 10 - can decrease if there are problems
 //long centerPulseYN         = 0;  // set to 1 to send a TTL pulse to the center pump
@@ -94,24 +94,24 @@ long doorCloseSpeed        = 5;    // original speed was 10 - can decrease if th
 long state                        = 1;     // state variable for finite state machine - set to 1 (standby)
 long trainingPhase                = 0;     // phase of training - set by serial input
 long sndCounter                   = 0;
-unsigned long nosePokeInitTime    = 0;
+unsigned long nosePokeInitTime    = 0;     // FIX: rename to something better. initHoldStartTime_ms? it's when mouse begins the init poke specifically. used to make sure mouse holds long enough. 
 long nTrial                       = 0;     // trial number
 long slowDTmicros                 = 100;   // DT of slow loop in microseconds
-long pauseLengthMicros            = 5;    // length of pause for each iteration of the fast loop
-unsigned long lastCheckTimeMicros  = 0;
+long pauseLengthMicros            = 5;     // length of pause for each iteration of the fast loop
+unsigned long lastCheckTimeMicros = 0;
 int probsWritten                  = 0;     // if reward probabilities are sent to serial, turns to 1
 long useInitPumpForCenter         = 0;     // if set to 1, center poke activates the init pump instead (for boxes with only 3 pumps)
 int initPokeError                 = 0;     // gets set to 1 if the animal init pokes during standby
 
 // variables for timing
-unsigned long trialAvailTime      = 0;
-unsigned long initPokeEntryTime   = 0;
-unsigned long initPokeExitTime    = 0;
-unsigned long leftPokeEntryTime   = 0;
-unsigned long centerLeftPokeEntryTime   = 0;
-unsigned long centerPokeEntryTime   = 0;
-unsigned long centerRightPokeEntryTime   = 0;
-unsigned long rightPokeEntryTime   = 0;
+unsigned long trialAvailTime           = 0;
+unsigned long initPokeEntryTime        = 0;
+unsigned long initPokeExitTime         = 0;
+unsigned long leftPokeEntryTime        = 0;
+unsigned long centerLeftPokeEntryTime  = 0;
+unsigned long centerPokeEntryTime      = 0;
+unsigned long centerRightPokeEntryTime = 0;
+unsigned long rightPokeEntryTime       = 0;
 
 // ints to store nosepoke states
 unsigned long pokeLastCheckTime;
@@ -173,7 +173,7 @@ long centerIsOpen        = 0;
 // state-related variables - all durations in msec
 long readyToGoLength        = 60000;
 long missedLength           = 50;
-long punishDelayLength          = 5000;
+long punishDelayLength      = 5000;
 long preCueLength           = 50;
 long auditoryCueLength      = 200;
 long visualCueLength        = 200;
@@ -183,9 +183,9 @@ long rewardCollectionLength = 3000;
 
 long startTrialYN        = 0;   // 1 to start a trial
 long resetTimeYN         = 0;   // 1 to reset the timer
-long nosePokeHoldLength  = 0;   // number of ms the animal must hold its nose poke
+long nosePokeHoldLength  = 0;   // number of ms the animal must hold its nose poke FIX: rename to requiredPokeHoldLength_ms
 long goToStandby         = 0;   // set to 1 using matlab to exit goToPokes state
-long giveRewardNow       = 0;   // 1 for left, 2 for center, 3 for right
+long giveRewardNow       = 0;   // 1=init, 2=left, 3=right, 4=center.
 long initPokePunishYN    = 0;   // 1 to punish for init poke during standby, 0 is default
 
 // other variables
@@ -220,7 +220,7 @@ long CrewardLength          = 500; // length of reward delivery in ms
 
 
 
-long laserOnCode            = 0;
+long laserOnCode            = 0; // FIX: laserOnCode is set twice
 long auditoryOrVisualCue    = 0; // 0 is none, 1 is auditory, 2 is visual
 long cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
 long isLeftLow              = 1; // 1 means left is low cue, 0 means left is high cue
@@ -234,6 +234,17 @@ long WNvolume        = 128; // between 0-255
 long lowCueVolume    = 128;
 long highCueVolume   = 128;
 long buzzerVolume    = 128; 
+
+
+// globals for the syringe pumps
+// these are all longs because matlab requires longs
+long volumeLeft_nL           = 0;
+long volumeCenter_nL         = 0;
+long volumeRight_nL          = 0;
+long volumeInit_nL           = 0;
+long deliveryDuration_ms     = 1000;
+long syringeSize_mL          = 5;
+
 
 
 //***********************************************
@@ -251,9 +262,13 @@ LED cameraLED = LED(cameraLEDpin);  // will be connected to red or IR LED sample
 //              stuff for logging
 //***********************************************
 Timer t; // declare timer
+
+// startTime: time in ms for either..
+// 1. start of trial=the last time the code exited standby. or
+// 2. start of session=happens once at beginning of a session
+unsigned long startTime;   
+unsigned long tempTime = 0; // FIX: rename to timeThisStateBegan_ms
 unsigned long logTime; // time for log data sent to matlab
-unsigned long startTime; // time in ms the last time the code exited standby
-unsigned long tempTime = 0;
 
 // functions for logging
 void serLog(String str) {
@@ -272,7 +287,7 @@ void resetDefaults() {
   state             = 1;     // standby
   readyToGoLength   = 10000; // in msec
   missedLength      = 50; // in msec
-  punishDelayLength     = 5000;
+  punishDelayLength = 5000;
   preCueLength      = 50; // in msec
   auditoryCueLength = 200;
   visualCueLength   = 200;
@@ -297,10 +312,10 @@ void resetDefaults() {
   laserOnCode            = 0;
   auditoryOrVisualCue    = 0; // 1 is auditory, 2 is visual, and 0 is neither
   cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
-  goToStandby            = 0;   // set to 1 using matlab to exit goToPokes state
+  goToStandby            = 0; // set to 1 using matlab to exit goToPokes state
   giveRewardNow          = 0;
 
-  syringeSize			 = 5;
+  syringeSize			 = 5; //????????????? 
 
 }
 
@@ -404,8 +419,7 @@ void closePoke(String whichPoke) {
 }
 
 // function to allow matlab to open/close doors, e.g. if matlab sets leftOpenNow to be 1, it will open the door
-void checkDoors()
-{
+void checkDoors() {
   if (leftOpenNow > leftIsOpen)
     openPoke("left");
   else if (leftOpenNow < leftIsOpen)
@@ -593,138 +607,89 @@ void playBuzzer() {
     sndCounter = 0;
 }
 
-void initPulse() {
-  t.pulse(syringePumpInit, 100, LOW);
+
+
+// the dc syringe pump func.
+// initialize the variables in the argument of the function definition:
+void deliverReward_dc(long volume_nL, long local_deliveryDuration_ms, int local_syringeSize_mL, int whichPump) {
+Serial.println("DC TEST PULSE.");  
+  double diameter_mm; 
+  double volPerRevolution_uL;
+  double howManyRevolutions; 
+  unsigned long totalSteps; //can't have negative steps
+  unsigned int minimumDeliveryDuration_ms;
+  double stepDuration_ms;
+  // the calcs are done in uL but because matlab needs expects longs it's converted from nL so we can have accuracy and whole numbers
+  double volume_uL;
+  volume_uL = (double)volume_nL/1000; 
+
+  // set syringe diameter variable based on BD syringe standard sizes 5 or 10mL  
+  if (local_syringeSize_mL == 5) {
+    diameter_mm = 12.06; //in mm
+  }
+  if (local_syringeSize_mL == 10) {
+    diameter_mm = 14.5; //in mm
+  }
+  if ((local_syringeSize_mL != 5) && (local_syringeSize_mL != 10)) {
+    Serial.println("didn't recognize syringe size. available sizes '5' or '10.'");
+    Serial.println("diameter_mm=");
+    Serial.println(diameter_mm); 
+    return;
+  } 
+
+  // determine vol per revolution, area of small cylinder with h=0.8mm
+  // 0.8mm length per thread. 1thread=1cycle. 1 like=1prayer.
+  volPerRevolution_uL = 0.8 * ( diameter_mm/2 )*( diameter_mm/2 ) * 3.1415926535898 ; 
+  Serial.println("volPerRevolution = "); 
+  Serial.println(volPerRevolution_uL);
+  
+  // determine how many revolutions needed for the desired volume
+  howManyRevolutions = volume_uL / volPerRevolution_uL ;
+  Serial.println("howManyRevolution = "); 
+  Serial.println(howManyRevolutions);
+
+  // determine total steps needed to reach desired revolutions, @200 steps/revolution
+  // use *4 as a multiplier because it's operating at 1/4 microstep mode.
+  // round to nearest int because totalSteps is unsigned long
+  totalSteps = round(200 * howManyRevolutions * 4); 
+  Serial.println("totalSteps = "); 
+  Serial.println(totalSteps);
+
+  // determine shortest delivery duration, total steps * 2 ms per step. 
+  // minimum 1 ms in high, 1 ms in low for the shortest possible step function.
+  minimumDeliveryDuration_ms = totalSteps*2; 
+  Serial.println("minimumDeliveryDuration_ms = "); 
+  Serial.println(minimumDeliveryDuration_ms);  
+
+  // make sure delivery duration the user wants is long enough
+  if (local_deliveryDuration_ms < minimumDeliveryDuration_ms) {
+      Serial.println("duration too low. duration needs to be >");
+      Serial.println(minimumDeliveryDuration_ms); 
+      Serial.println("with that diameter and reward volume.");
+      return;
+    }
+
+  // determine duration of each step for the timer oscillate function
+  stepDuration_ms = (double)local_deliveryDuration_ms / totalSteps;
+
+  // enable all pumps (low=on state) so we can move them
+  digitalWrite(ENABLE, LOW);
+  t.after((int)(100+local_deliveryDuration_ms), make_ENABLE_pin_HIGH_which_is_off); // FIX: every time "after()" is used needs to be fixed because it doesn't work like how luke thought it did
+
+  // tell the intan reward is delivered
+  //t.pulse(whateverTheIntanPinIs, 5, LOW);
+  
+  // turn the pump motor
+  t.oscillate(whichPump, round(stepDuration_ms/2), LOW, totalSteps*2);
+
+  // back to main loop. 
+  Serial.println("Enter new option");
+  Serial.println();
 }
 
-void leftPulse() {
-  t.pulse(syringePumpLeft, 100, LOW);
-}
-
-void centerLeftPulse() {
-  t.pulse(syringePumpCenterLeft, 100, LOW);
-}
-
-void rightPulse() {
-  t.pulse(syringePumpRight, 100, LOW);
-}
-
-void centerRightPulse() {
-  t.pulse(syringePumpCenterRight, 100, LOW);
-}
-
-void centerPulse() {
-  t.pulse(syringePumpCenter, 100, LOW);
-}
-
-
-
-
-
-// I should probably consolidate these into a single function at some point...
-
-//////////////////////////////////////////////////////////////////////
-// need to fix these because now we'll only have one kind of pump.////
-//////////////////////////////////////////////////////////////////////
-
-void leftReward(String pumpType) {
-  if (pumpType.equalsIgnoreCase("harvard")) { // pump runs as long as TTL pulse is high
-    t.pulse(syringePumpLeft, LrewardLength, LOW);
-    t.pulse(rewardTTL, LrewardLength, LOW);
-    t.update();
-    serLog("leftReward"); 
-  }
-  else if (pumpType.equalsIgnoreCase("braintree")) { // pump gives one TTL pulse to turn on and a second pulse to turn off
-    t.pulse(rewardTTL, LrewardLength, LOW);
-    t.pulse(syringePumpLeft, 100, LOW);
-    t.after(LrewardLength, leftPulse);
-    t.update();
-    serLog("leftReward");
-  }
-}
-
-void initReward(String pumpType) {
-  if (pumpType.equalsIgnoreCase("harvard")) { // pump runs as long as TTL pulse is high
-    t.pulse(syringePumpInit, IrewardLength, LOW);
-    t.pulse(rewardTTL, IrewardLength, LOW);
-    t.update();
-    serLog("initReward"); 
-  }
-
-  else if (pumpType.equalsIgnoreCase("braintree")) { // pump gives one TTL pulse to turn on and a second pulse to turn off
-    t.pulse(rewardTTL, IrewardLength, LOW);
-    initPulse();
-    t.after(IrewardLength, initPulse);
-    t.update();
-    serLog("initReward"); 
-  }
-}
-
-void rightReward(String pumpType) {
-  if (pumpType.equalsIgnoreCase("harvard")) { // pump runs as long as TTL pulse is high
-    t.pulse(syringePumpRight, RrewardLength, LOW);
-    t.pulse(rewardTTL, RrewardLength, LOW);
-    t.update();
-    serLog("rightReward");	
-  }
-  else if (pumpType.equalsIgnoreCase("braintree")) { // pump gives one TTL pulse to turn on and a second pulse to turn off
-    t.pulse(rewardTTL, RrewardLength, LOW);
-    t.pulse(syringePumpRight, 100, LOW);
-    t.after(RrewardLength, rightPulse);
-    t.update();
-    serLog("rightReward");
-  }
-}
-
-void centerLeftReward(String pumpType) {
-  if (pumpType.equalsIgnoreCase("harvard")) { // pump runs as long as TTL pulse is high
-    t.pulse(syringePumpCenterLeft, CLrewardLength, LOW);
-    t.pulse(rewardTTL, CLrewardLength, LOW);
-    t.update();
-    serLog("centerLeftReward"); 
-  }
-
-  else if (pumpType.equalsIgnoreCase("braintree")) { // pump gives one TTL pulse to turn on and a second pulse to turn off
-    t.pulse(rewardTTL, CLrewardLength, LOW);
-    centerLeftPulse();
-    t.after(CLrewardLength, centerLeftPulse);
-    t.update();
-    serLog("centerLeftReward"); 
-  }
-}
-
-void centerRightReward(String pumpType) {
-  if (pumpType.equalsIgnoreCase("harvard")) { // pump runs as long as TTL pulse is high
-    t.pulse(syringePumpCenterRight, CRrewardLength, LOW);
-    t.pulse(rewardTTL, CRrewardLength, LOW);
-    t.update();
-    serLog("centerRightReward"); 
-  }
-
-  else if (pumpType.equalsIgnoreCase("braintree")) { // pump gives one TTL pulse to turn on and a second pulse to turn off
-    t.pulse(rewardTTL, CRrewardLength, LOW);
-    centerRightPulse();
-    t.after(CRrewardLength, centerRightPulse);
-    t.update();
-    serLog("centerRightReward"); 
-  }
-}
-
-void centerReward(String pumpType) {
-  if (pumpType.equalsIgnoreCase("harvard")) { // pump runs as long as TTL pulse is high
-    t.pulse(syringePumpCenter, CrewardLength, LOW);
-    t.pulse(rewardTTL, CrewardLength, LOW);
-    t.update();
-    serLog("centerReward"); 
-  }
-
-  else if (pumpType.equalsIgnoreCase("braintree")) { // pump gives one TTL pulse to turn on and a second pulse to turn off
-    t.pulse(rewardTTL, CrewardLength, LOW);
-    centerPulse();
-    t.after(CrewardLength, centerPulse);
-    t.update();
-    serLog("centerReward"); 
-  }
+// used for doing after() on the enable pin which requires a callback in the argument
+void make_ENABLE_pin_HIGH_which_is_off(){
+  digitalWrite(ENABLE, HIGH); 
 }
 
 void processMessage() {
@@ -745,24 +710,24 @@ void processMessage() {
   // all the variables (ints) go here
   changeVariableLong("IrewardCode", &IrewardCode, inLine);
   changeVariableLong("LrewardCode", &LrewardCode, inLine);
-  changeVariableLong("CLrewardCode", &CLrewardCode, inLine);
   changeVariableLong("RrewardCode", &RrewardCode, inLine);
-  changeVariableLong("CRrewardCode", &CRrewardCode, inLine);
   changeVariableLong("CrewardCode", &CrewardCode, inLine);
+  //changeVariableLong("CLrewardCode", &CLrewardCode, inLine);
+  //changeVariableLong("CRrewardCode", &CRrewardCode, inLine);
 
   changeVariableLong("IrewardProb", &IrewardProb, inLine);
   changeVariableLong("LrewardProb", &LrewardProb, inLine);
-  changeVariableLong("CLrewardProb", &CLrewardProb, inLine);
   changeVariableLong("RrewardProb", &RrewardProb, inLine);
-  changeVariableLong("CRrewardProb", &CRrewardProb, inLine);
   changeVariableLong("CrewardProb", &CrewardProb, inLine);
+  //changeVariableLong("CLrewardProb", &CLrewardProb, inLine);
+  //changeVariableLong("CRrewardProb", &CRrewardProb, inLine);
 
   changeVariableLong("IrewardLength", &IrewardLength, inLine);
   changeVariableLong("LrewardLength", &LrewardLength, inLine);
-  changeVariableLong("CLrewardLength", &CLrewardLength, inLine);
   changeVariableLong("RrewardLength", &RrewardLength, inLine);
-  changeVariableLong("CRrewardLength", &CRrewardLength, inLine);  
   changeVariableLong("CrewardLength", &CrewardLength, inLine);
+  //changeVariableLong("CLrewardLength", &CLrewardLength, inLine);
+  //changeVariableLong("CRrewardLength", &CRrewardLength, inLine);  
 
   changeVariableLong("laserOnCode", &laserOnCode, inLine);
   changeVariableLong("auditoryOrVisualCue", &auditoryOrVisualCue, inLine);
@@ -778,9 +743,9 @@ void processMessage() {
 
   changeVariableLong("trainingPhase", &trainingPhase, inLine);
   changeVariableLong("LopenYN", &LopenYN, inLine);
-  changeVariableLong("CLopenYN", &CLopenYN, inLine);
+  //changeVariableLong("CLopenYN", &CLopenYN, inLine);
   changeVariableLong("RopenYN", &RopenYN, inLine);
-  changeVariableLong("CRopenYN", &CRopenYN, inLine);
+  //changeVariableLong("CRopenYN", &CRopenYN, inLine);
   changeVariableLong("CopenYN", &CopenYN, inLine);
 
   changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
@@ -808,47 +773,50 @@ void processMessage() {
   changeVariableLong("rewardCollectionLength", &rewardCollectionLength, inLine);
   changeVariableLong("useInitPumpForCenter", &useInitPumpForCenter, inLine);
 
+  // variables for syringe pumps, dc
+  changeVariableLong("volumeLeft_nL", &volumeLeft_nL, inLine);
+  changeVariableLong("volumeCenter_nL", &volumeCenter_nL, inLine);
+  changeVariableLong("volumeRight_nL", &volumeRight_nL, inLine);
+  changeVariableLong("volumeInit_nL", &volumeInit_nL, inLine);
+  changeVariableLong("deliveryDuration_ms", &deliveryDuration_ms, inLine);
+  changeVariableLong("syringeSize_mL", &syringeSize_mL, inLine);
 }
-
 
 // this function gives rewards if the timeCode matches the rewardCode (e.g. at the correct state transition)
 void giveRewards(int timeCode) {
-  if (IrewardCode == timeCode) initReward(initPump);
-  if (LrewardCode == timeCode) leftReward(leftPump);
-  if (CLrewardCode == timeCode) centerLeftReward(centerLeftPump);
-  if (RrewardCode == timeCode) rightReward(rightPump);
-  if (CRrewardCode == timeCode) centerRightReward(centerRightPump);
-  if (CrewardCode == timeCode) centerRightReward(centerPump);
+  if (IrewardCode == timeCode) deliverReward_dc(volumeInit_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
+  if (LrewardCode == timeCode) deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+  if (RrewardCode == timeCode) deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+  if (CrewardCode == timeCode) deliverReward_dc(volumeCenter_nL, deliveryDuration_ms, syringeSize_mL, syringePumpCenter);
 }
 
+/* reward codes - they are independent of which poke is rewarded
+    0 - no reward
+    1 - reward init poke at ready signal
+    2 - reward on init nose poke
+    3 - reward at end of cue
+    4 - reward only upon nosepoke
+*/
+
+// 
 void checkRewards() {
   if (giveRewardNow == 1) {
     giveRewardNow = 0;
-    initReward(initPump);
+    deliverReward_dc(volumeInit_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
   }
   if (giveRewardNow == 2) {
     giveRewardNow = 0;
-    leftReward(leftPump);
+    deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
   }
   if (giveRewardNow == 3) {
     giveRewardNow = 0;
-    centerLeftReward(centerLeftPump);
+    deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
   }
-  if (giveRewardNow == 4) {
+    if (giveRewardNow == 4) {
     giveRewardNow = 0;
-    rightReward(rightPump);
-  }
-  if (giveRewardNow == 5) {
-    giveRewardNow = 0;
-    centerRightReward(centerRightPump);
-  }
-  if (giveRewardNow == 6) {
-    giveRewardNow = 0;
-    centerReward(centerPump);
+    deliverReward_dc(volumeCenter_nL, deliveryDuration_ms, syringeSize_mL, syringePumpCenter);
   }
 }
-
-
 
 // function to switch states
 void switchTo(int whichState) {
