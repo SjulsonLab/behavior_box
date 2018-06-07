@@ -80,7 +80,7 @@ using namespace std;
 
 // five extra pins (5) that are not plugged into the intan
 // Could be used with an intan with more than 16(17, w/GND) inputs
-#define extraIntan1         47 //will try to use this for ENABLE pin for syringe pumps
+#define syringePumpENABLE         47 //will try to use this for ENABLE pin for syringe pumps
 #define extraIntan2         48
 #define extraIntan3         49
 #define extraIntan4         50
@@ -314,9 +314,6 @@ void resetDefaults() {
   cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
   goToStandby            = 0; // set to 1 using matlab to exit goToPokes state
   giveRewardNow          = 0;
-
-  syringeSize			 = 5; //????????????? 
-
 }
 
 // this function changes the variable referred to by *ptr whenever varName is present in inLine
@@ -607,7 +604,10 @@ void playBuzzer() {
     sndCounter = 0;
 }
 
-
+// used for doing after() on the enable pin which requires a callback in the argument
+void make_ENABLE_pin_HIGH_which_is_off() {
+  digitalWrite(syringePumpENABLE, HIGH); 
+}
 
 // the dc syringe pump func.
 // initialize the variables in the argument of the function definition:
@@ -673,7 +673,7 @@ Serial.println("DC TEST PULSE.");
   stepDuration_ms = (double)local_deliveryDuration_ms / totalSteps;
 
   // enable all pumps (low=on state) so we can move them
-  digitalWrite(ENABLE, LOW);
+  digitalWrite(syringePumpENABLE, LOW);
   t.after((int)(100+local_deliveryDuration_ms), make_ENABLE_pin_HIGH_which_is_off); // FIX: every time "after()" is used needs to be fixed because it doesn't work like how luke thought it did
 
   // tell the intan reward is delivered
@@ -687,10 +687,6 @@ Serial.println("DC TEST PULSE.");
   Serial.println();
 }
 
-// used for doing after() on the enable pin which requires a callback in the argument
-void make_ENABLE_pin_HIGH_which_is_off(){
-  digitalWrite(ENABLE, HIGH); 
-}
 
 void processMessage() {
   String inLine;
@@ -743,10 +739,10 @@ void processMessage() {
 
   changeVariableLong("trainingPhase", &trainingPhase, inLine);
   changeVariableLong("LopenYN", &LopenYN, inLine);
-  //changeVariableLong("CLopenYN", &CLopenYN, inLine);
   changeVariableLong("RopenYN", &RopenYN, inLine);
-  //changeVariableLong("CRopenYN", &CRopenYN, inLine);
   changeVariableLong("CopenYN", &CopenYN, inLine);
+  //changeVariableLong("CLopenYN", &CLopenYN, inLine);
+  //changeVariableLong("CRopenYN", &CRopenYN, inLine);
 
   changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
   changeVariableLong("slowDTmicros", &slowDTmicros, inLine);

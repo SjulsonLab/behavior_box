@@ -1,27 +1,27 @@
 //===================================================================================================>>
 //                                          ARDUINO DUE + CUSTOM 'GREEN' SHIELD, THREE NOSEPOKE BOX  >>
-//===================================================================================================>> 
+//===================================================================================================>>
 
-/* 
-  Daniela Cassataro v2 5/23/2018
+/*
+  Daniela Cassataro v2 6/7/2018
 
-Controller ARDUINO DUE code for three nosepoke box, using five nosepoke box code.
-Based on Luke Sjulson's DUE_fivePoke_v3
+  Controller ARDUINO DUE code for three nosepoke box, using five nosepoke box code.
+  Based on Luke Sjulson's DUE_fivePoke_v3
 
-Updates:
-v1: . first version for custom arduino shield
+  Updates:
+  v1: . first version for custom arduino shield
     . derived from fivePoke v3
     . updated pin numbers
     . tells matlab version 9
     . no syringe pump code for 3D-printed pumps YET.
 
-v2: . 
-    . 
+  v2: .
+    .
     .
     .
     .
 
-To do:
+  To do:
     . ctrl+F "FIX:"
     . "sndCounter" resets to zero in many places. move the resetting of sndCounter to the standby exit statement?
     . remove the CR and CL stuff
@@ -90,10 +90,10 @@ To do:
 
 //===================================================================================================>>
 //                                                                                        SETUP LOOP >>
-//===================================================================================================>> 
+//===================================================================================================>>
 
 // runs once on initial setup
-void setup() { 
+void setup() {
 
   Serial.begin(115200); // begin serial with 115200 baud rate
   Serial.setTimeout(100); // wait 100 ms for timeout (was originally 20 ms)
@@ -107,14 +107,14 @@ void setup() {
   // close all doors (make a function for this later).
   servoLeft.attach(servoPin1); //attach servo to pin
   servoLeft.write(ServoClosed); //set to closed
-  servoCenter.attach(servoPin2); 
-  servoCenter.write(ServoClosed); 
-  servoRight.attach(servoPin3); 
-  servoRight.write(ServoClosed); 
-  servoCenterRight.attach(servoPin4); 
-  servoCenterRight.write(ServoClosed); 
-  servoCenterLeft.attach(servoPin5); 
-  servoCenterLeft.write(ServoClosed); 
+  servoCenter.attach(servoPin2);
+  servoCenter.write(ServoClosed);
+  servoRight.attach(servoPin3);
+  servoRight.write(ServoClosed);
+  servoCenterRight.attach(servoPin4);
+  servoCenterRight.write(ServoClosed);
+  servoCenterLeft.attach(servoPin5);
+  servoCenterLeft.write(ServoClosed);
 
 
   // configure all pins as input/output:
@@ -127,7 +127,7 @@ void setup() {
   pinMode(centerRightPokeTTL, INPUT);
   pinMode(centerLeftPokeTTL, INPUT);
 
-  // signals to the syringe pumps to move. 
+  // signals to the syringe pumps to move.
   pinMode(syringePumpInit, OUTPUT);           // init pump - fix: in phase 6-7, used for center port
   pinMode(syringePumpLeft, OUTPUT);           // left pump
   pinMode(syringePumpRight, OUTPUT);          // right pump
@@ -151,9 +151,9 @@ void setup() {
   cueLED3.off();
   cueLED4.off();
   cameraLED.off();
-  
+
   // default state
-  state = standby; 
+  state = standby;
 }
 
 //===================================================================================================>>
@@ -178,20 +178,20 @@ void loop() {
 
   switch (state) {
 
-    //////////////////// 
+    ////////////////////
     // STANDBY
     // the default state when not running trials
     // wait for matlab instructions, initialize trial counter as per matlab, wait for go signal
-    
-    case standby: 
+
+    case standby:
 
       processMessage();
       delayMicroseconds(pauseLengthMicros);
 
       // it's specified in matlab when the timer is reset to zero. (start of session, or could be start of trial)
       // if timer has been reset by matlab:
-      if (resetTimeYN == 1) {             
-        DPRINTLN("time reset"); 
+      if (resetTimeYN == 1) {
+        DPRINTLN("time reset");
         resetTimeYN = 0;                  // change timer back to "non-reset" & start counting up
         startTime = millis();             // assign start time of standby as millis, (the time since arduino set up)
         digitalWrite(triggerPin, HIGH);   // 20ms pulse to Intan at the start of the trial.
@@ -215,23 +215,23 @@ void loop() {
         digitalWrite(whiteNoiseTTL, HIGH); // tell the intan you're going to the readyToGo state/you're about to start the white noise
         cameraLED.on();
         sndCounter = 0; // reset sound counter
-        startTrialYN = 0; // reset startTrial 
+        startTrialYN = 0; // reset startTrial
         giveRewards(1); // give a reward to the location(s) with reward codes "1" (the init poke before mouse has poked)
         probsWritten = 0; // this is a variable that switches off (to zero) after writing the probability once so it's not writing the probability on every loop
         trialAvailTime = millis(); // assign time in ms when trial becomes available/when you're switching to readyToGo state.
-        switchTo(readyToGo); 
+        switchTo(readyToGo);
       }
 
       break;
 
 
-    //////////////////// 
-    // READY TO GO 
+    ////////////////////
+    // READY TO GO
     // white noise starts
     // wait for mouse to nosepoke to initiate a trial
 
     case readyToGo:
-    
+
       playWhiteNoise();
 
       // if timeout, switch state to MISSED
@@ -245,10 +245,10 @@ void loop() {
 
       // if mouse init-pokes, switch state to PRE-CUE
       if (initPoke == 1) {
-        nosePokeInitTime = millis(); // record time when mouse begins the init poke specifically. used to make sure mouse holds long enough. 
+        nosePokeInitTime = millis(); // record time when mouse begins the init poke specifically. used to make sure mouse holds long enough.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
         cameraLED.off();
-        serLogNum("TrialStarted", millis() - trialAvailTime); 
+        serLogNum("TrialStarted", millis() - trialAvailTime);
         sndCounter = 0;
         giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke)
         switchTo(preCue);
@@ -257,12 +257,12 @@ void loop() {
       break;
 
 
-    ////////////////////  
+    ////////////////////
     // MISSED
     // should play a punishment buzzer, but not tested yet
-    
+
     case missed:
-    
+
       playBuzzer();
 
       // wait for timeout, switch state to PUNISH DELAY
@@ -275,7 +275,7 @@ void loop() {
       break;
 
 
-    //////////////////// 
+    ////////////////////
     // PRE-CUE
     // pause before the cue, check for nosepoke withdrawal
 
@@ -284,13 +284,13 @@ void loop() {
       // if mouse withdraws nose too early, switch state to missed
       if ((initPoke == 0) && ((millis() - nosePokeInitTime) < nosePokeHoldLength)) {
         serLogNum("PreCueWithdrawal", millis() - nosePokeInitTime);
-        sndCounter = 0; //FIX: reset sndCounter to zero in only one place? it's already in the standby exit state 
+        sndCounter = 0; //FIX: reset sndCounter to zero in only one place? it's already in the standby exit state
         switchTo(missed);
       }
 
       // otherwise mouse held long enough:
       // start one of the cues when preCueLength time elapsed.
-      else if ((millis() - tempTime) > preCueLength) { 
+      else if ((millis() - tempTime) > preCueLength) {
         if (cueHiLow == -1) { // -1 is low
           digitalWrite(lowCueTTL, HIGH);
           serLog("LowCue");
@@ -302,7 +302,7 @@ void loop() {
           }
         }
         else if (cueHiLow == 1) { // 1 is high
-          digitalWrite(highCueTTL, HIGH); 
+          digitalWrite(highCueTTL, HIGH);
           serLog("HighCue");
           if (isLeftLow == 1) {   // if left is designated as the low cue side (in matlab)
             serLog("RightCue");   // log as a "right cue"
@@ -339,7 +339,7 @@ void loop() {
         }
         if (auditoryOrVisualCue == 2 && cueHiLow != 0) {
           digitalWrite(visualCueTTL, HIGH);
-          serLog("VisualCue"); 
+          serLog("VisualCue");
           switchTo(visualCue); // switch to give vis cue
         }
       }
@@ -348,7 +348,7 @@ void loop() {
       break;
 
 
-    ////////////////////  
+    ////////////////////
     // AUDITORY CUE
     // auditory stimulus given, check for nosepoke withdrawal
 
@@ -359,7 +359,7 @@ void loop() {
 
       else if (cueHiLow == 1)
         playHighTone();
-      
+
       // if mouse withdraws nose too early, switch state to missed
       if (initPoke == 0 && (millis() - nosePokeInitTime) < nosePokeHoldLength) {
         serLogNum("CueWithdrawal", millis() - nosePokeInitTime);
@@ -447,7 +447,7 @@ void loop() {
     // pause after cue, check for nosepoke withdrawal
 
     case postCue:
-      
+
       // if mouse withdraws nose too early, switch state to missed
       if (initPoke == 0 && (millis() - nosePokeInitTime) < nosePokeHoldLength) {
         serLogNum("CueWithdrawal", millis() - nosePokeInitTime);
@@ -644,11 +644,8 @@ void loop() {
 
           if ((CrewardCode == 4) && (random(100) < CrewardProb)) { // if reward given
             serLogNum("CenterRewardCollected", CrewardLength);
+            deliverReward_dc(volumeCenter_nL, deliveryDuration_ms, syringeSize_mL, syringePumpCenter);
             switchTo(getReward);
-
-            else {
-              deliverReward_dc(volumeCenter_nL, deliveryDuration_ms, syringeSize_mL, syringePumpCenter);
-            }
           }
 
           else {  // if reward not given
