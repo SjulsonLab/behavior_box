@@ -95,13 +95,13 @@ long state                        = 1;     // state variable for finite state ma
 long trainingPhase                = 0;     // phase of training - set by serial input
 long sndCounter                   = 0;
 unsigned long nosePokeInitTime    = 0;     // FIX: rename to something better. initHoldStartTime_ms? it's when mouse begins the init poke specifically. used to make sure mouse holds long enough. 
-long nTrial                       = 0;     // trial number
 long slowDTmicros                 = 100;   // DT of slow loop in microseconds
 long pauseLengthMicros            = 5;     // length of pause for each iteration of the fast loop
 unsigned long lastCheckTimeMicros = 0;
 int probsWritten                  = 0;     // if reward probabilities are sent to serial, turns to 1
 long useInitPumpForCenter         = 0;     // if set to 1, center poke activates the init pump instead (for boxes with only 3 pumps)
 int initPokeError                 = 0;     // gets set to 1 if the animal init pokes during standby
+long nTrial                       = 0;     // trial number
 
 // variables for timing
 unsigned long trialAvailTime           = 0;
@@ -210,15 +210,6 @@ long CLrewardProb           = 100;
 long RrewardProb            = 100;
 long CRrewardProb           = 100;
 long CrewardProb            = 100;
-
-long IrewardLength          = 500; // length of reward delivery in ms
-long LrewardLength          = 500; // length of reward delivery in ms
-long CLrewardLength         = 500; // length of reward delivery in ms
-long RrewardLength          = 500; // length of reward delivery in ms
-long CRrewardLength         = 500; // length of reward delivery in ms
-long CrewardLength          = 500; // length of reward delivery in ms
-
-
 
 long laserOnCode            = 0; // FIX: laserOnCode is set twice
 long auditoryOrVisualCue    = 0; // 0 is none, 1 is auditory, 2 is visual
@@ -675,6 +666,8 @@ Serial.println("DC TEST PULSE.");
   // enable all pumps (low=on state) so we can move them
   digitalWrite(syringePumpENABLE, LOW);
   t.after((int)(100+local_deliveryDuration_ms), make_ENABLE_pin_HIGH_which_is_off); // FIX: every time "after()" is used needs to be fixed because it doesn't work like how luke thought it did
+  // fix: use the "give immediate pulse" or whatever in the timer library code
+
 
   // tell the intan reward is delivered
   //t.pulse(whateverTheIntanPinIs, 5, LOW);

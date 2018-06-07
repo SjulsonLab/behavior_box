@@ -547,12 +547,12 @@ void loop() {
       if (trainingPhase == 1) {
         if (LrewardCode == 3 && leftPoke == 1) {
           serLogNum("Correct", millis() - initPokeExitTime);
-          serLogNum("LeftRewardCollected", LrewardLength);
+          serLogNum("LeftRewardCollected", deliveryDuration_ms);
           switchTo(getReward);
         }
         if (RrewardCode == 3 && rightPoke == 1) {
           serLogNum("Correct", millis() - initPokeExitTime);
-          serLogNum("RightRewardCollected", RrewardLength);
+          serLogNum("RightRewardCollected", deliveryDuration_ms);
           switchTo(getReward);
         }
 
@@ -567,13 +567,13 @@ void loop() {
         if (LrewardCode == 4 && leftPoke == 1) {
           deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
           serLogNum("Correct", millis() - initPokeExitTime);
-          serLogNum("LeftRewardCollected", LrewardLength);
+          serLogNum("LeftRewardCollected", deliveryDuration_ms);
           switchTo(getReward);
         }
         if (RrewardCode == 4 && rightPoke == 1) {
           deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
           serLogNum("Correct", millis() - initPokeExitTime);
-          serLogNum("RightRewardCollected", RrewardLength);
+          serLogNum("RightRewardCollected", deliveryDuration_ms);
           switchTo(getReward);
         }
         if (LrewardCode != 4 && RrewardCode != 4) {
@@ -605,7 +605,7 @@ void loop() {
             serLogNum("Correct", millis() - initPokeExitTime);
             if ((LrewardCode == 4) && (random(100) < LrewardProb)) {
               deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-              serLogNum("LeftRewardCollected", LrewardLength);
+              serLogNum("LeftRewardCollected", deliveryDuration_ms);
               switchTo(getReward);
             }
             else {
@@ -627,7 +627,7 @@ void loop() {
             serLogNum("Correct", millis() - initPokeExitTime);
             if ((RrewardCode == 4) && (random(100) < RrewardProb)) {
               deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
-              serLogNum("RightRewardCollected", RrewardLength);
+              serLogNum("RightRewardCollected", deliveryDuration_ms);
               switchTo(getReward);
             }
             else {
@@ -643,7 +643,7 @@ void loop() {
           serLogNum("CenterPoke", millis() - initPokeExitTime);
 
           if ((CrewardCode == 4) && (random(100) < CrewardProb)) { // if reward given
-            serLogNum("CenterRewardCollected", CrewardLength);
+            serLogNum("CenterRewardCollected", deliveryDuration_ms);
             deliverReward_dc(volumeCenter_nL, deliveryDuration_ms, syringeSize_mL, syringePumpCenter);
             switchTo(getReward);
           }
