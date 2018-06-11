@@ -293,13 +293,6 @@ void resetDefaults() {
   CRrewardCode           = 0;
   CrewardCode            = 0;
 
-  IrewardLength          = 500;
-  LrewardLength          = 500; // length of reward delivery in ms
-  CLrewardLength         = 500; // length of reward delivery in ms
-  RrewardLength          = 500; // length of reward delivery in ms
-  CRrewardLength         = 500; // length of reward delivery in ms
-  CrewardLength          = 500; // length of reward delivery in ms
-
   laserOnCode            = 0;
   auditoryOrVisualCue    = 0; // 1 is auditory, 2 is visual, and 0 is neither
   cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
@@ -603,7 +596,7 @@ void make_ENABLE_pin_HIGH_which_is_off() {
 // the dc syringe pump func.
 // initialize the variables in the argument of the function definition:
 void deliverReward_dc(long volume_nL, long local_deliveryDuration_ms, int local_syringeSize_mL, int whichPump) {
-Serial.println("DC TEST PULSE.");  
+//Serial.println("DC TEST PULSE.");  
   double diameter_mm; 
   double volPerRevolution_uL;
   double howManyRevolutions; 
@@ -622,41 +615,41 @@ Serial.println("DC TEST PULSE.");
     diameter_mm = 14.5; //in mm
   }
   if ((local_syringeSize_mL != 5) && (local_syringeSize_mL != 10)) {
-    Serial.println("didn't recognize syringe size. available sizes '5' or '10.'");
-    Serial.println("diameter_mm=");
-    Serial.println(diameter_mm); 
+    //Serial.println("didn't recognize syringe size. available sizes '5' or '10.'");
+    //Serial.println("diameter_mm=");
+    //Serial.println(diameter_mm); 
     return;
   } 
 
   // determine vol per revolution, area of small cylinder with h=0.8mm
   // 0.8mm length per thread. 1thread=1cycle. 1 like=1prayer.
   volPerRevolution_uL = 0.8 * ( diameter_mm/2 )*( diameter_mm/2 ) * 3.1415926535898 ; 
-  Serial.println("volPerRevolution = "); 
-  Serial.println(volPerRevolution_uL);
+  //Serial.println("volPerRevolution = "); 
+  //Serial.println(volPerRevolution_uL);
   
   // determine how many revolutions needed for the desired volume
   howManyRevolutions = volume_uL / volPerRevolution_uL ;
-  Serial.println("howManyRevolution = "); 
-  Serial.println(howManyRevolutions);
+  //Serial.println("howManyRevolution = "); 
+  //Serial.println(howManyRevolutions);
 
   // determine total steps needed to reach desired revolutions, @200 steps/revolution
   // use *4 as a multiplier because it's operating at 1/4 microstep mode.
   // round to nearest int because totalSteps is unsigned long
   totalSteps = round(200 * howManyRevolutions * 4); 
-  Serial.println("totalSteps = "); 
-  Serial.println(totalSteps);
+  //Serial.println("totalSteps = "); 
+  //Serial.println(totalSteps);
 
   // determine shortest delivery duration, total steps * 2 ms per step. 
   // minimum 1 ms in high, 1 ms in low for the shortest possible step function.
   minimumDeliveryDuration_ms = totalSteps*2; 
-  Serial.println("minimumDeliveryDuration_ms = "); 
-  Serial.println(minimumDeliveryDuration_ms);  
+  //Serial.println("minimumDeliveryDuration_ms = "); 
+  //Serial.println(minimumDeliveryDuration_ms);  
 
   // make sure delivery duration the user wants is long enough
   if (local_deliveryDuration_ms < minimumDeliveryDuration_ms) {
-      Serial.println("duration too low. duration needs to be >");
-      Serial.println(minimumDeliveryDuration_ms); 
-      Serial.println("with that diameter and reward volume.");
+      //Serial.println("duration too low. duration needs to be >");
+      //Serial.println(minimumDeliveryDuration_ms); 
+      //Serial.println("with that diameter and reward volume.");
       return;
     }
 
@@ -676,8 +669,8 @@ Serial.println("DC TEST PULSE.");
   t.oscillate(whichPump, round(stepDuration_ms/2), LOW, totalSteps*2);
 
   // back to main loop. 
-  Serial.println("Enter new option");
-  Serial.println();
+  //Serial.println("Enter new option");
+  //Serial.println();
 }
 
 
@@ -710,13 +703,6 @@ void processMessage() {
   changeVariableLong("CrewardProb", &CrewardProb, inLine);
   //changeVariableLong("CLrewardProb", &CLrewardProb, inLine);
   //changeVariableLong("CRrewardProb", &CRrewardProb, inLine);
-
-  changeVariableLong("IrewardLength", &IrewardLength, inLine);
-  changeVariableLong("LrewardLength", &LrewardLength, inLine);
-  changeVariableLong("RrewardLength", &RrewardLength, inLine);
-  changeVariableLong("CrewardLength", &CrewardLength, inLine);
-  //changeVariableLong("CLrewardLength", &CLrewardLength, inLine);
-  //changeVariableLong("CRrewardLength", &CRrewardLength, inLine);  
 
   changeVariableLong("laserOnCode", &laserOnCode, inLine);
   changeVariableLong("auditoryOrVisualCue", &auditoryOrVisualCue, inLine);
