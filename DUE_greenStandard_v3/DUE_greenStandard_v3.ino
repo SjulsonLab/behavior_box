@@ -3,7 +3,7 @@
 //===================================================================================================>>
 
 /*
-  Daniela Cassataro v2 6/7/2018
+  Daniela Cassataro v3 7/13/2018
 
   Controller ARDUINO DUE code for three nosepoke box, using five nosepoke box code.
   Based on Luke Sjulson's DUE_fivePoke_v3
@@ -34,7 +34,7 @@
 #define VERSION     9
 
 // include the functions
-#include "toInclude/greenStandardFunctions_v2.cpp"
+#include "toInclude/greenStandardFunctions_v3.cpp"
 
 // for debugging
 // #define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
@@ -131,10 +131,10 @@ void setup() {
   servoLeft.write(ServoClosed);
   servoRight.attach(servoPin3);
   servoRight.write(ServoClosed);
-  servoextraPoke4.attach(servoPin4);
-  servoextraPoke4.write(ServoClosed);
-  servoextraPoke5.attach(servoPin5);
-  servoextraPoke5.write(ServoClosed);
+  extraServo4.attach(servoPin4);
+  extraServo4.write(ServoClosed);
+  extraServo5.attach(servoPin5);
+  extraServo5.write(ServoClosed);
 
 
   // configure all pins as input/output:
@@ -497,8 +497,8 @@ void loop() {
           openPoke("right");
         if (extra5openYN == 1)
           openPoke("extraPoke5");
-        if (CopenYN == 1)
-          openPoke("center");
+        //if (CopenYN == 1)
+        //  openPoke("center");
         giveRewards(3); // give reward to the init poke
         switchTo(goToPokes);
       }
@@ -621,10 +621,10 @@ void loop() {
 
         if (probsWritten == 0) {
           serLogNum(String("LrewardProb"), LrewardProb);
-          serLogNum(String("CrewardProb"), CrewardProb);
+          //serLogNum(String("CrewardProb"), CrewardProb);
           serLogNum(String("RrewardProb"), RrewardProb);
-          //          serLogNum(String("CLrewardProb"), CLrewardProb);
-          //          serLogNum(String("CRrewardProb"), CRrewardProb);
+          //serLogNum(String("CLrewardProb"), CLrewardProb);
+          //serLogNum(String("CRrewardProb"), CRrewardProb);
           probsWritten = 1;
         }
 

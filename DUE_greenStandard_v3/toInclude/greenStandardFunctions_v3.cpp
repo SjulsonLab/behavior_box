@@ -1,5 +1,5 @@
 /*
-Daniela Cassataro v2 5/23/18
+Daniela Cassataro v3 7/13/18
 
 TO DO:
   . ctrl+f "FIX:" 
@@ -58,9 +58,9 @@ using namespace std;
 #define initPokeTTL         27
 #define leftPokeTTL         29
 #define rightPokeTTL        31
-#define extraPokeTTL4       35  // not connected
-#define extraPokeTTL5       33  // not connected
-#define extraPokeTTL6       37  // not connected
+#define extraPoke4TTL       35  // not connected
+#define extraPoke5TTL       33  // not connected
+#define extraPoke6TTL       37  // not connected
 
 // pulsepal pins(2)
 #define pulsePal1           51
@@ -447,17 +447,17 @@ void checkPokes()
     rightPokeDetected = 1; 
   }
 
-  extraPokeReading4 = digitalRead(extraPokeTTL4);
+  extraPokeReading4 = digitalRead(extraPoke4TTL);
   if ((extraPokeDetected4==0) && (extraPokeReading4==1))  { // if a poke is detected in this time window
     extraPokeDetected4 = 1; 
   }
 
-  extraPokeReading5 = digitalRead(extraPokeTTL5);
+  extraPokeReading5 = digitalRead(extraPoke5TTL);
   if ((extraPokeDetected5==0) && (extraPokeReading5==1))  { // if a poke is detected in this time window
     extraPokeDetected5 = 1; 
   }
 
-  extraPokeReading6 = digitalRead(extraPokeTTL6);
+  extraPokeReading6 = digitalRead(extraPoke6TTL);
   if ((extraPokeDetected6==0) && (extraPokeReading6==1))  { // if a poke is detected in this time window
     extraPokeDetected6 = 1; 
   }
