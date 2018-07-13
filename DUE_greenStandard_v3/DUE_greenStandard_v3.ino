@@ -63,6 +63,25 @@
 #define buzzerState   12 // play buzzer before switching to punishDelay
 
 /*
+
+////////////////////////////////////////////////////////////////////////////
+  PHASE 1. white noise, init servo opens, prerewarded. reward code 1
+  PHASE 2. hold init poke longer, still prerewarded. reward code 3
+  PHASE 3. block of "one side" trials. pre-reward only first block
+            P=1, 5 uL, L or R random assigned/mouse
+            only correct/single door open
+            init no longer rewarded
+            single cue, reward code?
+  PHASE 4. random L/R, non-block trials, both doors open, 5 +/- 1 uL
+            single cue, reward code? 
+  PHASE 5. decide on phase 5 based on how the mouse learned 1-4.
+            vary reward size even more, over the course of the whole session.
+            some trials will get double cue. 
+////////////////////////////////////////////////////////////////////////////
+
+
+////////////////////////////////////     O L D :     ///////////////////////////////////////
+
     phase 1: white noise, init poke pre-rewarded. Animal pokes init, then gets cue, and
     only one door opens, which is also pre-rewarded. Advance when animal gets reward quickly.
 
@@ -78,7 +97,7 @@
     phase 6: no cue, only center door opens. Reward is probabilistic.
 
     phase 7: full task. All three doors open on every trial.
-
+//////////////////////////////////////////////////////////////////////////////////////////////
 
   reward codes - they are independent of which poke is rewarded
     0 - no reward
@@ -106,16 +125,16 @@ void setup() {
   // servos have been made into objects of class: servo in the functions file.
   // attach the servo objects to their pins, and set the servos closed.
   // close all doors (make a function for this later).
-  servoLeft.attach(servoPin1); //attach servo to pin
-  servoLeft.write(ServoClosed); //set to closed
-  servoCenter.attach(servoPin2);
-  servoCenter.write(ServoClosed);
+  servoInit.attach(servoPin1); //attach servo to pin
+  servoInit.write(ServoClosed); //set to closed
+  servoLeft.attach(servoPin2);
+  servoLeft.write(ServoClosed);
   servoRight.attach(servoPin3);
   servoRight.write(ServoClosed);
-  servoCenterRight.attach(servoPin4);
-  servoCenterRight.write(ServoClosed);
-  servoCenterLeft.attach(servoPin5);
-  servoCenterLeft.write(ServoClosed);
+  servoextraPoke4.attach(servoPin4);
+  servoextraPoke4.write(ServoClosed);
+  servoextraPoke5.attach(servoPin5);
+  servoextraPoke5.write(ServoClosed);
 
 
   // configure all pins as input/output:
@@ -123,18 +142,18 @@ void setup() {
   // signals to the arduino that pokes have occurred.
   pinMode(initPokeTTL, INPUT);
   pinMode(leftPokeTTL, INPUT);
-  pinMode(centerPokeTTL, INPUT);
   pinMode(rightPokeTTL, INPUT);
-  pinMode(centerRightPokeTTL, INPUT);
-  pinMode(centerLeftPokeTTL, INPUT);
+  pinMode(extraPoke4TTL, INPUT);
+  pinMode(extraPoke5TTL, INPUT);
+  pinMode(extraPoke6TTL, INPUT);
 
   // signals to the syringe pumps to move.
-  pinMode(syringePumpInit, OUTPUT);           // init pump - fix: in phase 6-7, used for center port
-  pinMode(syringePumpLeft, OUTPUT);           // left pump
-  pinMode(syringePumpRight, OUTPUT);          // right pump
-  pinMode(syringePumpCenter, OUTPUT);         // center pump (fix: not connected)
-  pinMode(syringePumpCenterLeft, OUTPUT);     // not connected
-  pinMode(syringePumpCenterRight, OUTPUT);    // not connected
+  pinMode(syringePumpInit, OUTPUT);   // init pump - fix: in phase 6-7, used for center port
+  pinMode(syringePumpLeft, OUTPUT);   // left pump
+  pinMode(syringePumpRight, OUTPUT);  // right pump
+  pinMode(extraPump4, OUTPUT);        // not connected
+  pinMode(extraPump5, OUTPUT);        // not connected
+  pinMode(extraPump6, OUTPUT);        // not connected
 
   // signals to the intan for events that have occurred.
   pinMode(whiteNoiseTTL, OUTPUT);
@@ -472,12 +491,12 @@ void loop() {
       else if (millis() - tempTime > postCueLength) {
         if (LopenYN == 1)
           openPoke("left");
-        if (CLopenYN == 1)
-          openPoke("centerLeft");
+        if (extra4openYN == 1)
+          openPoke("extraPoke4");
         if (RopenYN == 1)
           openPoke("right");
-        if (CRopenYN == 1)
-          openPoke("centerRight");
+        if (extra5openYN == 1)
+          openPoke("extraPoke5");
         if (CopenYN == 1)
           openPoke("center");
         giveRewards(3); // give reward to the init poke
@@ -653,7 +672,8 @@ void loop() {
           }
         }
 
-        // center poke (regardless of which cue given)
+
+/*        // center poke (regardless of which cue given)
         if (centerPoke == 1) {
           serLogNum("CenterPoke", millis() - initPokeExitTime);
 
@@ -668,7 +688,7 @@ void loop() {
             delay(300);
             goToStandby = 1;
           }
-        }
+        }*/
       }
 
       // go to standby (instructed by either above code or by matlab)

@@ -99,7 +99,6 @@ long slowDTmicros                 = 100;   // DT of slow loop in microseconds
 long pauseLengthMicros            = 5;     // length of pause for each iteration of the fast loop
 unsigned long lastCheckTimeMicros = 0;
 int probsWritten                  = 0;     // if reward probabilities are sent to serial, turns to 1
-//long useInitPumpForCenter         = 0;     // if set to 1, center poke activates the init pump instead (for boxes with only 3 pumps)
 int initPokeError                 = 0;     // gets set to 1 if the animal init pokes during standby
 long nTrial                       = 0;     // trial number
 
@@ -108,10 +107,10 @@ unsigned long trialAvailTime           = 0;
 unsigned long initPokeEntryTime        = 0;
 unsigned long initPokeExitTime         = 0;
 unsigned long leftPokeEntryTime        = 0;
-unsigned long centerLeftPokeEntryTime  = 0;
-unsigned long centerPokeEntryTime      = 0;
-unsigned long centerRightPokeEntryTime = 0;
 unsigned long rightPokeEntryTime       = 0;
+unsigned long extraPoke4EntryTime      = 0;
+unsigned long extraPoke5EntryTime      = 0;
+unsigned long extraPoke6EntryTime      = 0;
 
 // ints to store nosepoke states
 unsigned long pokeLastCheckTime;
@@ -141,7 +140,7 @@ int extraPokeLast5      = 0;
 int extraPokeReading5   = 0;
 int extraPokeDetected5  = 0;
 
-int centerPoke          = 0;
+int extraPoke6          = 0;
 int extraPokeLast6      = 0;
 int extraPokeReading6   = 0;
 int extraPokeDetected6  = 0;
@@ -149,23 +148,23 @@ int extraPokeDetected6  = 0;
 // servos to control nosepoke doors
 #define ServoOpen      10 //position at which Servo is open
 #define ServoClosed   150 //position at which Servo is closed
+Servo servoInit; // fix: servocenter will become servoInit when I fix where servo init will open at the start of every trial
 Servo servoLeft;
-Servo servoCenterLeft;
 Servo servoRight;
-Servo servoCenterRight;
-Servo servoCenter; 
+Servo extraServo4;
+Servo extraServo5;
 
-long leftOpenNow         = 0; // set this to 1 to give command to open door
-long centerLeftOpenNow   = 0;
+long initOpenNow         = 0; // set this to 1 to give command to open door
+long leftOpenNow         = 0;
 long rightOpenNow        = 0;
-long centerRightOpenNow  = 0;
-long centerOpenNow       = 0;
+long extraPoke4OpenNow   = 0;
+long extraPoke5OpenNow   = 0;
 
-long leftIsOpen          = 0; // this is set to 1 after the door is opened
-long centerLeftIsOpen    = 0;
+long initIsOpen          = 0; // this is set to 1 after the door is opened
+long leftIsOpen          = 0;
 long rightIsOpen         = 0;
-long centerRightIsOpen   = 0;
-long centerIsOpen        = 0;
+long extraPoke4IsOpen    = 0;
+long extraPoke5IsOpen    = 0;
 
 // these will allow openPoke() and closePoke() to send commands to the servo only when
 // there's a mismatch between the desired state and the actual state
@@ -199,27 +198,27 @@ long initPokePunishYN    = 0;   // 1 to punish for init poke during standby, 0 i
 
 long IrewardCode            = 1; // determines if/when reward is given
 long LrewardCode            = 0; 
-long CLrewardCode           = 0;
 long RrewardCode            = 0;
-long CRrewardCode           = 0;
-long CrewardCode            = 0;
+long extra4rewardCode       = 0;
+long extra5rewardCode       = 0;
+long extra6rewardCode       = 0;
 
 long IrewardProb            = 100; // for probabilistic reward (0-100%)
 long LrewardProb            = 100; 
-long CLrewardProb           = 100;
 long RrewardProb            = 100;
-long CRrewardProb           = 100;
-long CrewardProb            = 100;
+//long CLrewardProb           = 100;
+//long CRrewardProb           = 100;
+//long CrewardProb            = 100;
 
 long laserOnCode            = 0; // FIX: laserOnCode is set twice
 long auditoryOrVisualCue    = 0; // 0 is none, 1 is auditory, 2 is visual
 long cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
 long isLeftLow              = 1; // 1 means left is low cue, 0 means left is high cue
-long LopenYN                = 1; // whether to open L nosepoke upon goToPokes
-long CLopenYN               = 0;
+long IopenYN                = 1; // whether to open L nosepoke upon goToPokes fix: should this be 1?
+long LopenYN                = 1;
 long RopenYN                = 1;
-long CRopenYN               = 0;
-long CopenYN                = 0;
+long extra4openYN           = 0;
+long extra5openYN           = 0;
 
 long WNvolume        = 128; // between 0-255
 long lowCueVolume    = 128;
@@ -229,10 +228,10 @@ long buzzerVolume    = 128;
 
 // globals for the syringe pumps
 // these are all longs because matlab requires longs
-long volumeLeft_nL           = 0;
-long volumeCenter_nL         = 0;
-long volumeRight_nL          = 0;
 long volumeInit_nL           = 0;
+long volumeLeft_nL           = 0;
+long volumeRight_nL          = 0;
+//long volumeCenter_nL         = 0; //getting rid of this
 long deliveryDuration_ms     = 1000;
 long syringeSize_mL          = 5;
 
@@ -288,10 +287,10 @@ void resetDefaults() {
   // other 
   IrewardCode            = 0; // when (and whether) a particular port is rewarded
   LrewardCode            = 0;
-  CLrewardCode           = 0;
   RrewardCode            = 0;
-  CRrewardCode           = 0;
-  CrewardCode            = 0;
+  extra4rewardCode       = 0;
+  extra5rewardCode       = 0;
+  extra6rewardCode       = 0; //fix: make this extra 6
 
   laserOnCode            = 0;
   auditoryOrVisualCue    = 0; // 1 is auditory, 2 is visual, and 0 is neither
@@ -326,34 +325,35 @@ void changeVariableUnsignedLong(String varName, unsigned long *ptr, String inLin
 
 // opening and closing nosepokes
 void openPoke(String whichPoke) {
+  if (whichPoke.equalsIgnoreCase("init") && initIsOpen == 0) {
+    servoInit.write(ServoOpen);
+    initIsOpen = initOpenNow = 1;
+  }
   if (whichPoke.equalsIgnoreCase("left") && leftIsOpen == 0) {
     servoLeft.write(ServoOpen);
     leftIsOpen = leftOpenNow = 1;
-  }
-  if (whichPoke.equalsIgnoreCase("centerLeft") && centerLeftIsOpen == 0) {
-    servoCenterLeft.write(ServoOpen);
-    centerLeftIsOpen = centerLeftOpenNow = 1;
   }
   if (whichPoke.equalsIgnoreCase("right") && rightIsOpen == 0) {
     servoRight.write(ServoOpen);
     rightIsOpen = rightOpenNow = 1;
   }
-  if (whichPoke.equalsIgnoreCase("centerRight") && centerRightIsOpen == 0) {
-    servoCenterRight.write(ServoOpen);
-    centerRightIsOpen = centerRightOpenNow = 1;
+  if (whichPoke.equalsIgnoreCase("extraPoke4") && extraPoke4IsOpen == 0) {
+    extraServo4.write(ServoOpen);
+    extraPoke4IsOpen = extraPoke4OpenNow = 1;
   }
-  if (whichPoke.equalsIgnoreCase("center") && centerIsOpen == 0) {
-    servoCenter.write(ServoOpen);
-    centerIsOpen = centerOpenNow = 1;
+  if (whichPoke.equalsIgnoreCase("extraPoke5") && extraPoke5IsOpen == 0) {
+    extraServo5.write(ServoOpen);
+    extraPoke5IsOpen = extraPoke5OpenNow = 1;
   }
+
   if (whichPoke.equalsIgnoreCase("all")) {
+    servoInit.write(ServoOpen);
     servoLeft.write(ServoOpen);
-    servoCenterLeft.write(ServoOpen);
     servoRight.write(ServoOpen);
-    servoCenterRight.write(ServoOpen);
-    servoCenter.write(ServoOpen);
-    leftIsOpen = centerLeftIsOpen = rightIsOpen = centerRightIsOpen = centerIsOpen = 1;
-    leftOpenNow = centerLeftOpenNow = rightOpenNow = centerRightOpenNow = centerOpenNow = 1;
+    extraServo4.write(ServoOpen);
+    extraServo5.write(ServoOpen);
+    initIsOpen = leftIsOpen = rightIsOpen= extraPoke4IsOpen = extraPoke5IsOpen = 1;
+    initOpenNow = leftOpenNow = rightOpenNow = extraPoke4OpenNow = extraPoke5OpenNow = 1;
   }
   delay(15);
 }
@@ -362,69 +362,70 @@ void closePoke(String whichPoke) {
   int servoTemp = ServoOpen;
 
   while (servoTemp <= ServoClosed) {
+    if (whichPoke.equalsIgnoreCase("init") && initIsOpen == 1) {
+      servoInit.write(servoTemp);
+    }
     if (whichPoke.equalsIgnoreCase("left") && leftIsOpen == 1) {
       servoLeft.write(servoTemp);
-    }
-    if (whichPoke.equalsIgnoreCase("centerLeft") && centerLeftIsOpen == 1) {
-      servoCenterLeft.write(servoTemp);
     }
     if (whichPoke.equalsIgnoreCase("right") && rightIsOpen == 1) {
       servoRight.write(servoTemp);
     }
-    if (whichPoke.equalsIgnoreCase("centerRight") && centerRightIsOpen == 1) {
-      servoCenterRight.write(servoTemp);
+    if (whichPoke.equalsIgnoreCase("extraPoke4") && extraPoke4IsOpen == 1) {
+      extraServo4.write(servoTemp);
     }
-    if (whichPoke.equalsIgnoreCase("center") && centerIsOpen == 1) {
-      servoCenter.write(servoTemp);
+    if (whichPoke.equalsIgnoreCase("extraPoke5") && extraPoke5IsOpen == 1) {
+      extraServo5.write(servoTemp);
     }
 
     if (whichPoke.equalsIgnoreCase("all")) {
+      if (initIsOpen == 1) servoInit.write(servoTemp);
       if (leftIsOpen == 1) servoLeft.write(servoTemp);
-      if (centerLeftIsOpen == 1) servoCenterLeft.write(servoTemp);
       if (rightIsOpen == 1) servoRight.write(servoTemp);
-      if (centerRightIsOpen == 1) servoCenterRight.write(servoTemp);
-      if (centerIsOpen == 1) servoCenter.write(servoTemp);
+      if (extraPoke4IsOpen == 1) extraServo4.write(servoTemp);
+      if (extraPoke5IsOpen == 1) extraServo5.write(servoTemp);
     }
     delay(15);
     servoTemp += doorCloseSpeed;
   }
 
   // after doors are closed, set variables to zero
+  if (whichPoke.equalsIgnoreCase("init")) initIsOpen = initOpenNow = 0;
   if (whichPoke.equalsIgnoreCase("left")) leftIsOpen = leftOpenNow = 0;
-  if (whichPoke.equalsIgnoreCase("centerLeft")) centerLeftIsOpen = centerLeftOpenNow = 0;
   if (whichPoke.equalsIgnoreCase("right")) rightIsOpen = rightOpenNow = 0;
-  if (whichPoke.equalsIgnoreCase("centerRight")) centerRightIsOpen = centerRightOpenNow = 0;
-  if (whichPoke.equalsIgnoreCase("center")) centerIsOpen = centerOpenNow = 0;
-  if (whichPoke.equalsIgnoreCase("all")) leftIsOpen = centerLeftIsOpen = rightIsOpen = centerRightIsOpen = centerIsOpen = leftOpenNow = centerLeftOpenNow = rightOpenNow = centerRightOpenNow = centerOpenNow = 0;
+  if (whichPoke.equalsIgnoreCase("extraPoke4")) extraPoke4IsOpen = extraPoke4OpenNow = 0;
+  if (whichPoke.equalsIgnoreCase("extraPoke5")) extraPoke5IsOpen = extraPoke5OpenNow = 0;
+  if (whichPoke.equalsIgnoreCase("all")) initIsOpen = leftIsOpen = rightIsOpen = extraPoke4IsOpen = extraPoke5IsOpen = initOpenNow = leftOpenNow = rightOpenNow = extraPoke4OpenNow = extraPoke5OpenNow = 0;
 
 }
 
 // function to allow matlab to open/close doors, e.g. if matlab sets leftOpenNow to be 1, it will open the door
 void checkDoors() {
+  if (initOpenNow > initIsOpen)
+    openPoke("init");
+  else if (initOpenNow < initIsOpen)
+    closePoke("init");
+
   if (leftOpenNow > leftIsOpen)
     openPoke("left");
   else if (leftOpenNow < leftIsOpen)
     closePoke("left");
-
-  if (centerLeftOpenNow > centerLeftIsOpen)
-    openPoke("centerLeft");
-  else if (centerLeftOpenNow < centerLeftIsOpen)
-    closePoke("centerLeft");
 
   if (rightOpenNow > rightIsOpen)
     openPoke("right");
   else if (rightOpenNow < rightIsOpen)
     closePoke("right");
 
-  if (centerRightOpenNow > centerRightIsOpen)
-    openPoke("centerRight");
-  else if (centerRightOpenNow < centerRightIsOpen)
-    closePoke("centerRight");
+  if (extraPoke4OpenNow > extraPoke4IsOpen)
+    openPoke("extraPoke4");
+  else if (extraPoke4OpenNow < extraPoke4IsOpen)
+    closePoke("extraPoke4");
 
-  if (centerOpenNow > centerIsOpen)
-    openPoke("center");
-  else if (centerOpenNow < centerIsOpen)
-    closePoke("center");
+  if (extraPoke5OpenNow > extraPoke5IsOpen)
+    openPoke("extraPoke5");
+  else if (extraPoke5OpenNow < extraPoke5IsOpen)
+    closePoke("extraPoke5");
+
 }
 
 void checkPokes()
@@ -447,18 +448,18 @@ void checkPokes()
   }
 
   extraPokeReading4 = digitalRead(extraPokeTTL4);
-  if ((centerLeftPokeDetected==0) && (centerLeftPokeReading==1))  { // if a poke is detected in this time window
-    centerLeftPokeDetected = 1; 
+  if ((extraPokeDetected4==0) && (extraPokeReading4==1))  { // if a poke is detected in this time window
+    extraPokeDetected4 = 1; 
   }
 
   extraPokeReading5 = digitalRead(extraPokeTTL5);
-  if ((centerRightPokeDetected==0) && (centerRightPokeReading==1))  { // if a poke is detected in this time window
-    centerRightPokeDetected = 1; 
+  if ((extraPokeDetected5==0) && (extraPokeReading5==1))  { // if a poke is detected in this time window
+    extraPokeDetected5 = 1; 
   }
 
   extraPokeReading6 = digitalRead(extraPokeTTL6);
-  if ((centerPokeDetected==0) && (centerPokeReading==1))  { // if a poke is detected in this time window
-    centerPokeDetected = 1; 
+  if ((extraPokeDetected6==0) && (extraPokeReading6==1))  { // if a poke is detected in this time window
+    extraPokeDetected6 = 1; 
   }
 
   
@@ -504,48 +505,48 @@ void checkPokes()
     	rightPoke = 0;
     }
 
-    if ((centerLeftPokeLast==0) && (centerLeftPokeDetected==1)) { // centerLeft poke entry
-    	serLog("centerLeftPokeEntry");
-    	centerLeftPokeLast = centerLeftPokeDetected;
-    	centerLeftPoke = 1;
-      centerLeftPokeEntryTime = millis();
+    if ((extraPokeLast4==0) && (extraPokeDetected4==1)) { // extra poke 4 entry
+    	serLog("extraPokeEntry4");
+    	extraPokeLast4 = extraPokeDetected4;
+    	extraPoke4 = 1;
+      extraPoke4EntryTime = millis();
     }
-    else if ((centerLeftPokeLast==1) && (centerLeftPokeDetected==0)) { // centerLeft poke exit
-    	serLogNum("centerLeftPokeExit", millis() - centerLeftPokeEntryTime);
-    	centerLeftPokeLast = centerLeftPokeDetected;
-    	centerLeftPoke = 0;
-    }
-
-    if ((centerRightPokeLast==0) && (centerRightPokeDetected==1)) { // centerRight poke entry
-      serLog("centerRightPokeEntry");
-      centerRightPokeLast = centerRightPokeDetected;
-      centerRightPoke = 1;
-      centerRightPokeEntryTime = millis();
-    }
-    else if ((centerRightPokeLast==1) && (centerRightPokeDetected==0)) { // centerRight poke exit
-      serLogNum("centerRightPokeExit", millis() - centerRightPokeEntryTime);
-      centerRightPokeLast = centerRightPokeDetected;
-      centerRightPoke = 0;
+    else if ((extraPokeLast4==1) && (extraPokeDetected4==0)) { // extra poke 4 exit
+    	serLogNum("extraPokeExit4", millis() - extraPoke4EntryTime);
+    	extraPokeLast4 = extraPokeDetected4;
+    	extraPoke4 = 0;
     }
 
-    if ((centerPokeLast==0) && (centerPokeDetected==1)) { // center poke entry
-      serLog("centerPokeEntry");
-      centerPokeLast = centerPokeDetected;
-      centerPoke = 1;
-      centerPokeEntryTime = millis();
+    if ((extraPokeLast5==0) && (extraPokeDetected5==1)) { // extra poke 5 entry
+      serLog("extraPokeEntry5");
+      extraPokeLast5 = extraPokeDetected5;
+      extraPoke5 = 1;
+      extraPoke5EntryTime = millis();
     }
-    else if ((centerPokeLast==1) && (centerPokeDetected==0)) { // center poke exit
-      serLogNum("centerPokeExit", millis() - centerPokeEntryTime);
-      centerPokeLast = centerPokeDetected;
-      centerPoke = 0;
+    else if ((extraPokeLast5==1) && (extraPokeDetected5==0)) { // extra poke 5 exit
+      serLogNum("extraPokeExit5", millis() - extraPoke5EntryTime);
+      extraPokeLast5 = extraPokeDetected5;
+      extraPoke5 = 0;
+    }
+
+    if ((extraPokeLast6==0) && (extraPokeDetected6==1)) { // center poke entry
+      serLog("extraPokeEntry6");
+      extraPokeLast6 = extraPokeDetected6;
+      extraPoke6 = 1;
+      extraPoke6EntryTime = millis();
+    }
+    else if ((extraPokeLast6==1) && (extraPokeDetected6==0)) { // center poke exit
+      serLogNum("extraPokeExit6", millis() - extraPoke6EntryTime);
+      extraPokeLast6 = extraPokeDetected6;
+      extraPoke6 = 0;
     }
 
     initPokeDetected = 0;
     leftPokeDetected = 0;
     rightPokeDetected = 0;
-    centerLeftPokeDetected = 0;
-    centerRightPokeDetected = 0;
-    centerPokeDetected = 0;
+    extraPokeDetected4 = 0;
+    extraPokeDetected5 = 0;
+    extraPokeDetected6 = 0;
   }
 }
 
@@ -690,79 +691,89 @@ void processMessage() {
     resetDefaults();
 
   // all the variables (ints) go here
-  changeVariableLong("IrewardCode", &IrewardCode, inLine);
-  changeVariableLong("LrewardCode", &LrewardCode, inLine);
-  changeVariableLong("RrewardCode", &RrewardCode, inLine);
-  changeVariableLong("CrewardCode", &CrewardCode, inLine);
-  //changeVariableLong("CLrewardCode", &CLrewardCode, inLine);
-  //changeVariableLong("CRrewardCode", &CRrewardCode, inLine);
-
-  changeVariableLong("IrewardProb", &IrewardProb, inLine);
-  changeVariableLong("LrewardProb", &LrewardProb, inLine);
-  changeVariableLong("RrewardProb", &RrewardProb, inLine);
-  changeVariableLong("CrewardProb", &CrewardProb, inLine);
-  //changeVariableLong("CLrewardProb", &CLrewardProb, inLine);
-  //changeVariableLong("CRrewardProb", &CRrewardProb, inLine);
-
-  changeVariableLong("laserOnCode", &laserOnCode, inLine);
-  changeVariableLong("auditoryOrVisualCue", &auditoryOrVisualCue, inLine);
-  changeVariableLong("cueHiLow", &cueHiLow, inLine);
-  changeVariableLong("isLeftLow", &isLeftLow, inLine);
+  // order has been fixed w.matlab's order
+  changeVariableLong("nTrial", &nTrial, inLine);
   changeVariableLong("resetTimeYN", &resetTimeYN, inLine);
-  changeVariableLong("leftOpenNow", &leftOpenNow, inLine);
-  changeVariableLong("centerLeftOpenNow", &centerLeftOpenNow, inLine);
-  changeVariableLong("rightOpenNow", &rightOpenNow, inLine);
-  changeVariableLong("centerRightOpenNow", &centerRightOpenNow, inLine);
-  changeVariableLong("centerOpenNow", &centerOpenNow, inLine);
   changeVariableLong("initPokePunishYN", &initPokePunishYN, inLine);
-
-  changeVariableLong("trainingPhase", &trainingPhase, inLine);
-  changeVariableLong("LopenYN", &LopenYN, inLine);
-  changeVariableLong("RopenYN", &RopenYN, inLine);
-  changeVariableLong("CopenYN", &CopenYN, inLine);
-  //changeVariableLong("CLopenYN", &CLopenYN, inLine);
-  //changeVariableLong("CRopenYN", &CRopenYN, inLine);
-
-  changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
-  changeVariableLong("slowDTmicros", &slowDTmicros, inLine);
-  changeVariableLong("pauseLengthMicros", &pauseLengthMicros, inLine);
 
   changeVariableLong("WNvolume", &WNvolume, inLine);
   changeVariableLong("lowCueVolume", &lowCueVolume, inLine);
   changeVariableLong("highCueVolume", &highCueVolume, inLine);
   changeVariableLong("buzzerVolume", &buzzerVolume, inLine);
 
-  // variables related to states
+  changeVariableLong("cueHiLow", &cueHiLow, inLine);
+  changeVariableLong("auditoryOrVisualCue", &auditoryOrVisualCue, inLine);
+  changeVariableLong("trainingPhase", &trainingPhase, inLine);
+  changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
+  changeVariableLong("laserOnCode", &laserOnCode, inLine);
+
+  changeVariableLong("IopenYN", &IopenYN, inLine);
+  changeVariableLong("LopenYN", &LopenYN, inLine);
+  changeVariableLong("RopenYN", &RopenYN, inLine);
+  changeVariableLong("extra4openYN", &extra4openYN, inLine);
+  changeVariableLong("extra5openYN", &extra5openYN, inLine);
+
   changeVariableLong("readyToGoLength", &readyToGoLength, inLine);
-  changeVariableLong("missedLength", &missedLength, inLine);
   changeVariableLong("punishDelayLength", &punishDelayLength, inLine);
+  changeVariableLong("missedLength", &missedLength, inLine);
   changeVariableLong("preCueLength", &preCueLength, inLine);
   changeVariableLong("auditoryCueLength", &auditoryCueLength, inLine);
   changeVariableLong("visualCueLength", &visualCueLength, inLine);
   changeVariableLong("postCueLength", &postCueLength, inLine);
   changeVariableLong("goToPokesLength", &goToPokesLength, inLine);
-  changeVariableLong("startTrialYN", &startTrialYN, inLine);
-  changeVariableLong("goToStandby", &goToStandby, inLine);
   changeVariableLong("nosePokeHoldLength", &nosePokeHoldLength, inLine);
-  changeVariableLong("nTrial", &nTrial, inLine);
   changeVariableLong("rewardCollectionLength", &rewardCollectionLength, inLine);
-  //changeVariableLong("useInitPumpForCenter", &useInitPumpForCenter, inLine);
+
+  changeVariableLong("IrewardCode", &IrewardCode, inLine);
+  changeVariableLong("LrewardCode", &LrewardCode, inLine);
+  changeVariableLong("RrewardCode", &RrewardCode, inLine);
+  changeVariableLong("extra4rewardCode", &extra4rewardCode, inLine);
+  changeVariableLong("extra5rewardCode", &extra5rewardCode, inLine);
+  changeVariableLong("extra6rewardCode", &extra6rewardCode, inLine);
+  
+  // will remove probabilities
+  changeVariableLong("IrewardProb", &IrewardProb, inLine);
+  changeVariableLong("LrewardProb", &LrewardProb, inLine);
+  changeVariableLong("RrewardProb", &RrewardProb, inLine);
+  //changeVariableLong("CrewardProb", &CrewardProb, inLine);
+  //changeVariableLong("CLrewardProb", &CLrewardProb, inLine);
+  //changeVariableLong("CRrewardProb", &CRrewardProb, inLine);
 
   // variables for syringe pumps, dc
-  changeVariableLong("volumeLeft_nL", &volumeLeft_nL, inLine);
-  changeVariableLong("volumeCenter_nL", &volumeCenter_nL, inLine);
-  changeVariableLong("volumeRight_nL", &volumeRight_nL, inLine);
   changeVariableLong("volumeInit_nL", &volumeInit_nL, inLine);
+  changeVariableLong("volumeLeft_nL", &volumeLeft_nL, inLine);
+  changeVariableLong("volumeRight_nL", &volumeRight_nL, inLine);
+  //changeVariableLong("volumeCenter_nL", &volumeCenter_nL, inLine); //changing this to include the extras 
   changeVariableLong("deliveryDuration_ms", &deliveryDuration_ms, inLine);
   changeVariableLong("syringeSize_mL", &syringeSize_mL, inLine);
+
+  changeVariableLong("isLeftLow", &isLeftLow, inLine);
+
+
+  // not in matlab:
+
+  changeVariableLong("initOpenNow", &initOpenNow, inLine);
+  changeVariableLong("leftOpenNow", &leftOpenNow, inLine);
+  changeVariableLong("rightOpenNow", &rightOpenNow, inLine);
+  changeVariableLong("extraPoke4OpenNow", &extraPoke4OpenNow, inLine);
+  changeVariableLong("extraPoke5OpenNow", &extraPoke5OpenNow, inLine);
+
+  changeVariableLong("slowDTmicros", &slowDTmicros, inLine);
+  changeVariableLong("pauseLengthMicros", &pauseLengthMicros, inLine);
+
+  changeVariableLong("startTrialYN", &startTrialYN, inLine);
+  changeVariableLong("goToStandby", &goToStandby, inLine);
+
+
 }
 
 // this function gives rewards if the timeCode matches the rewardCode (e.g. at the correct state transition)
+// rewards can only be given to I,L,R. can fill in the extra pokes later (fix:)
 void giveRewards(int timeCode) {
   if (IrewardCode == timeCode) deliverReward_dc(volumeInit_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
   if (LrewardCode == timeCode) deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
   if (RrewardCode == timeCode) deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
-  //if (CrewardCode == timeCode) deliverReward_dc(volumeCenter_nL, deliveryDuration_ms, syringeSize_mL, syringePumpCenter); remove center
+  //if (extra6rewardCode == timeCode) deliverReward_dc(volumeCenter_nL, deliveryDuration_ms, syringeSize_mL, syringePumpCenter); remove center
 }
 
 /* reward codes - they are independent of which poke is rewarded
@@ -773,7 +784,7 @@ void giveRewards(int timeCode) {
     4 - reward only upon nosepoke
 */
 
-// 
+// rewards can only be given to I,L,R. can fill in the extra pokes later (fix:)
 void checkRewards() {
   if (giveRewardNow == 1) {
     giveRewardNow = 0;
