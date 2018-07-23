@@ -58,8 +58,8 @@ using namespace std;
 #define initPokeTTL         27
 #define leftPokeTTL         29
 #define rightPokeTTL        31
-#define extraPoke4TTL       35  // not connected
-#define extraPoke5TTL       33  // not connected
+#define extraPoke4TTL       33  // not connected
+#define extraPoke5TTL       35  // not connected
 #define extraPoke6TTL       37  // not connected
 
 // pulsepal pins(2)
@@ -80,7 +80,7 @@ using namespace std;
 
 // five extra pins (5) that are not plugged into the intan
 // Could be used with an intan with more than 16(17, w/GND) inputs
-#define syringePumpENABLE         47 //will try to use this for ENABLE pin for syringe pumps
+#define syringePumpENABLE   47 //will try to use this for ENABLE pin for syringe pumps
 #define extraIntan2         48
 #define extraIntan3         49
 #define extraIntan4         50
@@ -731,7 +731,7 @@ void processMessage() {
   changeVariableLong("extra5rewardCode", &extra5rewardCode, inLine);
   changeVariableLong("extra6rewardCode", &extra6rewardCode, inLine);
   
-  // will remove probabilities
+  // will remove probabilities::::::::::::::::::::
   changeVariableLong("IrewardProb", &IrewardProb, inLine);
   changeVariableLong("LrewardProb", &LrewardProb, inLine);
   changeVariableLong("RrewardProb", &RrewardProb, inLine);

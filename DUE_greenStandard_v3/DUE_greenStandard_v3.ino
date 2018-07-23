@@ -218,7 +218,8 @@ void loop() {
         delay(20);
         digitalWrite(triggerPin, LOW);
       }
-
+      
+      // this will no longer be needed:::::::::::::::::
       // prevent the animal from starting a trial before white noise/"readyToGo" state:
       if (initPoke == 1 && initPokePunishYN == 1) { // if animal init pokes when not cued to do so (before white noise)
         serLog("InitPokeDuringStndby");
@@ -240,6 +241,7 @@ void loop() {
         probsWritten = 0; // this is a variable that switches off (to zero) after writing the probability once so it's not writing the probability on every loop
         trialAvailTime = millis(); // assign time in ms when trial becomes available/when you're switching to readyToGo state.
         switchTo(readyToGo);
+        openPoke("init"); //open init door.
       }
 
       break;
@@ -253,7 +255,7 @@ void loop() {
     case readyToGo:
 
       playWhiteNoise();
-
+      
       // if timeout, switch state to MISSED
       if ((millis() - tempTime) > readyToGoLength) { // if timeThisStateBegan_ms happened readyToGoLength_ms ago without a nosepoke, the mouse missed the trial.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
