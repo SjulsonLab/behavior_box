@@ -366,7 +366,8 @@ void loop() {
 
         if (auditoryOrVisualCue == 0) {
           serLog("NoCue");
-          switchTo(noCue); // what is noCue?
+          switchTo(noCue); // used for training phases
+          //when is auditoryOrVisualCue == 0 though?
         }
         if (auditoryOrVisualCue == 1 && cueHiLow != 0) {
           digitalWrite(auditoryCueTTL, HIGH);
@@ -457,7 +458,7 @@ void loop() {
 
     ////////////////////
     // NO CUE
-    // used for the training phases..
+    // used for the training phases 1&2
 
     case noCue:
 
@@ -491,26 +492,31 @@ void loop() {
         switchTo(missed);
       }
 
-      // if mouse held long enough, possibility of opening the do this until the postcuelength is up.
+      // if mouse held long enough, possibility of opening the doors until the postcuelength is up.
       else if (millis() - tempTime > postCueLength) {
         if (LopenYN == 1)
           openPoke("left");
-        if (extra4openYN == 1)
-          openPoke("extraPoke4");
         if (RopenYN == 1)
           openPoke("right");
+        if (extra4openYN == 1)
+          openPoke("extraPoke4");
         if (extra5openYN == 1)
           openPoke("extraPoke5");
-        //if (CopenYN == 1)
-        //  openPoke("center");
-        giveRewards(3); // give reward to the init poke
-        switchTo(goToPokes);
+        giveRewards(3); // give reward to the init poke after cue has occurred.
+        if (trainingPhase <= 2)
+          switchTo(getReward); //mouse will collect reward in the init port in phases 1 & 2
+        if (trainingPhase >= 3)
+          switchTo(goToPokes); //mouse will get reward later, after poking L/R, in phases 3 and above
       }
 
       delayMicroseconds(pauseLengthMicros);
       break;
 
-    // GETREWARD: delay while animal collects reward
+
+    ////////////////////
+    // GETREWARD
+    // delay while animal collects reward
+
     case getReward:
 
       if (millis() - tempTime > rewardCollectionLength) {
@@ -521,7 +527,10 @@ void loop() {
       delayMicroseconds(pauseLengthMicros);
       break;
 
-    // PUNISHDELAY: delay period after error trial. fix: punishdelay according to my diagram i wrote down.
+    ////////////////////
+    // PUNISHDELAY
+    // delay period after error trial. fix::::::::: punishdelay according to my diagram i wrote down.
+
     case punishDelay:
       if (millis() - tempTime > punishDelayLength) {
         switchTo(standby);
@@ -599,6 +608,9 @@ void loop() {
       //   }
       // }
 
+      ///////////
+      // OLD
+      ///////////
       // trainingPhase 2-3: ports are only rewarded after nosepoke, no punishment. In phase2, 1 door opens. In phase3, 2 doors open.
       // L/R not prerewarded but there's no error penalty
       if (trainingPhase == 2 || trainingPhase == 3) {
