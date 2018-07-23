@@ -66,17 +66,18 @@
 
 ////////////////////////////////////////////////////////////////////////////
   PHASE 1. white noise, init servo opens, prerewarded. reward code 1
-  PHASE 2. hold init poke longer, still prerewarded. reward code 3
+  PHASE 2. hold init poke longer, reward at end of waiting long enough 
+     in init poke. reward code 3.
   PHASE 3. block of "one side" trials. pre-reward only first block
             P=1, 5 uL, L or R random assigned/mouse
             only correct/single door open
             init no longer rewarded
-            single cue, reward code?
+            single cue, reward code 3 for the first block and reward code 4 after
   PHASE 4. random L/R, non-block trials, both doors open, 5 +/- 1 uL
-            single cue, reward code? 
+            single cue, reward code 4 
   PHASE 5. decide on phase 5 based on how the mouse learned 1-4.
             vary reward size even more, over the course of the whole session.
-            some trials will get double cue. 
+            some trials will get double cue. reward code 4
 ////////////////////////////////////////////////////////////////////////////
 
 
@@ -272,7 +273,8 @@ void loop() {
         cameraLED.off();
         serLogNum("TrialStarted", millis() - trialAvailTime);
         sndCounter = 0;
-        giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke)
+        giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) 
+        // NOTE ::::::::: I think that reward code 2 should become reward at the end of waiting the length of init hold time. 
         switchTo(preCue);
       }
 
@@ -579,23 +581,23 @@ void loop() {
 
       // trainingPhase 1: correct means collecting from the pre-rewarded port
       // L/R prerewarded
-      if (trainingPhase == 1) {
-        if (LrewardCode == 3 && leftPoke == 1) {
-          serLogNum("Correct", millis() - initPokeExitTime);
-          serLogNum("LeftRewardCollected", deliveryDuration_ms);
-          switchTo(getReward);
-        }
-        if (RrewardCode == 3 && rightPoke == 1) {
-          serLogNum("Correct", millis() - initPokeExitTime);
-          serLogNum("RightRewardCollected", deliveryDuration_ms);
-          switchTo(getReward);
-        }
+      // if (trainingPhase == 1) {
+      //   if (LrewardCode == 3 && leftPoke == 1) {
+      //     serLogNum("Correct", millis() - initPokeExitTime);
+      //     serLogNum("LeftRewardCollected", deliveryDuration_ms);
+      //     switchTo(getReward);
+      //   }
+      //   if (RrewardCode == 3 && rightPoke == 1) {
+      //     serLogNum("Correct", millis() - initPokeExitTime);
+      //     serLogNum("RightRewardCollected", deliveryDuration_ms);
+      //     switchTo(getReward);
+      //   }
 
-        if (LrewardCode != 3 && RrewardCode != 3) {
-          serLog("Error_reward_codes_set_incorrectly");
-          goToStandby = 1;
-        }
-      }
+      //   if (LrewardCode != 3 && RrewardCode != 3) {
+      //     serLog("Error_reward_codes_set_incorrectly");
+      //     goToStandby = 1;
+      //   }
+      // }
 
       // trainingPhase 2-3: ports are only rewarded after nosepoke, no punishment. In phase2, 1 door opens. In phase3, 2 doors open.
       // L/R not prerewarded but there's no error penalty
