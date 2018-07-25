@@ -3,7 +3,7 @@
 //===================================================================================================>>
 
 /*
-  Daniela Cassataro v3 7/13/2018
+  Daniela Cassataro v3 7/25/2018
 
   Controller ARDUINO DUE code for three nosepoke box, using five nosepoke box code.
   Based on Luke Sjulson's DUE_fivePoke_v3
@@ -49,18 +49,18 @@
 
 
 // state definitions
-#define standby       1  // standby - the inactive state
-#define readyToGo     2  // plays white noise, waits for init poke
-#define missed        3  // if trial times out or animal makes wrong choice. no buzzer.
-#define punishDelay   4  // additional timeout period after missed
-#define preCue        5  // time delay between white noise and cue
-#define auditoryCue   6  // auditory cue plays
-#define visualCue     7  // visual cue plays
-#define noCue         8  // no cue plays
-#define postCue       9  // additional time delay
-#define goToPokes     10 // nosepokes open, animal can approach and collect reward
-#define getReward     11 // waiting for animal to collect reward
-#define buzzerState   12 // play buzzer before switching to punishDelay
+#define standby       		1  // standby - the inactive state
+#define readyToGo     		2  // plays white noise, waits for init poke
+#define missed        		3  // if trial times out or animal makes wrong choice. no buzzer.
+#define punishDelay   		4  // additional timeout period after missed
+#define preCue        		5  // time delay between white noise and cue
+#define auditoryCue   		6  // auditory cue plays
+#define visualCue     		7  // visual cue plays
+#define noCue         		8  // no cue plays
+#define postCue       		9  // additional time delay
+#define goToPokes     		10 // nosepokes open, animal can approach and collect reward
+#define letTheAnimalDrink   11 // waiting for animal to collect reward
+#define buzzerState  	 	12 // play buzzer before switching to punishDelay
 
 /*
 
@@ -504,7 +504,7 @@ void loop() {
           openPoke("extraPoke5");
         giveRewards(3); // give reward to the init poke after cue has occurred.
         if (trainingPhase <= 2)
-          switchTo(getReward); //mouse will collect reward in the init port in phases 1 & 2
+          switchTo(letTheAnimalDrink); //mouse will collect reward in the init port in phases 1 & 2
         if (trainingPhase >= 3)
           switchTo(goToPokes); //mouse will get reward later, after poking L/R, in phases 3 and above
       }
@@ -514,10 +514,10 @@ void loop() {
 
 
     ////////////////////
-    // GETREWARD
+    // letTheAnimalDrink
     // delay while animal collects reward
 
-    case getReward:
+    case letTheAnimalDrink:
 
       if (millis() - tempTime > rewardCollectionLength) {
         closePoke("all");
@@ -570,6 +570,8 @@ void loop() {
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+//only place where training phase affects what happens
+
 
     case goToPokes:
 
@@ -589,42 +591,50 @@ void loop() {
       }
 
       // trainingPhase 1: correct means collecting from the pre-rewarded port
-      // L/R prerewarded
-      // if (trainingPhase == 1) {
-      //   if (LrewardCode == 3 && leftPoke == 1) {
-      //     serLogNum("Correct", millis() - initPokeExitTime);
-      //     serLogNum("LeftRewardCollected", deliveryDuration_ms);
-      //     switchTo(getReward);
-      //   }
-      //   if (RrewardCode == 3 && rightPoke == 1) {
-      //     serLogNum("Correct", millis() - initPokeExitTime);
-      //     serLogNum("RightRewardCollected", deliveryDuration_ms);
-      //     switchTo(getReward);
-      //   }
+      // init prerewarded
+       if (trainingPhase == 1 ) {
+         if (IrewardCode == 1 && initPoke == 1) {
+           serLogNum("Correct", millis() - initPokeExitTime);
+           serLogNum("InitRewardCollected", deliveryDuration_ms);
+           switchTo(letTheAnimalDrink);
+         }
+         if (IrewardCode != 1) {
+           serLog("Error_reward_codes_set_incorrectly");
+           goToStandby = 1;
+         }
+       }
 
-      //   if (LrewardCode != 3 && RrewardCode != 3) {
-      //     serLog("Error_reward_codes_set_incorrectly");
-      //     goToStandby = 1;
-      //   }
-      // }
+      // trainingPhase 2: correct means collecting from the pre-rewarded port
+      // reward init at end of nose hold.
+       if (trainingPhase == 2) {
+         if (IrewardCode == 3 && initPoke == 1) {
+           serLogNum("Correct", millis() - initPokeExitTime);
+           serLogNum("InitRewardCollected", deliveryDuration_ms);
+           switchTo(letTheAnimalDrink);
+         }
+         if (IrewardCode != 3) {
+           serLog("Error_reward_codes_set_incorrectly");
+           goToStandby = 1;
+         }
+       }
 
       ///////////
       // OLD
       ///////////
       // trainingPhase 2-3: ports are only rewarded after nosepoke, no punishment. In phase2, 1 door opens. In phase3, 2 doors open.
       // L/R not prerewarded but there's no error penalty
-      if (trainingPhase == 2 || trainingPhase == 3) {
+      if (trainingPhase >= 4) {
         if (LrewardCode == 4 && leftPoke == 1) {
           deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
           serLogNum("Correct", millis() - initPokeExitTime);
           serLogNum("LeftRewardCollected", deliveryDuration_ms);
-          switchTo(getReward);
+          switchTo(letTheAnimalDrink);
         }
         if (RrewardCode == 4 && rightPoke == 1) {
           deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
           serLogNum("Correct", millis() - initPokeExitTime);
           serLogNum("RightRewardCollected", deliveryDuration_ms);
-          switchTo(getReward);
+          switchTo(letTheAnimalDrink);
         }
         if (LrewardCode != 4 && RrewardCode != 4) {
           serLog("Error_reward_codes_set_incorrectly");
@@ -656,7 +666,7 @@ void loop() {
             if ((LrewardCode == 4) && (random(100) < LrewardProb)) {
               deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
               serLogNum("LeftRewardCollected", deliveryDuration_ms);
-              switchTo(getReward);
+              switchTo(letTheAnimalDrink);
             }
             else {
               serLog("LeftPokeNoReward");
@@ -678,7 +688,7 @@ void loop() {
             if ((RrewardCode == 4) && (random(100) < RrewardProb)) {
               deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
               serLogNum("RightRewardCollected", deliveryDuration_ms);
-              switchTo(getReward);
+              switchTo(letTheAnimalDrink);
             }
             else {
               serLog("RightPokeNoReward");
@@ -696,7 +706,7 @@ void loop() {
           if ((CrewardCode == 4) && (random(100) < CrewardProb)) { // if reward given
             serLogNum("CenterRewardCollected", deliveryDuration_ms);
             deliverReward_dc(volumeCenter_nL, deliveryDuration_ms, syringeSize_mL, syringePumpCenter);
-            switchTo(getReward);
+            switchTo(letTheAnimalDrink);
           }
 
           else {  // if reward not given
