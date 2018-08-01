@@ -212,8 +212,8 @@ long RrewardProb            = 100;
 
 long laserOnCode            = 0; // FIX: laserOnCode is set twice
 long auditoryOrVisualCue    = 0; // 0 is none, 1 is auditory, 2 is visual
-long cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
-long isLeftLow              = 1; // 1 means left is low cue, 0 means left is high cue
+//long cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
+long isLeftAuditory              = 1; // 1 means left is low cue, 0 means left is high cue
 long IopenYN                = 1; // whether to open L nosepoke upon goToPokes fix: should this be 1?
 long LopenYN                = 1;
 long RopenYN                = 1;
@@ -294,7 +294,7 @@ void resetDefaults() {
 
   laserOnCode            = 0;
   auditoryOrVisualCue    = 0; // 1 is auditory, 2 is visual, and 0 is neither
-  cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
+  //cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
   goToStandby            = 0; // set to 1 using matlab to exit goToPokes state
   giveRewardNow          = 0;
 }
@@ -701,7 +701,7 @@ void processMessage() {
   changeVariableLong("highCueVolume", &highCueVolume, inLine);
   changeVariableLong("buzzerVolume", &buzzerVolume, inLine);
 
-  changeVariableLong("cueHiLow", &cueHiLow, inLine);
+  //changeVariableLong("cueHiLow", &cueHiLow, inLine);
   changeVariableLong("auditoryOrVisualCue", &auditoryOrVisualCue, inLine);
   changeVariableLong("trainingPhase", &trainingPhase, inLine);
   changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
@@ -747,7 +747,7 @@ void processMessage() {
   changeVariableLong("deliveryDuration_ms", &deliveryDuration_ms, inLine);
   changeVariableLong("syringeSize_mL", &syringeSize_mL, inLine);
 
-  changeVariableLong("isLeftLow", &isLeftLow, inLine);
+  changeVariableLong("isLeftAuditory", &isLeftAuditory, inLine);
 
 
   // not in matlab:
