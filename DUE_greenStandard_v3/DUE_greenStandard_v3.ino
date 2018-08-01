@@ -149,7 +149,7 @@ void setup() {
   pinMode(extraPoke6TTL, INPUT);
 
   // signals to the syringe pumps to move.
-  pinMode(syringePumpInit, OUTPUT);   // init pump - fix: in phase 6-7, used for center port
+  pinMode(syringePumpInit, OUTPUT);   // init pump
   pinMode(syringePumpLeft, OUTPUT);   // left pump
   pinMode(syringePumpRight, OUTPUT);  // right pump
   pinMode(extraPump4, OUTPUT);        // not connected
@@ -160,8 +160,8 @@ void setup() {
   pinMode(whiteNoiseTTL, OUTPUT);
   pinMode(auditoryCueTTL, OUTPUT);
   pinMode(visualCueTTL, OUTPUT);
-  pinMode(lowCueTTL, OUTPUT);
-  pinMode(highCueTTL, OUTPUT);
+  pinMode(lowCueTTL, OUTPUT);   //no longer needed ::: fix::::
+  pinMode(highCueTTL, OUTPUT);  //no longer needed ::: fix::::
   pinMode(pulsePal1, OUTPUT);
   pinMode(pulsePal2, OUTPUT);
   pinMode(triggerPin, OUTPUT);
@@ -433,8 +433,8 @@ void loop() {
         cueLED2.off();
         cueLED3.off();
         cueLED4.off();
-        digitalWrite(lowCueTTL, LOW);
-        digitalWrite(highCueTTL, LOW);
+        //digitalWrite(lowCueTTL, LOW);
+        //digitalWrite(highCueTTL, LOW);
         digitalWrite(visualCueTTL, LOW);
         switchTo(postCue);
       }
@@ -563,7 +563,7 @@ void loop() {
 
       // trainingPhase 1: correct means collecting from the pre-rewarded port
       // init prerewarded
-       if (trainingPhase == 1 ) {
+       if (trainingPhase == 1) {
          if (IrewardCode == 1 && initPoke == 1) {
            serLogNum("Correct", millis() - initPokeExitTime);
            serLogNum("InitRewardCollected", deliveryDuration_ms);
@@ -615,16 +615,6 @@ void loop() {
       // trainingPhases 4-7: punishment tone for incorrect door choice
       if (trainingPhase >= 4) {
 
-        if (probsWritten == 0) {
-          serLogNum(String("LrewardProb"), LrewardProb);
-          serLogNum(String("RrewardProb"), RrewardProb);
-          //serLogNum(String("CrewardProb"), CrewardProb);
-          //serLogNum(String("CLrewardProb"), CLrewardProb);
-          //serLogNum(String("CRrewardProb"), CRrewardProb);
-          probsWritten = 1; //just so we don't write the probability a bunch of times. 
-          // fix ::::::::should get rid of this, though
-        }
-
         // left side cued
         if ((isLeftAuditory == 1 && auditoryOrVisualCue == 1) || (isLeftAuditory == 0 && auditoryOrVisualCue == 2)) {
           if (rightPoke == 1) {
@@ -634,7 +624,7 @@ void loop() {
           }
           if (leftPoke == 1) {
             serLogNum("Correct", millis() - initPokeExitTime);
-            if ((LrewardCode == 4) && (random(100) < LrewardProb)) {
+            if (LrewardCode == 4) {
               deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
               serLogNum("LeftRewardCollected", deliveryDuration_ms);
               switchTo(letTheAnimalDrink);
@@ -656,7 +646,7 @@ void loop() {
           }
           if (rightPoke == 1) {
             serLogNum("Correct", millis() - initPokeExitTime);
-            if ((RrewardCode == 4) && (random(100) < RrewardProb)) {
+            if (RrewardCode == 4) {
               deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
               serLogNum("RightRewardCollected", deliveryDuration_ms);
               switchTo(letTheAnimalDrink);

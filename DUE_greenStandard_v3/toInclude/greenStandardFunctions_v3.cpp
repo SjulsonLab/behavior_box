@@ -45,8 +45,8 @@ using namespace std;
 #define cueLED6pin          8
 
 // syringe pumps - will add fourth syringe pump dedicated for init poke later
-#define syringePumpInit        24  // connected to left pump
-#define syringePumpLeft        26  // connected to init pump (used to be center pump)
+#define syringePumpInit        24  // connected to init pump
+#define syringePumpLeft        26  // connected to left pump
 #define syringePumpRight       28  // connected to right pump
 #define extraPump4             30  // not actually connected
 #define extraPump5             32  // not actually connected
@@ -86,9 +86,7 @@ using namespace std;
 #define extraIntan4         50
 #define extraIntan5         52
 
-
-long doorCloseSpeed        = 5;    // original speed was 10 - can decrease if there are problems
-//long centerPulseYN         = 0;  // set to 1 to send a TTL pulse to the center pump
+long doorCloseSpeed        = 1;    // original speed was 10 - can decrease if there are problems
 
 // other global variables
 long state                        = 1;     // state variable for finite state machine - set to 1 (standby)
@@ -202,13 +200,6 @@ long RrewardCode            = 0;
 long extra4rewardCode       = 0;
 long extra5rewardCode       = 0;
 long extra6rewardCode       = 0;
-
-long IrewardProb            = 100; // for probabilistic reward (0-100%)
-long LrewardProb            = 100; 
-long RrewardProb            = 100;
-//long CLrewardProb           = 100;
-//long CRrewardProb           = 100;
-//long CrewardProb            = 100;
 
 long laserOnCode            = 0; // FIX: laserOnCode is set twice
 long auditoryOrVisualCue    = 0; // 0 is none, 1 is auditory, 2 is visual
@@ -597,7 +588,6 @@ void make_ENABLE_pin_HIGH_which_is_off() {
 // the dc syringe pump func.
 // initialize the variables in the argument of the function definition:
 void deliverReward_dc(long volume_nL, long local_deliveryDuration_ms, int local_syringeSize_mL, int whichPump) {
-//Serial.println("DC TEST PULSE.");  
   double diameter_mm; 
   double volPerRevolution_uL;
   double howManyRevolutions; 
@@ -625,26 +615,18 @@ void deliverReward_dc(long volume_nL, long local_deliveryDuration_ms, int local_
   // determine vol per revolution, area of small cylinder with h=0.8mm
   // 0.8mm length per thread. 1thread=1cycle. 1 like=1prayer.
   volPerRevolution_uL = 0.8 * ( diameter_mm/2 )*( diameter_mm/2 ) * 3.1415926535898 ; 
-  //Serial.println("volPerRevolution = "); 
-  //Serial.println(volPerRevolution_uL);
   
   // determine how many revolutions needed for the desired volume
   howManyRevolutions = volume_uL / volPerRevolution_uL ;
-  //Serial.println("howManyRevolution = "); 
-  //Serial.println(howManyRevolutions);
 
   // determine total steps needed to reach desired revolutions, @200 steps/revolution
   // use *4 as a multiplier because it's operating at 1/4 microstep mode.
   // round to nearest int because totalSteps is unsigned long
-  totalSteps = round(200 * howManyRevolutions * 4); 
-  //Serial.println("totalSteps = "); 
-  //Serial.println(totalSteps);
+  totalSteps = round(200 * howManyRevolutions * 4);
 
   // determine shortest delivery duration, total steps * 2 ms per step. 
   // minimum 1 ms in high, 1 ms in low for the shortest possible step function.
   minimumDeliveryDuration_ms = totalSteps*2; 
-  //Serial.println("minimumDeliveryDuration_ms = "); 
-  //Serial.println(minimumDeliveryDuration_ms);  
 
   // make sure delivery duration the user wants is long enough
   if (local_deliveryDuration_ms < minimumDeliveryDuration_ms) {
@@ -668,10 +650,6 @@ void deliverReward_dc(long volume_nL, long local_deliveryDuration_ms, int local_
   
   // turn the pump motor
   t.oscillate(whichPump, round(stepDuration_ms/2), LOW, totalSteps*2);
-
-  // back to main loop. 
-  //Serial.println("Enter new option");
-  //Serial.println();
 }
 
 
@@ -730,14 +708,6 @@ void processMessage() {
   changeVariableLong("extra4rewardCode", &extra4rewardCode, inLine);
   changeVariableLong("extra5rewardCode", &extra5rewardCode, inLine);
   changeVariableLong("extra6rewardCode", &extra6rewardCode, inLine);
-  
-  // will remove probabilities::::::::::::::::::::
-  changeVariableLong("IrewardProb", &IrewardProb, inLine);
-  changeVariableLong("LrewardProb", &LrewardProb, inLine);
-  changeVariableLong("RrewardProb", &RrewardProb, inLine);
-  //changeVariableLong("CrewardProb", &CrewardProb, inLine);
-  //changeVariableLong("CLrewardProb", &CLrewardProb, inLine);
-  //changeVariableLong("CRrewardProb", &CRrewardProb, inLine);
 
   // variables for syringe pumps, dc
   changeVariableLong("volumeInit_nL", &volumeInit_nL, inLine);
