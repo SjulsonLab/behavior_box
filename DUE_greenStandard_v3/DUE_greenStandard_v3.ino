@@ -596,23 +596,29 @@ void loop() {
       // L/R not prerewarded but there's no error penalty
 
       if (trainingPhase == 3) {
-        if (LrewardCode == 3 && leftPoke == 1) {
+        if (LrewardCode != 0 && leftPoke == 1) {
           //deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-          giveRewards(4);
+          giveRewards(4); // luke0806. the line above was the original (ofc replaced by my syringe function). 
+          // ^^I changed it to this line, giverewards(4)
+          // phase 3 is supposed to have only the first block be prerewarded (giverewards(3)) 
+          // and then giverewards(4) should happen there.
+
+          // the following three lines get executed fine. just the left correct makes the right pump turn..
           serLogNum("Correct", millis() - initPokeExitTime);
           serLogNum("LeftRewardCollected", deliveryDuration_ms);
           switchTo(letTheAnimalDrink);
         }
-        if (RrewardCode == 3 && rightPoke == 1) {
+        if (RrewardCode != 0 && rightPoke == 1) {
           //deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
-          giveRewards(4);
+          giveRewards(4); // luke0806
+          // same as above block, but it actually 'works,' whatever that means
           serLogNum("Correct", millis() - initPokeExitTime);
           serLogNum("RightRewardCollected", deliveryDuration_ms);
           switchTo(letTheAnimalDrink);
         }
-        if (LrewardCode != 3 && RrewardCode != 3) {
+        if (LrewardCode != 3 && RrewardCode != 3) { //this error is old and should be updated
           serLog("Error_reward_codes_set_incorrectly");
-          goToStandby = 1;
+          goToStandby = 1; 
         }
       }
 
@@ -630,7 +636,8 @@ void loop() {
             serLogNum("Correct", millis() - initPokeExitTime);
             if (LrewardCode == 4) {
               //deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-              giveRewards(4);
+              giveRewards(4); // luke0806
+              // same things happen here where right pump turns for both correct pokes.
               serLogNum("LeftRewardCollected", deliveryDuration_ms);
               switchTo(letTheAnimalDrink);
             }
@@ -653,7 +660,8 @@ void loop() {
             serLogNum("Correct", millis() - initPokeExitTime);
             if (RrewardCode == 4) {
               //deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
-              giveRewards(4);
+              giveRewards(4); // luke0806
+              // same things happen here where right pump turns for both correct pokes.
               serLogNum("RightRewardCollected", deliveryDuration_ms);
               switchTo(letTheAnimalDrink);
             }
