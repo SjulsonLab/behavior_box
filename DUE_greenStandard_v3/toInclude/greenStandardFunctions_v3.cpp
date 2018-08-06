@@ -182,7 +182,7 @@ long startTrialYN        = 0;   // 1 to start a trial
 long resetTimeYN         = 0;   // 1 to reset the timer
 long nosePokeHoldLength  = 0;   // number of ms the animal must hold its nose poke FIX: rename to requiredPokeHoldLength_ms
 long goToStandby         = 0;   // set to 1 using matlab to exit goToPokes state
-long giveRewardNow       = 0;   // 1=init, 2=left, 3=right, 4=center.
+long giveRewardNow       = 0;   // 1=init, 2=left, 3=right.
 long initPokePunishYN    = 0;   // 1 to punish for init poke during standby, 0 is default
 
 // other variables

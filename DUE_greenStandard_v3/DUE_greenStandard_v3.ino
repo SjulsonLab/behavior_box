@@ -487,11 +487,13 @@ void loop() {
           openPoke("extraPoke4");
         if (extra5openYN == 1)
           openPoke("extraPoke5");
-        giveRewards(3); // give reward to the init poke after cue/noCue has occurred (phase 2) and mouse held long enough
+        giveRewards(3); // give reward to the init/L/R pokes after cue/noCue has occurred and mouse held long enough
         if (trainingPhase <= 2)
           switchTo(letTheAnimalDrink); //mouse will collect reward in the init port in phases 1 & 2
         if (trainingPhase >= 3)
-          switchTo(goToPokes); //mouse will get reward later, after poking L/R, in phases 3 and above
+          switchTo(goToPokes); 
+          //mouse will now go collect reward from pre-rewarded L/R (1st block phase 3), 
+      	  //or after poking L/R, (in later blocks phase 3, or in phase 4 and above)
       }
 
       delayMicroseconds(pauseLengthMicros);
@@ -595,13 +597,15 @@ void loop() {
 
       if (trainingPhase == 3) {
         if (LrewardCode == 3 && leftPoke == 1) {
-          deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+          //deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+          giveRewards(4);
           serLogNum("Correct", millis() - initPokeExitTime);
           serLogNum("LeftRewardCollected", deliveryDuration_ms);
           switchTo(letTheAnimalDrink);
         }
         if (RrewardCode == 3 && rightPoke == 1) {
-          deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+          //deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+          giveRewards(4);
           serLogNum("Correct", millis() - initPokeExitTime);
           serLogNum("RightRewardCollected", deliveryDuration_ms);
           switchTo(letTheAnimalDrink);
@@ -625,7 +629,8 @@ void loop() {
           if (leftPoke == 1) {
             serLogNum("Correct", millis() - initPokeExitTime);
             if (LrewardCode == 4) {
-              deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+              //deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+              giveRewards(4);
               serLogNum("LeftRewardCollected", deliveryDuration_ms);
               switchTo(letTheAnimalDrink);
             }
@@ -647,7 +652,8 @@ void loop() {
           if (rightPoke == 1) {
             serLogNum("Correct", millis() - initPokeExitTime);
             if (RrewardCode == 4) {
-              deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+              //deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+              giveRewards(4);
               serLogNum("RightRewardCollected", deliveryDuration_ms);
               switchTo(letTheAnimalDrink);
             }
