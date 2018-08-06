@@ -487,7 +487,7 @@ void loop() {
           openPoke("extraPoke4");
         if (extra5openYN == 1)
           openPoke("extraPoke5");
-        giveRewards(3); // give reward to the init poke after cue/noCue has occurred.
+        giveRewards(3); // give reward to the init poke after cue/noCue has occurred (phase 2) and mouse held long enough
         if (trainingPhase <= 2)
           switchTo(letTheAnimalDrink); //mouse will collect reward in the init port in phases 1 & 2
         if (trainingPhase >= 3)
@@ -542,7 +542,7 @@ void loop() {
     ////////////////////
     // GOTOPOKES
     // animal is free to nosepoke the reward pokes
-    //only place where training phase affects what happens
+    // main place where training phase affects what happens
 
     case goToPokes:
 
