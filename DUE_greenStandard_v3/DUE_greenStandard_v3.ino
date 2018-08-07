@@ -593,17 +593,19 @@ void loop() {
 
       
       // trainingPhase 3: ports are only rewarded after nosepoke, no punishment. 1 door opens. 
-      // L/R not prerewarded but there's no error penalty
+      // no error penalty?
+      // first block of phase 3 is prerewarded after cue (code3),
+      // the rest are rewarded after correct poke (code4)
 
       if (trainingPhase == 3) {
         if (LrewardCode != 0 && leftPoke == 1) {
           //deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-          giveRewards(4); // luke0806. the line above was the original (ofc replaced by my syringe function). 
-          // ^^I changed it to this line, giverewards(4)
+          giveRewards(4); // luke0806. 
+          //  
           // phase 3 is supposed to have only the first block be prerewarded (giverewards(3)) 
-          // and then giverewards(4) should happen there.
+          // and then giverewards(4) should happen here.
+          // however, 
 
-          // the following three lines get executed fine. just the left correct makes the right pump turn..
           serLogNum("Correct", millis() - initPokeExitTime);
           serLogNum("LeftRewardCollected", deliveryDuration_ms);
           switchTo(letTheAnimalDrink);

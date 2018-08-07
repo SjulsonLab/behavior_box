@@ -203,8 +203,7 @@ long extra6rewardCode       = 0;
 
 long laserOnCode            = 0; // FIX: laserOnCode is set twice
 long auditoryOrVisualCue    = 0; // 0 is none, 1 is auditory, 2 is visual
-//long cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
-long isLeftAuditory              = 1; // 1 means left is low cue, 0 means left is high cue
+long isLeftAuditory         = 1; // 1 means left is low cue, 0 means left is high cue
 long IopenYN                = 1; // whether to open L nosepoke upon goToPokes fix: should this be 1?
 long LopenYN                = 1;
 long RopenYN                = 1;
@@ -222,7 +221,6 @@ long buzzerVolume    = 128;
 long volumeInit_nL           = 0;
 long volumeLeft_nL           = 0;
 long volumeRight_nL          = 0;
-//long volumeCenter_nL         = 0; //getting rid of this
 long deliveryDuration_ms     = 1000;
 long syringeSize_mL          = 5;
 
@@ -285,7 +283,6 @@ void resetDefaults() {
 
   laserOnCode            = 0;
   auditoryOrVisualCue    = 0; // 1 is auditory, 2 is visual, and 0 is neither
-  //cueHiLow               = 0; // -1 is low, 1 is high, and 0 is neither
   goToStandby            = 0; // set to 1 using matlab to exit goToPokes state
   giveRewardNow          = 0;
 }
@@ -679,7 +676,6 @@ void processMessage() {
   changeVariableLong("highCueVolume", &highCueVolume, inLine);
   changeVariableLong("buzzerVolume", &buzzerVolume, inLine);
 
-  //changeVariableLong("cueHiLow", &cueHiLow, inLine);
   changeVariableLong("auditoryOrVisualCue", &auditoryOrVisualCue, inLine);
   changeVariableLong("trainingPhase", &trainingPhase, inLine);
   changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
@@ -713,7 +709,6 @@ void processMessage() {
   changeVariableLong("volumeInit_nL", &volumeInit_nL, inLine);
   changeVariableLong("volumeLeft_nL", &volumeLeft_nL, inLine);
   changeVariableLong("volumeRight_nL", &volumeRight_nL, inLine);
-  //changeVariableLong("volumeCenter_nL", &volumeCenter_nL, inLine); //changing this to include the extras 
   changeVariableLong("deliveryDuration_ms", &deliveryDuration_ms, inLine);
   changeVariableLong("syringeSize_mL", &syringeSize_mL, inLine);
 
@@ -743,7 +738,6 @@ void giveRewards(int timeCode) {
   if (IrewardCode == timeCode) deliverReward_dc(volumeInit_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
   if (LrewardCode == timeCode) deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
   if (RrewardCode == timeCode) deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
-  //if (extra6rewardCode == timeCode) deliverReward_dc(volumeCenter_nL, deliveryDuration_ms, syringeSize_mL, syringePumpCenter); remove center
 }
 
 /* reward codes - they are independent of which poke is rewarded
@@ -768,11 +762,6 @@ void checkRewards() {
     giveRewardNow = 0;
     deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
   }
-  /*
-    if (giveRewardNow == 4) {
-    giveRewardNow = 0;
-    deliverReward_dc(volumeCenter_nL, deliveryDuration_ms, syringeSize_mL, syringePumpCenter);
-  } */ 
 }
 
 // function to switch states
@@ -780,4 +769,3 @@ void switchTo(int whichState) {
     tempTime = millis(); // stores time of last state transition in global variable
     state = whichState;
 }
-
