@@ -487,10 +487,12 @@ void loop() {
           openPoke("extraPoke4");
         if (extra5openYN == 1)
           openPoke("extraPoke5");
-        giveRewards(3); // give reward to the init/L/R pokes after cue/noCue has occurred and mouse held long enough
-        if (trainingPhase <= 2)
+        //giveRewards(3); // give reward to the init/L/R pokes after cue/noCue has occurred and mouse held long enough
+        if (trainingPhase < 3)
+          giveRewards(3);
           switchTo(letTheAnimalDrink); //mouse will collect reward in the init port in phases 1 & 2
-        if (trainingPhase >= 3)
+        if (trainingPhase > 2)
+          giveRewards(3);
           switchTo(goToPokes); 
           //mouse will now go collect reward from pre-rewarded L/R (1st block phase 3), 
       	  //or after poking L/R, (in later blocks phase 3, or in phase 4 and above)
