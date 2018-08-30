@@ -624,7 +624,7 @@ void loop() {
           if (rightPoke == 1) {
             serLogNum("ErrorPoke", millis() - initPokeExitTime);
             sndCounter = 0;
-            switchTo(buzzerState);
+            switchTo(buzzer);
           }
           if (leftPoke == 1) {
             serLogNum("Correct", millis() - initPokeExitTime);
@@ -648,7 +648,7 @@ void loop() {
           if (leftPoke == 1) {
             serLogNum("ErrorPoke", millis() - initPokeExitTime);
             sndCounter = 0;
-            switchTo(buzzerState);
+            switchTo(buzzer);
           }
           if (rightPoke == 1) {
             serLogNum("Correct", millis() - initPokeExitTime);
