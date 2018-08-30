@@ -37,7 +37,7 @@
 #include "toInclude/greenStandardFunctions_v3.cpp"
 
 // for debugging
-// #define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
+// #define DEBUG   //If you uncomment this line and recompile, you will get debugging messages (DPRINT and DPRINTLN lines)
 #ifdef DEBUG
 #define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
 #define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
@@ -59,8 +59,8 @@
 #define noCue         		8  // no cue plays
 #define postCue       		9  // additional time delay
 #define goToPokes     		10 // nosepokes open, animal can approach and collect reward
-#define letTheAnimalDrink 11 // waiting for animal to collect reward
-#define buzzerState  	 	  12 // play buzzer before switching to punishDelay
+#define letTheAnimalDrink   11 // waiting for animal to collect reward
+#define buzzer  	        12 // play buzzer before switching to punishDelay
 
 /*
 
@@ -220,7 +220,9 @@ void loop() {
         cameraLED.on();
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
-        giveRewards(1); // give a reward to the location(s) with reward codes "1" (the init poke before mouse has poked)
+        if (uncollectedRewardYN==0) {
+     	   giveRewards(1); // give a reward to the location(s) with reward codes "1" (the init poke before mouse has poked)
+    	}
         probsWritten = 0; // this is a variable that switches off (to zero) after writing the probability once so it's not writing the probability on every loop
         trialAvailTime = millis(); // assign time in ms when trial becomes available/when you're switching to readyToGo state.
         switchTo(readyToGo);
@@ -246,6 +248,7 @@ void loop() {
         serLogNum("TrialMissedBeforeInit", millis() - trialAvailTime); // FIX: replace tempTime w/ trialAvailTime
         sndCounter = 0;
         switchTo(missed);
+        uncollectedRewardYN = 1; // indicates the animal is leaving an uncollected reward behind so that another one is not delivered in the next trial - for training phase 1 only
       }
 
       // if mouse init-pokes, switch state to PRE-CUE
@@ -265,7 +268,7 @@ void loop() {
 
     ////////////////////
     // MISSED
-    // should play a punishment buzzer, but not tested yet
+    // pause for missed trial, does not play buzzer
 
     case missed:
 
@@ -279,12 +282,16 @@ void loop() {
       break;
 
 
-    case buzzerState:
+    ////////////////////
+    // BUZZER
+    // plays a punishment buzzer, but not tested yet
+    
+    case buzzer:
 
       playBuzzer();
 
       // wait for timeout, switch state to PUNISH DELAY
-      if ((millis() - tempTime) > missedLength) {
+      if ((millis() - tempTime) > buzzerLength) {
         closePoke("all");
         serLog("PunishDelay");
         switchTo(punishDelay);

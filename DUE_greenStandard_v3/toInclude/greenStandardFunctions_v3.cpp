@@ -99,6 +99,7 @@ unsigned long lastCheckTimeMicros = 0;
 int probsWritten                  = 0;     // if reward probabilities are sent to serial, turns to 1
 int initPokeError                 = 0;     // gets set to 1 if the animal init pokes during standby
 long nTrial                       = 0;     // trial number
+int uncollectedRewardYN           = 0;     // gets set to 1 if the animal leaves an uncollected reward in the init poke
 
 // variables for timing
 unsigned long trialAvailTime           = 0;
@@ -287,6 +288,8 @@ void resetDefaults() {
   auditoryOrVisualCue    = 0; // 1 is auditory, 2 is visual, and 0 is neither
   goToStandby            = 0; // set to 1 using matlab to exit goToPokes state
   giveRewardNow          = 0;
+
+  uncollectedRewardYN    = 0; 
 }
 
 // this function changes the variable referred to by *ptr whenever varName is present in inLine
