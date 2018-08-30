@@ -170,6 +170,7 @@ long extraPoke5IsOpen    = 0;
 // state-related variables - all durations in msec
 long readyToGoLength        = 60000;
 long missedLength           = 50;
+long buzzerLength           = 100;
 long punishDelayLength      = 5000;
 long preCueLength           = 50;
 long auditoryCueLength      = 200;
@@ -266,6 +267,7 @@ void resetDefaults() {
   state             = 1;     // standby
   readyToGoLength   = 10000; // in msec
   missedLength      = 50; // in msec
+  buzzerLength      = 100; // in msec
   punishDelayLength = 5000;
   preCueLength      = 50; // in msec
   auditoryCueLength = 200;
@@ -690,6 +692,8 @@ void processMessage() {
   changeVariableLong("readyToGoLength", &readyToGoLength, inLine);
   changeVariableLong("punishDelayLength", &punishDelayLength, inLine);
   changeVariableLong("missedLength", &missedLength, inLine);
+  changeVariableLong("buzzerLength", &buzzerLength, inLine);
+  
   changeVariableLong("preCueLength", &preCueLength, inLine);
   changeVariableLong("auditoryCueLength", &auditoryCueLength, inLine);
   changeVariableLong("visualCueLength", &visualCueLength, inLine);
