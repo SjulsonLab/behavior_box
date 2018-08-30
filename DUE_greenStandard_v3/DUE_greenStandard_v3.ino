@@ -200,6 +200,7 @@ void loop() {
         digitalWrite(triggerPin, HIGH);   // 20ms pulse to Intan at the start of the trial.
         delay(20);
         digitalWrite(triggerPin, LOW);
+        uncollectedRewardYN = 0;          // clear any uncollected rewards when timer is reset
       }
       
       // this will no longer be needed:::::::::::::::::
