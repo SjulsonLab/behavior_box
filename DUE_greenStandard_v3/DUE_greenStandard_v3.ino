@@ -81,28 +81,10 @@
 ////////////////////////////////////////////////////////////////////////////
 
 
-////////////////////////////////////     O L D :     ///////////////////////////////////////
-
-    phase 1: white noise, init poke pre-rewarded. Animal pokes init, then gets cue, and
-    only one door opens, which is also pre-rewarded. Advance when animal gets reward quickly.
-
-    phase 2: same as phase 1 except neither poke is pre-rewarded
-
-    phase 3: same as phase 2 except two reward doors open, and only the correct one is rewarded. No punishment for
-    picking the wrong door. Try to keep this short.
-
-    phase 4: same as phase 3 except now the incorrect door is punished.
-
-    phase 5: increasing init poke duration. Also, rewards become probabilistic. Only outer doors open.
-
-    phase 6: no cue, only center door opens. Reward is probabilistic.
-
-    phase 7: full task. All three doors open on every trial.
-//////////////////////////////////////////////////////////////////////////////////////////////
 
   reward codes - they are independent of which poke is rewarded
     0 - no reward
-    1 - reward init poke at ready signal
+    1 - reward at ready signal
     2 - reward on init nose poke
     3 - reward at end of cue
     4 - reward only upon nosepoke
