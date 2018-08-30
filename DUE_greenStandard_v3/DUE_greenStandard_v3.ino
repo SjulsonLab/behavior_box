@@ -253,13 +253,14 @@ void loop() {
 
       // if mouse init-pokes, switch state to PRE-CUE
       if (initPoke == 1) {
+      	uncollectedRewardYN = 0; // only relevant in training phase 1 - indicates the mouse collected the reward, so the port will get a reward next trial
         nosePokeInitTime = millis(); // record time when mouse begins the init poke specifically. used to make sure mouse holds long enough.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
         cameraLED.off();
         serLogNum("TrialStarted", millis() - trialAvailTime);
         sndCounter = 0;
         giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) 
-        // NOTE ::::::::: I think that reward code 2 should become reward at the end of waiting the length of init hold time. 
+
         switchTo(preCue);
       }
 
