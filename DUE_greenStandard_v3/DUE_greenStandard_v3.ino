@@ -36,18 +36,6 @@
 // include the functions
 #include "toInclude/greenStandardFunctions_v3.cpp"
 
-// for debugging
-// #define DEBUG   //If you uncomment this line and recompile, you will get debugging messages (DPRINT and DPRINTLN lines)
-#ifdef DEBUG
-#define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
-#define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
-#else
-#define DPRINT(...)     //now defines a blank line
-#define DPRINTLN(...)   //now defines a blank line
-#endif
-
-
-
 // state definitions
 #define standby       		1  // standby - the inactive state
 #define readyToGo     		2  // plays white noise, waits for init poke
