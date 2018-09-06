@@ -30,8 +30,8 @@
 
 */
 
-// tell matlab version 9
-#define VERSION     9
+// tell matlab version 10
+#define VERSION     10
 
 // include the functions
 #include "toInclude/greenStandardFunctions_v3.cpp"
@@ -39,16 +39,15 @@
 // state definitions
 #define standby       		1  // standby - the inactive state
 #define readyToGo     		2  // plays white noise, waits for init poke
-#define missed        		3  // if trial times out or animal makes wrong choice. no buzzer.
-#define punishDelay   		4  // additional timeout period after missed
-#define preCue        		5  // time delay between white noise and cue
-#define auditoryCue   		6  // auditory cue plays
-#define visualCue     		7  // visual cue plays
-#define noCue         		8  // no cue plays
-#define postCue       		9  // additional time delay
-#define goToPokes     		10 // nosepokes open, animal can approach and collect reward
-#define letTheAnimalDrink   11 // waiting for animal to collect reward
-#define buzzer  	        12 // play buzzer before switching to punishDelay
+#define punishDelay   		3  // timeout period after animal makes mistake
+#define preCue        		4  // time delay between white noise and cue
+#define cue1              5  // first cue
+#define interCue          6  // time delay between the two cues
+#define cue2              7  // second cue
+#define postCue       		8  // additional time delay
+#define goToPokes     		9  // nosepokes open, animal can approach and collect reward
+#define letTheAnimalDrink 10 // waiting for animal to collect reward
+#define buzzer  	        11 // play buzzer before switching to punishDelay
 
 /*
 
@@ -156,10 +155,12 @@ void loop() {
 
   t.update(); // update timer with each cycle
 
-  // using polling to check for door, reward, and poke status.
-  // we don't want to check too often, so we only check every "slowDTmicros" period.
-  // micros() returns number of microseconds since the Arduino board began running the current program.(unsigned long)
+  /////////////////////////////////////////////////////////////
+  // polling to check for door, reward, and poke status.
+
   if (micros() - lastCheckTimeMicros >= slowDTmicros) {
+    // we don't want to check too often, so we only check every "slowDTmicros" period.
+   // micros() returns number of microseconds since the Arduino board began running the current program.(unsigned long)
     checkDoors();   // update door state as per matlab instruction
     checkRewards(); // update reward state as per matlab instruction
     checkPokes();   // check nosepokes
@@ -191,12 +192,12 @@ void loop() {
         uncollectedRewardYN = 0;          // clear any uncollected rewards when timer is reset
       }
       
-      // this will no longer be needed:::::::::::::::::
+
       // prevent the animal from starting a trial before white noise/"readyToGo" state:
       if (initPoke == 1 && initPokePunishYN == 1) { // if animal init pokes when not cued to do so (before white noise)
         serLog("InitPokeDuringStndby");
         initPokeError = 1; // this prevents "Standby" from going in the log, so that matlab doesn't get confused and think the trial is over.
-        switchTo(missed);
+        switchTo(punishDelay);
         sndCounter = 0;
       }
 
@@ -230,13 +231,13 @@ void loop() {
 
       playWhiteNoise();
       
-      // if timeout, switch state to MISSED
+      // if timeout, switch state to punishDelay
       if ((millis() - tempTime) > readyToGoLength) { // if timeThisStateBegan_ms happened readyToGoLength_ms ago without a nosepoke, the mouse missed the trial.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
         cameraLED.off();
         serLogNum("TrialMissedBeforeInit", millis() - trialAvailTime); // FIX: replace tempTime w/ trialAvailTime
         sndCounter = 0;
-        switchTo(missed);
+        switchTo(punishDelay);
         uncollectedRewardYN = 1; // indicates the animal is leaving an uncollected reward behind so that another one is not delivered in the next trial - for training phase 1 only
       }
 
@@ -256,38 +257,8 @@ void loop() {
       break;
 
 
-    ////////////////////
-    // MISSED
-    // pause for missed trial, does not play buzzer
-
-    case missed:
-
-      // wait for timeout, switch state to PUNISH DELAY
-      if ((millis() - tempTime) > missedLength) {
-        closePoke("all");
-        serLog("PunishDelay");
-        switchTo(punishDelay);
-      }
-
-      break;
 
 
-    ////////////////////
-    // BUZZER
-    // plays a punishment buzzer, but not tested yet
-    
-    case buzzer:
-
-      playBuzzer();
-
-      // wait for timeout, switch state to PUNISH DELAY
-      if ((millis() - tempTime) > buzzerLength) {
-        closePoke("all");
-        serLog("PunishDelay");
-        switchTo(punishDelay);
-      }
-
-      break;
 
 
     ////////////////////
@@ -296,33 +267,20 @@ void loop() {
 
     case preCue:
 
-      // if mouse withdraws nose too early, switch state to missed
+      // if mouse withdraws nose too early, switch state to punishDelay
       if ((initPoke == 0) && ((millis() - nosePokeInitTime) < nosePokeHoldLength)) {
         serLogNum("PreCueWithdrawal", millis() - nosePokeInitTime);
-        sndCounter = 0; //FIX: reset sndCounter to zero in only one place? it's already in the standby exit state
-        switchTo(missed);
+         switchTo(punishDelay);
       }
 
       // otherwise mouse held long enough:
       // start one of the cues when preCueLength time elapsed.
       else if ((millis() - tempTime) > preCueLength) {
         
-        //::::::::idk if these work at all:::::::::
-        // trigger the pulsepal(s) 
-        if (laserOnCode == 1) {
-          serLogNum("LaserTriggered", 1);
-          triggerPulsePal(1);
-        }
-        if (laserOnCode == 2) {
-          serLogNum("LaserTriggered", 2);
-          triggerPulsePal(2);
-        }
-        if (laserOnCode == 3) {
-          serLogNum("LaserTriggered", 1);
-          serLogNum("LaserTriggered", 2);
-          triggerPulsePal(1);
-          triggerPulsePal(2);
-        }
+        
+
+
+
 
         if (auditoryOrVisualCue == 0) {
           serLog("NoCue");
@@ -354,7 +312,7 @@ void loop() {
         }
       }
 
-      delayMicroseconds(pauseLengthMicros); // why do we need to delay after?
+      delayMicroseconds(pauseLengthMicros); 
       break;
 
 
@@ -464,36 +422,27 @@ void loop() {
           openPoke("right");
         if (extra4openYN == 1)
           openPoke("extraPoke4");
-        if (extra5openYN == 1)
+        if (extra5openYN == 1) {
           openPoke("extraPoke5");
         //giveRewards(3); // give reward to the init/L/R pokes after cue/noCue has occurred and mouse held long enough
-        if (trainingPhase < 3)
+        }
+        if (trainingPhase < 3) {
           giveRewards(3);
-          switchTo(letTheAnimalDrink); //mouse will collect reward in the init port in phases 1 & 2
-        if (trainingPhase > 2)
+          switchTo(letTheAnimalDrink);  //mouse will collect reward in the init port in phases 1 & 2
+        } 
+        if (trainingPhase > 2) {
           giveRewards(3);
           switchTo(goToPokes); 
           //mouse will now go collect reward from pre-rewarded L/R (1st block phase 3), 
       	  //or after poking L/R, (in later blocks phase 3, or in phase 4 and above)
+        }
       }
 
       delayMicroseconds(pauseLengthMicros);
       break;
 
 
-    ////////////////////
-    // LETTHEANIMALDRINK
-    // delay while animal collects reward
 
-    case letTheAnimalDrink:
-
-      if (millis() - tempTime > rewardCollectionLength) {
-        closePoke("all");
-        serLog("Standby");
-        switchTo(standby);
-      }
-      delayMicroseconds(pauseLengthMicros);
-      break;
 
     ////////////////////
     // PUNISHDELAY
@@ -513,12 +462,6 @@ void loop() {
       processMessage();
       //delayMicroseconds(pauseLengthMicros);
       break;
-
-
-
-
-
-
 
 
 
@@ -663,6 +606,21 @@ void loop() {
         closePoke("all");
         state = standby;
         serLog("Standby");
+      }
+      delayMicroseconds(pauseLengthMicros);
+      break;
+
+
+    ////////////////////
+    // LETTHEANIMALDRINK
+    // delay while animal collects reward
+
+    case letTheAnimalDrink:
+
+      if (millis() - tempTime > rewardCollectionLength) {
+        closePoke("all");
+        serLog("Standby");
+        switchTo(standby);
       }
       delayMicroseconds(pauseLengthMicros);
       break;

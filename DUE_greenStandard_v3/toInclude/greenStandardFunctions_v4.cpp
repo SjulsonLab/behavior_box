@@ -1,5 +1,6 @@
 /*
 Daniela Cassataro v3 7/13/18
+Luke Sjulson v4 9/6/2018
 
 TO DO:
   . ctrl+f "FIX:" 
@@ -8,7 +9,7 @@ TO DO:
 */
 
 // for debugging
-#define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
+//#define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
 #ifdef DEBUG    //Macros are usually in all capital letters.
 #define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
 #define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
@@ -92,7 +93,7 @@ long doorCloseSpeed        = 1;    // original speed was 10 - can decrease if th
 long state                        = 1;     // state variable for finite state machine - set to 1 (standby)
 long trainingPhase                = 0;     // phase of training - set by serial input
 long sndCounter                   = 0;
-unsigned long nosePokeInitTime    = 0;     // FIX: rename to something better. initHoldStartTime_ms? it's when mouse begins the init poke specifically. used to make sure mouse holds long enough. 
+unsigned long nosePokeInitTime    = 0;     
 long slowDTmicros                 = 100;   // DT of slow loop in microseconds
 long pauseLengthMicros            = 5;     // length of pause for each iteration of the fast loop
 unsigned long lastCheckTimeMicros = 0;
@@ -204,8 +205,6 @@ long extra5rewardCode       = 0;
 long extra6rewardCode       = 0;
 
 long laserOnCode            = 0; // FIX: laserOnCode is set twice
-long auditoryOrVisualCue    = 0; // 0 is none, 1 is auditory, 2 is visual
-long isLeftAuditory         = 1; // 1 means left is low cue, 0 means left is high cue
 long IopenYN                = 1; // whether to open L nosepoke upon goToPokes fix: should this be 1?
 long LopenYN                = 1;
 long RopenYN                = 1;
@@ -285,7 +284,6 @@ void resetDefaults() {
   extra6rewardCode       = 0; //fix: make this extra 6
 
   laserOnCode            = 0;
-  auditoryOrVisualCue    = 0; // 1 is auditory, 2 is visual, and 0 is neither
   goToStandby            = 0; // set to 1 using matlab to exit goToPokes state
   giveRewardNow          = 0;
 
@@ -681,7 +679,6 @@ void processMessage() {
   changeVariableLong("highCueVolume", &highCueVolume, inLine);
   changeVariableLong("buzzerVolume", &buzzerVolume, inLine);
 
-  changeVariableLong("auditoryOrVisualCue", &auditoryOrVisualCue, inLine);
   changeVariableLong("trainingPhase", &trainingPhase, inLine);
   changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
   changeVariableLong("laserOnCode", &laserOnCode, inLine);
@@ -719,7 +716,6 @@ void processMessage() {
   changeVariableLong("deliveryDuration_ms", &deliveryDuration_ms, inLine);
   changeVariableLong("syringeSize_mL", &syringeSize_mL, inLine);
 
-  changeVariableLong("isLeftAuditory", &isLeftAuditory, inLine);
 
 
   // not in matlab:
