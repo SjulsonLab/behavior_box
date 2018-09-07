@@ -23,10 +23,7 @@
 
   To do:
     . ctrl+F "FIX:"
-    . "sndCounter" resets to zero in many places. move the resetting of sndCounter to the standby exit statement?
     . remove the CR and CL stuff
-    . remove the old function calls in matlab: initreward(), leftreward(), etc
-    . fix: if the mouse nosepokes the center port, the init port syringe pump is activated. This is because the original box has only three pumps.
 
 */
 
@@ -495,6 +492,7 @@ void loop() {
       else if ((millis() - tempTime) > postCueLength) {
         giveRewards(3);
         if (trainingPhase==2) {
+          serLogNum("letTheAnimalDrink", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
         else {
@@ -508,7 +506,7 @@ void loop() {
 
     ////////////////////
     // PUNISHDELAY
-    // delay period after error trial. fix::::::::: punishdelay according to my diagram i wrote down.
+    // delay period after error trial
 
     case punishDelay:
       if ((millis() - tempTime) > punishDelayLength) {
@@ -522,7 +520,7 @@ void loop() {
         initPokeError = 0;
       }
       processMessage();
-      //delayMicroseconds(pauseLengthMicros);
+      delayMicroseconds(pauseLengthMicros);
       break;
 
 
@@ -548,6 +546,8 @@ void loop() {
       if (leftPoke==1) {
         if (LrewardCode==4) {
           deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+          serLogNum("leftReward", LrewardSize_nL);
+          serLogNum("letTheAnimalDrink", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
         else if (LrewardCode==-1) {
@@ -561,6 +561,8 @@ void loop() {
       if (rightPoke==1) {
         if (RrewardCode==4) {
           deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+          serLogNum("rightReward", RrewardSize_nL);
+          serLogNum("letTheAnimalDrink", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
         else if (RrewardCode==-1) {
@@ -569,122 +571,6 @@ void loop() {
           switchTo(punishDelay);
         }
       }
-
-
-/*
-      // trainingPhase 1: correct means collecting from the pre-rewarded port
-      // init prerewarded
-       if (trainingPhase == 1) {
-         if (IrewardCode == 1 && initPoke == 1) {
-           serLogNum("Correct", millis() - initPokeExitTime);
-           serLogNum("InitRewardCollected", deliveryDuration_ms);
-           switchTo(letTheAnimalDrink);
-         }
-         if (IrewardCode != 1) {
-           serLog("Error_reward_codes_set_incorrectly");
-           goToStandby = 1;
-         }
-       }
-
-      // trainingPhase 2: correct means collecting from the pre-rewarded port
-      // reward init at end of nose hold.
-       if (trainingPhase == 2) {
-         if (IrewardCode == 3 && initPoke == 1) {
-           serLogNum("Correct", millis() - initPokeExitTime);
-           serLogNum("InitRewardCollected", deliveryDuration_ms);
-           switchTo(letTheAnimalDrink);
-         }
-         if (IrewardCode != 3) {
-           serLog("Error_reward_codes_set_incorrectly");
-           goToStandby = 1;
-         }
-       }
-
-      
-      // trainingPhase 3: ports are only rewarded after nosepoke, no punishment. 1 door opens. 
-      // no error penalty?
-      // first block of phase 3 is prerewarded after cue (code3),
-      // the rest are rewarded after correct poke (code4)
-
-      if (trainingPhase == 3) {
-        if (LrewardCode != 0 && leftPoke == 1) {
-          //deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-          giveRewards(4); // luke0806. 
-          //  
-          // phase 3 is supposed to have only the first block be prerewarded (giverewards(3)) 
-          // and then giverewards(4) should happen here.
-          // however, 
-
-          serLogNum("Correct", millis() - initPokeExitTime);
-          serLogNum("LeftRewardCollected", deliveryDuration_ms);
-          switchTo(letTheAnimalDrink);
-        }
-        if (RrewardCode != 0 && rightPoke == 1) {
-          //deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
-          giveRewards(4); // luke0806
-          // same as above block, but it actually 'works,' whatever that means
-          serLogNum("Correct", millis() - initPokeExitTime);
-          serLogNum("RightRewardCollected", deliveryDuration_ms);
-          switchTo(letTheAnimalDrink);
-        }
-        if (LrewardCode != 3 && RrewardCode != 3) { //this error is old and should be updated
-          serLog("Error_reward_codes_set_incorrectly");
-          goToStandby = 1; 
-        }
-      }
-
-      // trainingPhases 4-7: punishment tone for incorrect door choice
-      if (trainingPhase >= 4) {
-
-        // left side cued
-        if ((isLeftAuditory == 1 && auditoryOrVisualCue == 1) || (isLeftAuditory == 0 && auditoryOrVisualCue == 2)) {
-          if (rightPoke == 1) {
-            serLogNum("ErrorPoke", millis() - initPokeExitTime);
-            sndCounter = 0;
-            switchTo(buzzer);
-          }
-          if (leftPoke == 1) {
-            serLogNum("Correct", millis() - initPokeExitTime);
-            if (LrewardCode == 4) {
-              //deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-              giveRewards(4); // luke0806
-              // same things happen here where right pump turns for both correct pokes.
-              serLogNum("LeftRewardCollected", deliveryDuration_ms);
-              switchTo(letTheAnimalDrink);
-            }
-            else {
-              serLog("LeftPokeNoReward");
-              delay(300);
-              goToStandby = 1;
-            }
-          }
-        }
-
-        // right side cued
-        if ((isLeftAuditory == 1 && auditoryOrVisualCue == 2) || (isLeftAuditory == 0 && auditoryOrVisualCue == 1)) {
-          if (leftPoke == 1) {
-            serLogNum("ErrorPoke", millis() - initPokeExitTime);
-            sndCounter = 0;
-            switchTo(buzzer);
-          }
-          if (rightPoke == 1) {
-            serLogNum("Correct", millis() - initPokeExitTime);
-            if (RrewardCode == 4) {
-              //deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
-              giveRewards(4); // luke0806
-              // same things happen here where right pump turns for both correct pokes.
-              serLogNum("RightRewardCollected", deliveryDuration_ms);
-              switchTo(letTheAnimalDrink);
-            }
-            else {
-              serLog("RightPokeNoReward");
-              delay(300);
-              goToStandby = 1;
-            }
-          }
-        }
-      }
-      */
 
       // go to standby (instructed by either above code or by matlab)
       if (goToStandby == 1) {
