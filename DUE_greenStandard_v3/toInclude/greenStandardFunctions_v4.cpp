@@ -101,6 +101,7 @@ int probsWritten                  = 0;     // if reward probabilities are sent t
 int initPokeError                 = 0;     // gets set to 1 if the animal init pokes during standby
 long nTrial                       = 0;     // trial number
 int uncollectedRewardYN           = 0;     // gets set to 1 if the animal leaves an uncollected reward in the init poke
+long calibrationLength            = 0;     // amount of time for the system to stay in the calibration state
 
 // variables for timing
 unsigned long trialAvailTime           = 0;
@@ -175,11 +176,19 @@ long missedLength           = 50;
 long buzzerLength           = 100;
 long punishDelayLength      = 5000;
 long preCueLength           = 50;
-long auditoryCueLength      = 200;
-long visualCueLength        = 200;
+long cue1Length             = 200;
+long interCueLength         = 10;
+long cue2Length             = 10;
 long postCueLength          = 50;
 long goToPokesLength        = 60000;
 long rewardCollectionLength = 3000;
+
+// which cues get played
+long cue1_vis               = 0;
+long cue2_vis               = 0; 
+long cue1_aud               = 0;
+long cue2_aud               = 0;
+
 
 long startTrialYN        = 0;   // 1 to start a trial
 long resetTimeYN         = 0;   // 1 to reset the timer
@@ -188,8 +197,9 @@ long goToStandby         = 0;   // set to 1 using matlab to exit goToPokes state
 long giveRewardNow       = 0;   // 1=init, 2=left, 3=right.
 long initPokePunishYN    = 0;   // 1 to punish for init poke during standby, 0 is default
 
-// other variables
+
 /* reward codes - they are independent of which poke is rewarded
+   -1 - punish for incorrect nosepoke during goToPokes
     0 - no reward
     1 - reward init poke at ready signal
     2 - reward on init nose poke
@@ -219,9 +229,9 @@ long buzzerVolume    = 128;
 
 // globals for the syringe pumps
 // these are all longs because matlab requires longs
-long volumeInit_nL           = 0;
-long volumeLeft_nL           = 0;
-long volumeRight_nL          = 0;
+long IrewardSize_nL          = 0;
+long LrewardSize_nL          = 0;
+long RrewardSize_nL          = 0;
 long deliveryDuration_ms     = 1000;
 long syringeSize_mL          = 5;
 
@@ -270,10 +280,17 @@ void resetDefaults() {
   buzzerLength      = 100; // in msec
   punishDelayLength = 5000;
   preCueLength      = 50; // in msec
-  auditoryCueLength = 200;
-  visualCueLength   = 200;
+  cue1Length        = 200;
+  interCueLength    = 10;
+  cue2Length        = 10;
   postCueLength     = 50;
   goToPokesLength   = 10000; // in msec
+
+  // cue-related variables
+  cue1_vis               = 0;
+  cue2_vis               = 0; 
+  cue1_aud               = 0;
+  cue2_aud               = 0;
 
   // other 
   IrewardCode            = 0; // when (and whether) a particular port is rewarded
@@ -678,6 +695,7 @@ void processMessage() {
   changeVariableLong("lowCueVolume", &lowCueVolume, inLine);
   changeVariableLong("highCueVolume", &highCueVolume, inLine);
   changeVariableLong("buzzerVolume", &buzzerVolume, inLine);
+  changeVariableLong("calibrationLength", &calibrationLength, inLine);
 
   changeVariableLong("trainingPhase", &trainingPhase, inLine);
   changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
@@ -695,13 +713,21 @@ void processMessage() {
   changeVariableLong("buzzerLength", &buzzerLength, inLine);
   
   changeVariableLong("preCueLength", &preCueLength, inLine);
-  changeVariableLong("auditoryCueLength", &auditoryCueLength, inLine);
-  changeVariableLong("visualCueLength", &visualCueLength, inLine);
+  changeVariableLong("cue1Length", &cue1Length, inLine);
+  changeVariableLong("interCueLength", &interCueLength, inLine);
+  changeVariableLong("cue2Length", &cue2Length, inLine);
   changeVariableLong("postCueLength", &postCueLength, inLine);
   changeVariableLong("goToPokesLength", &goToPokesLength, inLine);
   changeVariableLong("nosePokeHoldLength", &nosePokeHoldLength, inLine);
   changeVariableLong("rewardCollectionLength", &rewardCollectionLength, inLine);
 
+  changeVariableLong("cue1_vis", &cue1_vis, inLine);
+  changeVariableLong("cue2_vis", &cue2_vis, inLine);
+  changeVariableLong("cue1_aud", &cue1_aud, inLine);
+  changeVariableLong("cue2_aud", &cue2_aud, inLine);
+
+
+  // reward codes
   changeVariableLong("IrewardCode", &IrewardCode, inLine);
   changeVariableLong("LrewardCode", &LrewardCode, inLine);
   changeVariableLong("RrewardCode", &RrewardCode, inLine);
@@ -710,9 +736,9 @@ void processMessage() {
   changeVariableLong("extra6rewardCode", &extra6rewardCode, inLine);
 
   // variables for syringe pumps, dc
-  changeVariableLong("volumeInit_nL", &volumeInit_nL, inLine);
-  changeVariableLong("volumeLeft_nL", &volumeLeft_nL, inLine);
-  changeVariableLong("volumeRight_nL", &volumeRight_nL, inLine);
+  changeVariableLong("IrewardSize_nL", &IrewardSize_nL, inLine);
+  changeVariableLong("LrewardSize_nL", &LrewardSize_nL, inLine);
+  changeVariableLong("RrewardSize_nL", &RrewardSize_nL, inLine);
   changeVariableLong("deliveryDuration_ms", &deliveryDuration_ms, inLine);
   changeVariableLong("syringeSize_mL", &syringeSize_mL, inLine);
 
@@ -738,9 +764,9 @@ void processMessage() {
 // this function gives rewards if the timeCode matches the rewardCode (e.g. at the correct state transition)
 // rewards can only be given to I,L,R. can fill in the extra pokes later (fix:)
 void giveRewards(int timeCode) {
-  if (IrewardCode == timeCode) deliverReward_dc(volumeInit_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
-  if (LrewardCode == timeCode) deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-  if (RrewardCode == timeCode) deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+  if (IrewardCode == timeCode) deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
+  if (LrewardCode == timeCode) deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+  if (RrewardCode == timeCode) deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
   DPRINTLN(String("IrewardCode: ") + String(IrewardCode)); // for debugging - LS0807
   DPRINTLN(String("LrewardCode: ") + String(LrewardCode));
   DPRINTLN(String("RrewardCode: ") + String(RrewardCode));
@@ -758,15 +784,15 @@ void giveRewards(int timeCode) {
 void checkRewards() {
   if (giveRewardNow == 1) {
     giveRewardNow = 0;
-    deliverReward_dc(volumeInit_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
+    deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
   }
   if (giveRewardNow == 2) {
     giveRewardNow = 0;
-    deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+    deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
   }
   if (giveRewardNow == 3) {
     giveRewardNow = 0;
-    deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+    deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
   }
 }
 

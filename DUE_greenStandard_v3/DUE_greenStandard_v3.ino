@@ -34,7 +34,7 @@
 #define VERSION     10
 
 // include the functions
-#include "toInclude/greenStandardFunctions_v3.cpp"
+#include "toInclude/greenStandardFunctions_v4.cpp"
 
 // state definitions
 #define standby       		1  // standby - the inactive state
@@ -47,8 +47,7 @@
 #define postCue       		8  // additional time delay
 #define goToPokes     		9  // nosepokes open, animal can approach and collect reward
 #define letTheAnimalDrink 10 // waiting for animal to collect reward
-#define buzzer  	        11 // play buzzer before switching to punishDelay
-
+#define calibration       11 // state for calibrating the sound and light cue levels
 /*
 
 ////////////////////////////////////////////////////////////////////////////
@@ -69,12 +68,27 @@
 
 
 
-  reward codes - they are independent of which poke is rewarded
-    0 - no reward
-    1 - reward at ready signal
-    2 - reward on init nose poke
-    3 - reward at end of cue
-    4 - reward only upon nosepoke
+reward codes - they are independent of which poke is rewarded
+ -1 - punish for incorrect nosepoke during goToPokes
+  0 - no reward
+  1 - reward at ready signal
+  2 - reward on init nose poke
+  3 - reward at end of cue
+  4 - reward only upon nosepoke
+
+cue1_vis and cue2_vis codes
+  0 - no visual cue
+  1 - LEDs 1 and 2 on
+  2 - LEDs 3 and 4 on
+  3 - all LEDs on
+
+cue1_aud and cue2_aud codes
+  0 - no auditory cue
+  1 - low tone
+  2 - high tone
+  3 - buzzer
+  4 - white noise
+
 */
 
 
@@ -147,7 +161,7 @@ void setup() {
 }
 
 //===================================================================================================>>
-//                                                                              FINITE STATE MACHINE >>
+//                                      FINITE STATE MACHINE                                         >>
 //===================================================================================================>>
 
 
@@ -166,6 +180,8 @@ void loop() {
     checkPokes();   // check nosepokes
     // set new, most recent timepoint we polled the doors/rewards/pokes status:
     lastCheckTimeMicros = micros();
+
+
   }
 
   switch (state) {
@@ -198,6 +214,7 @@ void loop() {
         serLog("InitPokeDuringStndby");
         initPokeError = 1; // this prevents "Standby" from going in the log, so that matlab doesn't get confused and think the trial is over.
         switchTo(punishDelay);
+        serLogNum("punishDelayLength", punishDelayLength);
         sndCounter = 0;
       }
 
@@ -212,11 +229,21 @@ void loop() {
         startTrialYN = 0; // reset startTrial
         if (uncollectedRewardYN==0) {
      	   giveRewards(1); // give a reward to the location(s) with reward codes "1" (the init poke before mouse has poked)
-    	}
+    	   }
         probsWritten = 0; // this is a variable that switches off (to zero) after writing the probability once so it's not writing the probability on every loop
         trialAvailTime = millis(); // assign time in ms when trial becomes available/when you're switching to readyToGo state.
         switchTo(readyToGo);
         openPoke("init"); //open init door.
+      }
+
+      // for calibrating the volume levels and cue light brightness
+      if (calibrationLength > 0) {
+        cueLED1.on();
+        cueLED2.on();
+        cueLED3.on();
+        cueLED4.on();
+        WNvolume = 128;
+        switchTo(calibration);
       }
 
       break;
@@ -237,21 +264,38 @@ void loop() {
         cameraLED.off();
         serLogNum("TrialMissedBeforeInit", millis() - trialAvailTime); // FIX: replace tempTime w/ trialAvailTime
         sndCounter = 0;
+        serLogNum("punishDelayLength", punishDelayLength);
         switchTo(punishDelay);
         uncollectedRewardYN = 1; // indicates the animal is leaving an uncollected reward behind so that another one is not delivered in the next trial - for training phase 1 only
       }
 
+
       // if mouse init-pokes, switch state to PRE-CUE
       if (initPoke == 1) {
-      	uncollectedRewardYN = 0; // only relevant in training phase 1 - indicates the mouse collected the reward, so the port will get a reward next trial
+
+        // if trainingPhase == 0, the arduino wasn't set up properly
+        if (trainingPhase == 0) {
+          serLog("Error_trainingPhaseIsZero");
+          switchTo(standby);
+        }
+
         nosePokeInitTime = millis(); // record time when mouse begins the init poke specifically. used to make sure mouse holds long enough.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
         cameraLED.off();
-        serLogNum("TrialStarted", millis() - trialAvailTime);
-        sndCounter = 0;
-        giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) 
 
-        switchTo(preCue);
+        // if training phase 1 and mouse pokes, switch state directly to letTheAnimalDrink
+        if (trainingPhase==1) {
+          uncollectedRewardYN = 0; // only relevant in training phase 1 - indicates the mouse collected the reward, so the port will get a reward next trial
+          serLogNum("Phase1RewardCollected", millis() - trialAvailTime);
+          switchTo(letTheAnimalDrink);
+        }
+        // for other training phases, go to preCue 
+        else {
+          serLogNum("TrialStarted", millis() - trialAvailTime);
+          sndCounter = 0;
+          giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) 
+          switchTo(preCue);
+        }
       }
 
       break;
@@ -268,47 +312,34 @@ void loop() {
     case preCue:
 
       // if mouse withdraws nose too early, switch state to punishDelay
-      if ((initPoke == 0) && ((millis() - nosePokeInitTime) < nosePokeHoldLength)) {
+      if (initPoke == 0) {
         serLogNum("PreCueWithdrawal", millis() - nosePokeInitTime);
-         switchTo(punishDelay);
+        serLogNum("punishDelayLength", punishDelayLength);
+        switchTo(punishDelay);
       }
 
       // otherwise mouse held long enough:
       // start one of the cues when preCueLength time elapsed.
       else if ((millis() - tempTime) > preCueLength) {
-        
-        
+        switchTo(cue1);
 
-
-
-
-        if (auditoryOrVisualCue == 0) {
-          serLog("NoCue");
-          switchTo(noCue); // used for training phases
-        }
-
-        if (auditoryOrVisualCue == 1) {   // if giving AUDITORY CUE
-          if (isLeftAuditory == 1) {      // if left is designated as the audi cue side (in matlab)
-            serLog("LeftCue");            // log as a "left cue"
-          }
-          else {                          // if right is designated as the audi cue side (in matlab)
-            serLog("RightCue");           // log as a "right cue"
-          }
-          digitalWrite(auditoryCueTTL, HIGH);
-          serLog("AuditoryCue");
-          switchTo(auditoryCue); // switch to give auditory cue
-        }
-
-        if (auditoryOrVisualCue == 2) { // if giving VISUAL CUE
-          if (isLeftAuditory == 0) {    // if right is designated as the audi cue side (in matlab)
-            serLog("LeftCue");          // log as a "left cue"
-          }
-          else {                        // if left is designated as the audi cue side (in matlab)
-            serLog("RightCue");         // log as a "right cue"
-          }
+        // turn on visual cues
+        if (cue1_vis==1) {
+          cueLED1.on();
+          cueLED2.on();
           digitalWrite(visualCueTTL, HIGH);
-          serLog("VisualCue");
-          switchTo(visualCue); // switch to give vis cue
+        }
+        else if (cue1_vis==2) {
+          cueLED3.on();
+          cueLED4.on();
+          digitalWrite(visualCueTTL, HIGH);
+        }
+        else if (cue1_vis==3) {
+          cueLED1.on();
+          cueLED2.on();
+          cueLED3.on();
+          cueLED4.on();
+          digitalWrite(visualCueTTL, HIGH);
         }
       }
 
@@ -317,131 +348,162 @@ void loop() {
 
 
     ////////////////////
-    // AUDITORY CUE
-    // auditory stimulus given, check for nosepoke withdrawal
+    // CUE1
+    // First cue, check for nosepoke withdrawal
 
-    case auditoryCue:
-    //playLowTone();
-      playHighTone();
+    case cue1:
 
-      // if mouse withdraws nose too early, switch state to missed
-      if (initPoke == 0 && (millis() - nosePokeInitTime) < nosePokeHoldLength) {
-        serLogNum("CueWithdrawal", millis() - nosePokeInitTime);
-    //    digitalWrite(lowCueTTL, LOW);
-    //    digitalWrite(highCueTTL, LOW);
-        digitalWrite(auditoryCueTTL, LOW);
-        sndCounter = 0;
-        switchTo(missed);
+      // play auditory cues
+      if (cue1_aud==1) {
+        playLowTone();
+      }
+      else if (cue1_aud==2) {
+        playHighTone();
+      }
+      else if (cue1_aud==3) {
+        playBuzzer();
+      }
+      else if (cue1_aud==4) {
+        playWhiteNoise();
       }
 
-      // stop pulsing the intan when the auditory cue is finished playing.
-      else if ((millis() - tempTime) > auditoryCueLength) {
-    //    digitalWrite(lowCueTTL, LOW);
-    //    digitalWrite(highCueTTL, LOW);
-        digitalWrite(auditoryCueTTL, LOW);
-        switchTo(postCue);
+
+      // if mouse withdraws nose too early, switch state to punishDelay
+      if (initPoke == 0) {
+        serLogNum("Cue1Withdrawal", millis() - nosePokeInitTime);
+        serLogNum("punishDelayLength", punishDelayLength);
+        switchTo(punishDelay);
       }
-      break;
 
-    ////////////////////
-    // VISUAL CUE
-    // visual stimulus given, check for nosepoke withdrawal
-
-    case visualCue:
-
-      cueLED1.on();
-      cueLED2.on();
-      cueLED3.on();
-      cueLED4.on();
-
-      // if mouse withdraws nose too early, switch state to missed
-      if (initPoke == 0 && (millis() - nosePokeInitTime) < nosePokeHoldLength) {
-        serLogNum("CueWithdrawal", millis() - nosePokeInitTime);
+      else if ((millis() - tempTime) > cue1Length) {
+        // turn off any visual cues
         cueLED1.off();
         cueLED2.off();
         cueLED3.off();
         cueLED4.off();
         digitalWrite(visualCueTTL, LOW);
+
         sndCounter = 0;
-        switchTo(missed);
+        switchTo(interCue);
       }
-      else if ((millis() - tempTime) > visualCueLength) {
+
+      delayMicroseconds(pauseLengthMicros); 
+      break;
+
+
+    ////////////////////
+    // INTERCUE
+    // pause between cues, check for nosepoke withdrawal
+
+    case interCue:
+
+      // if mouse withdraws nose too early, switch state to punishDelay
+      if (initPoke == 0) {
+        serLogNum("InterCueWithdrawal", millis() - nosePokeInitTime);
+        serLogNum("punishDelayLength", punishDelayLength);
+        switchTo(punishDelay);
+      }
+
+      // otherwise mouse held long enough:
+      // start one of the cues when interCueLength time elapsed.
+      else if ((millis() - tempTime) > interCueLength) {
+        switchTo(cue2);
+
+        // turn on visual cues
+        if (cue2_vis==1) {
+          cueLED1.on();
+          cueLED2.on();
+          digitalWrite(visualCueTTL, HIGH);
+        }
+        else if (cue2_vis==2) {
+          cueLED3.on();
+          cueLED4.on();
+          digitalWrite(visualCueTTL, HIGH);
+        }
+        else if (cue2_vis==3) {
+          cueLED1.on();
+          cueLED2.on();
+          cueLED3.on();
+          cueLED4.on();
+          digitalWrite(visualCueTTL, HIGH);
+        }
+      }
+
+      delayMicroseconds(pauseLengthMicros); 
+      break;
+
+    ////////////////////
+    // CUE2
+    // second cue, check for nosepoke withdrawal
+
+    case cue2:
+
+      // play auditory cues
+      if (cue2_aud==1) {
+        playLowTone();
+      }
+      else if (cue2_aud==2) {
+        playHighTone();
+      }
+      else if (cue2_aud==3) {
+        playBuzzer();
+      }
+      else if (cue2_aud==4) {
+        playWhiteNoise();
+      }
+
+      // if mouse withdraws nose too early, switch state to punishDelay
+      if (initPoke == 0) {
+        serLogNum("Cue2Withdrawal", millis() - nosePokeInitTime);
+        serLogNum("punishDelayLength", punishDelayLength);
+        switchTo(punishDelay);
+      }
+
+      // otherwise mouse held long enough:
+      // start one of the cues when cue2Length time elapsed.
+      else if ((millis() - tempTime) > cue2Length) {
+        // turn off any visual cues
         cueLED1.off();
         cueLED2.off();
         cueLED3.off();
         cueLED4.off();
-        //digitalWrite(lowCueTTL, LOW);
-        //digitalWrite(highCueTTL, LOW);
         digitalWrite(visualCueTTL, LOW);
-        switchTo(postCue);
-      }
-      break;
 
-    ////////////////////
-    // NO CUE
-    // used for the training phases 1&2
-
-    case noCue:
-
-      // if mouse withdraws nose too early, switch state to missed
-      if (initPoke == 0 && (millis() - nosePokeInitTime) < nosePokeHoldLength) {
-        serLogNum("CueWithdrawal", millis() - nosePokeInitTime);
-      //  digitalWrite(lowCueTTL, LOW);
-      //  digitalWrite(highCueTTL, LOW);
         sndCounter = 0;
-        switchTo(missed);
-      }
-
-      // switching to postcue after length of time... using "visualCueLength" time
-      else if ((millis() - tempTime) > visualCueLength) {
-      //  digitalWrite(lowCueTTL, LOW);
-      //  digitalWrite(highCueTTL, LOW);
-        serLog("switchingToPostCue"); //testing ... :::::fix: remove
         switchTo(postCue);
       }
+
+      delayMicroseconds(pauseLengthMicros); 
       break;
 
-    ////////////////////
+
+   ////////////////////
     // POSTCUE
-    // pause after cue, check for nosepoke withdrawal
+    // pause after second cue, check for nosepoke withdrawal
 
     case postCue:
 
-      // if mouse withdraws nose too early, switch state to missed
-      if (initPoke == 0 && (millis() - nosePokeInitTime) < nosePokeHoldLength) {
-        serLogNum("CueWithdrawal", millis() - nosePokeInitTime);
-        sndCounter = 0;
-        switchTo(missed);
+      // if mouse withdraws nose too early, switch state to punishDelay
+      if (initPoke == 0) {
+        serLogNum("postCueWithdrawal", millis() - nosePokeInitTime);
+        serLogNum("punishDelayLength", punishDelayLength);
+        switchTo(punishDelay);
       }
 
-      // if mouse held long enough, possibility of opening the doors until the postcuelength is up.
-      else if (millis() - tempTime > postCueLength) {
-        if (LopenYN == 1)
-          openPoke("left");
-        if (RopenYN == 1)
-          openPoke("right");
-        if (extra4openYN == 1)
-          openPoke("extraPoke4");
-        if (extra5openYN == 1) {
-          openPoke("extraPoke5");
-        //giveRewards(3); // give reward to the init/L/R pokes after cue/noCue has occurred and mouse held long enough
+      // otherwise mouse held long enough:
+      // start one of the cues when postCueLength time elapsed.
+      else if ((millis() - tempTime) > postCueLength) {
+        giveRewards(3);
+        if (trainingPhase==2) {
+          switchTo(letTheAnimalDrink);
         }
-        if (trainingPhase < 3) {
-          giveRewards(3);
-          switchTo(letTheAnimalDrink);  //mouse will collect reward in the init port in phases 1 & 2
-        } 
-        if (trainingPhase > 2) {
-          giveRewards(3);
-          switchTo(goToPokes); 
-          //mouse will now go collect reward from pre-rewarded L/R (1st block phase 3), 
-      	  //or after poking L/R, (in later blocks phase 3, or in phase 4 and above)
+        else {
+          switchTo(goToPokes);  
         }
       }
 
-      delayMicroseconds(pauseLengthMicros);
+      delayMicroseconds(pauseLengthMicros); 
       break;
-
-
 
 
     ////////////////////
@@ -449,7 +511,7 @@ void loop() {
     // delay period after error trial. fix::::::::: punishdelay according to my diagram i wrote down.
 
     case punishDelay:
-      if (millis() - tempTime > punishDelayLength) {
+      if ((millis() - tempTime) > punishDelayLength) {
         switchTo(standby);
         if (initPokeError == 0) {
           serLog("Standby");
@@ -474,19 +536,42 @@ void loop() {
 
       processMessage(); // read in input from matlab/console - allows canceling in middle of trial
 
-      // if timeout, switch state to missed
-      if (millis() - tempTime > goToPokesLength) {
+      // if timeout, switch state to punishDelay
+      if ((millis() - tempTime) > goToPokesLength) {
         serLogNum("TrialMissedAfterInit", millis() - initPokeExitTime);
         sndCounter = 0;
-        switchTo(missed);
+        serLogNum("punishDelayLength", punishDelayLength);
+        switchTo(punishDelay);
       }
 
-      // if trainingPhase == 0, the arduino wasn't set up properly
-      if (trainingPhase == 0) {
-        serLog("Error_trainingPhaseIsZero");
-        goToStandby = 1;
+      // if left poke occurs
+      if (leftPoke==1) {
+        if (LrewardCode==4) {
+          deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+          switchTo(letTheAnimalDrink);
+        }
+        else if (LrewardCode==-1) {
+          serLogNum("LeftPokeError", 1);
+          serLogNum("punishDelayLength", punishDelayLength);
+          switchTo(punishDelay);
+        }
       }
 
+      // if right poke occurs
+      if (rightPoke==1) {
+        if (RrewardCode==4) {
+          deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+          switchTo(letTheAnimalDrink);
+        }
+        else if (RrewardCode==-1) {
+          serLogNum("RightPokeError", 1);
+          serLogNum("punishDelayLength", punishDelayLength);
+          switchTo(punishDelay);
+        }
+      }
+
+
+/*
       // trainingPhase 1: correct means collecting from the pre-rewarded port
       // init prerewarded
        if (trainingPhase == 1) {
@@ -523,7 +608,7 @@ void loop() {
 
       if (trainingPhase == 3) {
         if (LrewardCode != 0 && leftPoke == 1) {
-          //deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+          //deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
           giveRewards(4); // luke0806. 
           //  
           // phase 3 is supposed to have only the first block be prerewarded (giverewards(3)) 
@@ -535,7 +620,7 @@ void loop() {
           switchTo(letTheAnimalDrink);
         }
         if (RrewardCode != 0 && rightPoke == 1) {
-          //deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+          //deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
           giveRewards(4); // luke0806
           // same as above block, but it actually 'works,' whatever that means
           serLogNum("Correct", millis() - initPokeExitTime);
@@ -561,7 +646,7 @@ void loop() {
           if (leftPoke == 1) {
             serLogNum("Correct", millis() - initPokeExitTime);
             if (LrewardCode == 4) {
-              //deliverReward_dc(volumeLeft_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+              //deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
               giveRewards(4); // luke0806
               // same things happen here where right pump turns for both correct pokes.
               serLogNum("LeftRewardCollected", deliveryDuration_ms);
@@ -585,7 +670,7 @@ void loop() {
           if (rightPoke == 1) {
             serLogNum("Correct", millis() - initPokeExitTime);
             if (RrewardCode == 4) {
-              //deliverReward_dc(volumeRight_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+              //deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
               giveRewards(4); // luke0806
               // same things happen here where right pump turns for both correct pokes.
               serLogNum("RightRewardCollected", deliveryDuration_ms);
@@ -599,6 +684,7 @@ void loop() {
           }
         }
       }
+      */
 
       // go to standby (instructed by either above code or by matlab)
       if (goToStandby == 1) {
@@ -617,12 +703,31 @@ void loop() {
 
     case letTheAnimalDrink:
 
-      if (millis() - tempTime > rewardCollectionLength) {
+      if ((millis() - tempTime) > rewardCollectionLength) {
         closePoke("all");
         serLog("Standby");
         switchTo(standby);
       }
       delayMicroseconds(pauseLengthMicros);
-      break;
+    break;
+
+    ///////////////////////////////////////////////
+    // CALIBRATION
+    // state for calibrating the sound and light cue levels
+
+    case calibration:
+      
+      playWhiteNoise();
+
+      if ((millis() - tempTime) > calibrationLength) {
+        calibrationLength = 0;
+        sndCounter = 0;
+        switchTo(standby);
+        cueLED1.off();
+        cueLED2.off();
+        cueLED3.off();
+        cueLED4.off();
+      }
+    break;
   }
 }
