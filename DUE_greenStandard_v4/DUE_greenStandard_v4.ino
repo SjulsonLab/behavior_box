@@ -3,6 +3,9 @@
 //===================================================================================================>>
 
 /*
+  v4 - by Luke Sjulson, 2018-09-07. Largely rewritten so that 1) there are no doors, 
+  and 2) there are two cue slots.
+
   Daniela Cassataro v3 7/25/2018
 
   Controller ARDUINO DUE code for three nosepoke box, using five nosepoke box code.
@@ -23,7 +26,6 @@
 
   To do:
     . ctrl+F "FIX:"
-    . remove the CR and CL stuff
 
 */
 
@@ -140,8 +142,8 @@ void setup() {
   pinMode(whiteNoiseTTL, OUTPUT);
   pinMode(auditoryCueTTL, OUTPUT);
   pinMode(visualCueTTL, OUTPUT);
-  pinMode(lowCueTTL, OUTPUT);   //no longer needed ::: fix::::
-  pinMode(highCueTTL, OUTPUT);  //no longer needed ::: fix::::
+  pinMode(leftCueTTL, OUTPUT);   
+  pinMode(rightCueTTL, OUTPUT);  
   pinMode(pulsePal1, OUTPUT);
   pinMode(pulsePal2, OUTPUT);
   pinMode(triggerPin, OUTPUT);
@@ -219,7 +221,12 @@ void loop() {
       else if (startTrialYN == 1) { // if matlab wants to start a trial
         serLog("TrialAvailable");
         serLogNum("TrainingPhase", trainingPhase);
-        serLogNum("NosePokeHoldLength", nosePokeHoldLength);
+        serLogNum("requiredPokeHoldLength", preCueLength + cue1Length + interCueLength + cue2Length + postCueLength);
+        serLogNum("trialLRtype", trialLRtype);
+        serLogNum("trialAVtype", trialAVtype);
+        serLogNum("leftCueWhen", leftCueWhen);
+        serLogNum("rightCueWhen", rightCueWhen);
+
         digitalWrite(whiteNoiseTTL, HIGH); // tell the intan you're going to the readyToGo state/you're about to start the white noise
         cameraLED.on();
         sndCounter = 0; // reset sound counter

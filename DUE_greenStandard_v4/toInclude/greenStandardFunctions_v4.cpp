@@ -4,7 +4,7 @@ Luke Sjulson v4 9/6/2018
 
 TO DO:
   . ctrl+f "FIX:" 
-  . remove the center-right and center-left stuff
+
 
 */
 
@@ -79,9 +79,9 @@ using namespace std;
 #define cameraLEDpin        45
 #define triggerPin          46
 
-// five extra pins (5) that are not plugged into the intan
-// Could be used with an intan with more than 16(17, w/GND) inputs
-#define syringePumpENABLE   47 //will try to use this for ENABLE pin for syringe pumps
+
+// five extra I/O pins that are not sampled by the intan
+#define syringePumpENABLE   47      // we thought about using this pin to enable/disable the syringe pump driver, but for now it's not in use
 #define extraIntan2         48
 #define extraIntan3         49
 #define extraIntan4         50
@@ -146,10 +146,11 @@ int extraPokeLast6      = 0;
 int extraPokeReading6   = 0;
 int extraPokeDetected6  = 0;
 
+
 // servos to control nosepoke doors
 #define ServoOpen      10 //position at which Servo is open
 #define ServoClosed   150 //position at which Servo is closed
-Servo servoInit; // fix: servocenter will become servoInit when I fix where servo init will open at the start of every trial
+Servo servoInit; // not currently being used
 Servo servoLeft;
 Servo servoRight;
 Servo extraServo4;
@@ -183,6 +184,7 @@ long postCueLength          = 50;
 long goToPokesLength        = 60000;
 long rewardCollectionLength = 3000;
 
+
 // which cues get played
 long cue1_vis               = 0;
 long cue2_vis               = 0; 
@@ -192,7 +194,6 @@ long cue2_aud               = 0;
 
 long startTrialYN        = 0;   // 1 to start a trial
 long resetTimeYN         = 0;   // 1 to reset the timer
-long nosePokeHoldLength  = 0;   // number of ms the animal must hold its nose poke FIX: rename to requiredPokeHoldLength_ms
 long goToStandby         = 0;   // set to 1 using matlab to exit goToPokes state
 long giveRewardNow       = 0;   // 1=init, 2=left, 3=right.
 long initPokePunishYN    = 0;   // 1 to punish for init poke during standby, 0 is default
@@ -234,6 +235,12 @@ long LrewardSize_nL          = 0;
 long RrewardSize_nL          = 0;
 long deliveryDuration_ms     = 1000;
 long syringeSize_mL          = 5;
+
+// these variables have no function other than to allow matlab to write them into the log file
+long trialLRtype       = 0;   
+long trialAVtype       = 0; 
+long leftCueWhen       = 0;
+long rightCueWhen      = 0;
 
 
 
@@ -305,6 +312,12 @@ void resetDefaults() {
   giveRewardNow          = 0;
 
   uncollectedRewardYN    = 0; 
+
+  trialLRtype       = 0;   
+  trialAVtype       = 0; 
+  leftCueWhen       = 0;
+  rightCueWhen      = 0;
+
 }
 
 // this function changes the variable referred to by *ptr whenever varName is present in inLine
@@ -718,7 +731,6 @@ void processMessage() {
   changeVariableLong("cue2Length", &cue2Length, inLine);
   changeVariableLong("postCueLength", &postCueLength, inLine);
   changeVariableLong("goToPokesLength", &goToPokesLength, inLine);
-  changeVariableLong("nosePokeHoldLength", &nosePokeHoldLength, inLine);
   changeVariableLong("rewardCollectionLength", &rewardCollectionLength, inLine);
 
   changeVariableLong("cue1_vis", &cue1_vis, inLine);
@@ -742,6 +754,11 @@ void processMessage() {
   changeVariableLong("deliveryDuration_ms", &deliveryDuration_ms, inLine);
   changeVariableLong("syringeSize_mL", &syringeSize_mL, inLine);
 
+  // solely for reporting these variables to the text output
+  changeVariableLong("trialLRtype", &trialLRtype, inLine);
+  changeVariableLong("trialAVtype", &trialAVtype, inLine);
+  changeVariableLong("leftCueWhen", &leftCueWhen, inLine);
+  changeVariableLong("rightCueWhen", &rightCueWhen, inLine);
 
 
   // not in matlab:
