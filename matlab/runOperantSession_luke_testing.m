@@ -87,14 +87,15 @@ m.rightAudCue        = 0;
 
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
-sessionStr.trainingPhase = 1;
+sessionStr.trainingPhase = 3;
+
+
 startTrialNum            = 1;     % in case you stop and start on the same day
 resetTimeYN              = 'yes'; %
-
 sessionStr.basedir = m.basedir;
 sessionStr.timeString = m.timeString;
 sessionStr.dateString = m.dateString;
-sessionStr.IrewardSize_nL = 5000; %IrewardCode is determined by the training phase
+sessionStr.IrewardSize_nL = 5000; 
 
 sessionStr.punishForErrorPoke = 'no'; % 0 for no, 1 for yes
 
@@ -114,7 +115,18 @@ sessionStr.rightCueWhen_info = '1 = first cue slot, 2 = second cue slot, 3 = bot
 sessionStr.LrewardSize_nL = 5000 * ones(size(sessionStr.trialLRtype));
 sessionStr.RrewardSize_nL = 5000 * ones(size(sessionStr.trialLRtype));
 
-sessionStr = makeRewardCodes(sessionStr);
+sessionStr = makeRewardCodes(sessionStr); % adding reward codes to the struct
+
+% cue lengths, etc.
+if sessionStr.trainingPhase>2
+	sessionStr.preCueLength   = 10;
+	sessionStr.cue1Length     = 100;
+	sessionStr.interCueLength = 10;
+	sessionStr.cue2Length     = 100;
+	sessionStr.postCueLength  = 10;
+end
+
+
 
 [cue1_vis, cue1_aud, cue2_vis, cue2_aud] = makeCueVectors(sessionStr, m);
 
@@ -247,6 +259,12 @@ while toc(t)/60 < m.sessionLength && nTrial <= m.maxTrials && exitNowYN == 0 && 
 		trial_dict.update(pyargs('cue1_aud', cue1_aud(nTrial)));
 		trial_dict.update(pyargs('cue2_vis', cue2_vis(nTrial)));
 		trial_dict.update(pyargs('cue2_aud', cue2_aud(nTrial)));
+		
+		trial_dict.update(pyargs('preCueLength', sessionStr.preCueLength));
+		trial_dict.update(pyargs('cue1Length', sessionStr.cue1Length));
+		trial_dict.update(pyargs('interCueLength', sessionStr.interCueLength));
+		trial_dict.update(pyargs('cue2Length', sessionStr.cue2Length));
+		trial_dict.update(pyargs('postCueLength', sessionStr.postCueLength));
 		
 	end
 	
