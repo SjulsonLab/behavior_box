@@ -194,7 +194,7 @@ boxParams.update(pyargs('syringeSize_mL',       5));
 
 %% connect to arduino
 delete(instrfindall);
-box1 = serial(m.serialPort,'Timeout', 10, 'BaudRate', 115200, 'Terminator', 'LF', 'OutputBufferSize', 100000, 'InputBufferSize', 100000);
+box1 = serial(m.serialPort,'Timeout', 10, 'BaudRate', 115200, 'Terminator', 'LF', 'OutputBufferSize', 10^6, 'InputBufferSize', 10^6);
 fopen(box1);
 pause(1);
 fprintf(box1, 'checkVersion\n');
