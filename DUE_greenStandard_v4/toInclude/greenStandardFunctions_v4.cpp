@@ -71,8 +71,8 @@ using namespace std;
 #define whiteNoiseTTL       22
 #define auditoryCueTTL      23
 #define visualCueTTL        25
-#define lowCueTTL           39
-#define highCueTTL          41
+#define leftCueTTL          39
+#define rightCueTTL         41
 #define rewardTTL           43
 
 // last two(2)
@@ -82,10 +82,10 @@ using namespace std;
 
 // five extra I/O pins that are not sampled by the intan
 #define syringePumpENABLE   47      // we thought about using this pin to enable/disable the syringe pump driver, but for now it's not in use
-#define extraIntan2         48
-#define extraIntan3         49
-#define extraIntan4         50
-#define extraIntan5         52
+#define extraTTL2           48
+#define extraTTL3           49
+#define extraTTL4           50
+#define extraTTL5           52
 
 long doorCloseSpeed        = 1;    // original speed was 10 - can decrease if there are problems
 
@@ -496,7 +496,7 @@ void checkPokes()
       initPokeEntryTime = millis();
     }
     else if ((initPokeLast==1) && (initPokeDetected==0)) { // init poke exit
-    	serLogNum("initPokeExit", millis() - initPokeEntryTime);
+    	serLogNum("initPokeExit_ms", millis() - initPokeEntryTime);
     	initPokeLast = initPokeDetected;
     	initPoke = 0;
       initPokeExitTime = millis();
@@ -509,7 +509,7 @@ void checkPokes()
       leftPokeEntryTime = millis();
     }
     else if ((leftPokeLast==1) && (leftPokeDetected==0)) { // left poke exit
-    	serLogNum("leftPokeExit", millis() - leftPokeEntryTime);
+    	serLogNum("leftPokeExit_ms", millis() - leftPokeEntryTime);
     	leftPokeLast = leftPokeDetected;
     	leftPoke = 0;
     }
@@ -521,7 +521,7 @@ void checkPokes()
       rightPokeEntryTime = millis();
     }
     else if ((rightPokeLast==1) && (rightPokeDetected==0)) { // right poke exit
-    	serLogNum("rightPokeExit", millis() - rightPokeEntryTime);
+    	serLogNum("rightPokeExit_ms", millis() - rightPokeEntryTime);
     	rightPokeLast = rightPokeDetected;
     	rightPoke = 0;
     }
@@ -533,7 +533,7 @@ void checkPokes()
       extraPoke4EntryTime = millis();
     }
     else if ((extraPokeLast4==1) && (extraPokeDetected4==0)) { // extra poke 4 exit
-    	serLogNum("extraPokeExit4", millis() - extraPoke4EntryTime);
+    	serLogNum("extraPokeExit4_ms", millis() - extraPoke4EntryTime);
     	extraPokeLast4 = extraPokeDetected4;
     	extraPoke4 = 0;
     }
@@ -545,7 +545,7 @@ void checkPokes()
       extraPoke5EntryTime = millis();
     }
     else if ((extraPokeLast5==1) && (extraPokeDetected5==0)) { // extra poke 5 exit
-      serLogNum("extraPokeExit5", millis() - extraPoke5EntryTime);
+      serLogNum("extraPokeExit5_ms", millis() - extraPoke5EntryTime);
       extraPokeLast5 = extraPokeDetected5;
       extraPoke5 = 0;
     }
@@ -557,7 +557,7 @@ void checkPokes()
       extraPoke6EntryTime = millis();
     }
     else if ((extraPokeLast6==1) && (extraPokeDetected6==0)) { // center poke exit
-      serLogNum("extraPokeExit6", millis() - extraPoke6EntryTime);
+      serLogNum("extraPokeExit6_ms", millis() - extraPoke6EntryTime);
       extraPokeLast6 = extraPokeDetected6;
       extraPoke6 = 0;
     }
@@ -610,10 +610,12 @@ void playBuzzer() {
     sndCounter = 0;
 }
 
+/*
 // used for doing after() on the enable pin which requires a callback in the argument
 void make_ENABLE_pin_HIGH_which_is_off() {
   digitalWrite(syringePumpENABLE, HIGH); 
 }
+*/
 
 // the dc syringe pump func.
 // initialize the variables in the argument of the function definition:
@@ -670,13 +672,13 @@ void deliverReward_dc(long volume_nL, long local_deliveryDuration_ms, int local_
   stepDuration_ms = (double)local_deliveryDuration_ms / totalSteps;
 
   // enable all pumps (low=on state) so we can move them
-  digitalWrite(syringePumpENABLE, LOW);
-  t.after((int)(100+local_deliveryDuration_ms), make_ENABLE_pin_HIGH_which_is_off); // FIX: every time "after()" is used needs to be fixed because it doesn't work like how luke thought it did
+//  digitalWrite(syringePumpENABLE, LOW);
+  //t.after((int)(100+local_deliveryDuration_ms), make_ENABLE_pin_HIGH_which_is_off); // FIX: every time "after()" is used needs to be fixed because it doesn't work like how luke thought it did
   // fix: use the "give immediate pulse" or whatever in the timer library code
 
 
-  // tell the intan reward is delivered
-  //t.pulse(whateverTheIntanPinIs, 5, LOW);
+  // tell the intan reward is delivered - need to test this
+  t.pulseImmediate(rewardTTL, local_deliveryDuration_ms, LOW);
   
   // turn the pump motor
   t.oscillate(whichPump, round(stepDuration_ms/2), LOW, totalSteps*2);
@@ -781,9 +783,18 @@ void processMessage() {
 // this function gives rewards if the timeCode matches the rewardCode (e.g. at the correct state transition)
 // rewards can only be given to I,L,R. can fill in the extra pokes later (fix:)
 void giveRewards(int timeCode) {
-  if (IrewardCode == timeCode) deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
-  if (LrewardCode == timeCode) deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-  if (RrewardCode == timeCode) deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+  if (IrewardCode == timeCode) {
+    deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
+    serLogNum("initReward_nL", IrewardSize_nL);
+  }
+  if (LrewardCode == timeCode) {
+    deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+    serLogNum("leftReward_nL", LrewardSize_nL);
+  }
+  if (RrewardCode == timeCode) {
+    deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+    serLogNum("rightReward_nL", RrewardSize_nL);
+  }
   DPRINTLN(String("IrewardCode: ") + String(IrewardCode)); // for debugging - LS0807
   DPRINTLN(String("LrewardCode: ") + String(LrewardCode));
   DPRINTLN(String("RrewardCode: ") + String(RrewardCode));
@@ -802,14 +813,17 @@ void checkRewards() {
   if (giveRewardNow == 1) {
     giveRewardNow = 0;
     deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
+    serLogNum("initReward_nL", IrewardSize_nL);
   }
   if (giveRewardNow == 2) {
     giveRewardNow = 0;
     deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+    serLogNum("leftReward_nL", LrewardSize_nL);
   }
   if (giveRewardNow == 3) {
     giveRewardNow = 0;
     deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+    serLogNum("rightReward_nL", RrewardSize_nL);
   }
 }
 

@@ -213,7 +213,7 @@ void loop() {
         serLog("InitPokeDuringStndby");
         initPokeError = 1; // this prevents "Standby" from going in the log, so that matlab doesn't get confused and think the trial is over.
         switchTo(punishDelay);
-        serLogNum("punishDelayLength", punishDelayLength);
+        serLogNum("punishDelayLength_ms", punishDelayLength);
         sndCounter = 0;
       }
 
@@ -221,7 +221,7 @@ void loop() {
       else if (startTrialYN == 1) { // if matlab wants to start a trial
         serLog("TrialAvailable");
         serLogNum("TrainingPhase", trainingPhase);
-        serLogNum("requiredPokeHoldLength", preCueLength + cue1Length + interCueLength + cue2Length + postCueLength);
+        serLogNum("requiredPokeHoldLength_ms", preCueLength + cue1Length + interCueLength + cue2Length + postCueLength);
         serLogNum("trialLRtype", trialLRtype);
         serLogNum("trialAVtype", trialAVtype);
         serLogNum("leftCueWhen", leftCueWhen);
@@ -266,9 +266,9 @@ void loop() {
       if ((millis() - tempTime) > readyToGoLength) { // if timeThisStateBegan_ms happened readyToGoLength_ms ago without a nosepoke, the mouse missed the trial.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
         cameraLED.off();
-        serLogNum("TrialMissedBeforeInit", millis() - trialAvailTime); // FIX: replace tempTime w/ trialAvailTime
+        serLogNum("TrialMissedBeforeInit_ms", millis() - trialAvailTime); // FIX: replace tempTime w/ trialAvailTime
         sndCounter = 0;
-        serLogNum("punishDelayLength", punishDelayLength);
+        serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
         uncollectedRewardYN = 1; // indicates the animal is leaving an uncollected reward behind so that another one is not delivered in the next trial - for training phase 1 only
       }
@@ -290,12 +290,12 @@ void loop() {
         // if training phase 1 and mouse pokes, switch state directly to letTheAnimalDrink
         if (trainingPhase==1) {
           uncollectedRewardYN = 0; // only relevant in training phase 1 - indicates the mouse collected the reward, so the port will get a reward next trial
-          serLogNum("Phase1RewardCollected", millis() - trialAvailTime);
+          serLogNum("Phase1RewardCollected_ms", millis() - trialAvailTime);
           switchTo(letTheAnimalDrink);
         }
         // for other training phases, go to preCue 
         else {
-          serLogNum("TrialStarted", millis() - trialAvailTime);
+          serLogNum("TrialStarted_ms", millis() - trialAvailTime);
           sndCounter = 0;
           giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) 
           switchTo(preCue);
@@ -317,8 +317,8 @@ void loop() {
 
       // if mouse withdraws nose too early, switch state to punishDelay
       if (initPoke == 0) {
-        serLogNum("PreCueWithdrawal", millis() - nosePokeInitTime);
-        serLogNum("punishDelayLength", punishDelayLength);
+        serLogNum("PreCueWithdrawal_ms", millis() - nosePokeInitTime);
+        serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
       }
 
@@ -374,8 +374,8 @@ void loop() {
 
       // if mouse withdraws nose too early, switch state to punishDelay
       if (initPoke == 0) {
-        serLogNum("Cue1Withdrawal", millis() - nosePokeInitTime);
-        serLogNum("punishDelayLength", punishDelayLength);
+        serLogNum("Cue1Withdrawal_ms", millis() - nosePokeInitTime);
+        serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
       }
 
@@ -403,8 +403,8 @@ void loop() {
 
       // if mouse withdraws nose too early, switch state to punishDelay
       if (initPoke == 0) {
-        serLogNum("InterCueWithdrawal", millis() - nosePokeInitTime);
-        serLogNum("punishDelayLength", punishDelayLength);
+        serLogNum("InterCueWithdrawal_ms", millis() - nosePokeInitTime);
+        serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
       }
 
@@ -458,8 +458,8 @@ void loop() {
 
       // if mouse withdraws nose too early, switch state to punishDelay
       if (initPoke == 0) {
-        serLogNum("Cue2Withdrawal", millis() - nosePokeInitTime);
-        serLogNum("punishDelayLength", punishDelayLength);
+        serLogNum("Cue2Withdrawal_ms", millis() - nosePokeInitTime);
+        serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
       }
 
@@ -489,8 +489,8 @@ void loop() {
 
       // if mouse withdraws nose too early, switch state to punishDelay
       if (initPoke == 0) {
-        serLogNum("postCueWithdrawal", millis() - nosePokeInitTime);
-        serLogNum("punishDelayLength", punishDelayLength);
+        serLogNum("postCueWithdrawal_ms", millis() - nosePokeInitTime);
+        serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
       }
 
@@ -499,7 +499,7 @@ void loop() {
       else if ((millis() - tempTime) > postCueLength) {
         giveRewards(3);
         if (trainingPhase==2) {
-          serLogNum("letTheAnimalDrink", rewardCollectionLength);
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
         else {
@@ -543,9 +543,9 @@ void loop() {
 
       // if timeout, switch state to punishDelay
       if ((millis() - tempTime) > goToPokesLength) {
-        serLogNum("TrialMissedAfterInit", millis() - initPokeExitTime);
+        serLogNum("TrialMissedAfterInit_ms", millis() - initPokeExitTime);
         sndCounter = 0;
-        serLogNum("punishDelayLength", punishDelayLength);
+        serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
       }
 
@@ -553,13 +553,13 @@ void loop() {
       if (leftPoke==1) {
         if (LrewardCode==4) {
           deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-          serLogNum("leftReward", LrewardSize_nL);
-          serLogNum("letTheAnimalDrink", rewardCollectionLength);
+          serLogNum("leftReward_nL", LrewardSize_nL);
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
         else if (LrewardCode==-1) {
-          serLogNum("LeftPokeError", 1);
-          serLogNum("punishDelayLength", punishDelayLength);
+          serLog("LeftPokeError");
+          serLogNum("punishDelayLength_ms", punishDelayLength);
           switchTo(punishDelay);
         }
       }
@@ -568,13 +568,13 @@ void loop() {
       if (rightPoke==1) {
         if (RrewardCode==4) {
           deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
-          serLogNum("rightReward", RrewardSize_nL);
-          serLogNum("letTheAnimalDrink", rewardCollectionLength);
+          serLogNum("rightReward_nL", RrewardSize_nL);
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
         else if (RrewardCode==-1) {
-          serLogNum("RightPokeError", 1);
-          serLogNum("punishDelayLength", punishDelayLength);
+          serLog("RightPokeError");
+          serLogNum("punishDelayLength_ms", punishDelayLength);
           switchTo(punishDelay);
         }
       }

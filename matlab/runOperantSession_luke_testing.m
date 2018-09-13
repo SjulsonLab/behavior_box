@@ -44,27 +44,14 @@
 clear all
 close all
 
-%% figuring out where to save the log files - needs fix later
 
-% fix: update this section using exist to search for basedir.
-if strcmpi(computer, 'MACI64')
-	m.basedir = '/Users/luke/Google Drive/lab-shared/lab_projects/rewardPrediction/behavior';
-else
-	%    m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
-	m.basedir = 'C:\Users\lukes\Desktop\temp';
-end
-m.dateString = datestr(now, 29);
-timeString = datestr(now, 30);
-m.timeString = timeString(end-6:end);
-cd(m.basedir);
 
-%% parameters to set on a per-mouse basis
-m.mouseName            = 'ec-test-9-05-jaxmale03b';  % should not change
-m.serialPort           = 'COM4'; % look this up in the arduino software
+
+
+%% parameters for the mouse struct - these should never change
+m.mouseName            = 'jaxmale03b';  % should not change
 m.requiredVersion      = 10;  % version of arduino DUE software required
-m.sessionLength        = 60; % in minutes
-m.maxTrials            = 300; % program terminates when either sessionLength or maxTrials is reached
-m.interTrialInterval   = 2;  % number of seconds between trials
+
 
 % setting which cues are used for this animal - must be consistent for a given animal
 % cue1_vis and cue2_vis codes
@@ -85,18 +72,19 @@ m.leftAudCue         = 3;
 m.rightAudCue        = 0;
 
 
+
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
 sessionStr.trainingPhase = 3;
 
-
-startTrialNum            = 1;     % in case you stop and start on the same day
+sessionStr.startTrialNum = 1;     % in case you stop and start on the same day
 resetTimeYN              = 'yes'; %
-sessionStr.basedir = m.basedir;
-sessionStr.timeString = m.timeString;
-sessionStr.dateString = m.dateString;
-sessionStr.IrewardSize_nL = 5000; 
 
+sessionStr.sessionLength        = 60; % in minutes
+sessionStr.maxTrials            = 300; % program terminates when either sessionLength or maxTrials is reached
+sessionStr.interTrialInterval   = 2;  % number of seconds between trials
+
+sessionStr.IrewardSize_nL = 5000; 
 sessionStr.punishForErrorPoke = 'no'; % 0 for no, 1 for yes
 
 % info about trials - will figure out something more sophisticated later
@@ -108,9 +96,8 @@ sessionStr.trialAVtype_info = '1 = auditory only, 2 = visual only, 3 = both aud 
 
 sessionStr.leftCueWhen  = [2 1 2 3 1 2 3 2 1 1 1 3 2 2]; % 1 = first cue slot, 2 = second cue slot, 3 = both cue slots
 sessionStr.leftCueWhen_info = '1 = first cue slot, 2 = second cue slot, 3 = both cue slots';
-sessionStr.rightCueWhen = [2 2 1 1 1 2 3 1 2 3 1 2 3 1]; % 1 = first cue slot, 2 = second cue slot, 3 = both cue slots
+sessionStr.rightCueWhen = [1 2 1 1 1 2 3 1 2 3 1 2 3 1]; % 1 = first cue slot, 2 = second cue slot, 3 = both cue slots
 sessionStr.rightCueWhen_info = '1 = first cue slot, 2 = second cue slot, 3 = both cue slots';
-
 
 sessionStr.LrewardSize_nL = 5000 * ones(size(sessionStr.trialLRtype));
 sessionStr.RrewardSize_nL = 5000 * ones(size(sessionStr.trialLRtype));
@@ -121,19 +108,47 @@ sessionStr = makeRewardCodes(sessionStr); % adding reward codes to the struct
 if sessionStr.trainingPhase>2
 	sessionStr.preCueLength   = 10;
 	sessionStr.cue1Length     = 100;
-	sessionStr.interCueLength = 10;
+	sessionStr.interCueLength = 1000;
 	sessionStr.cue2Length     = 100;
 	sessionStr.postCueLength  = 10;
 end
 
-
-
 [cue1_vis, cue1_aud, cue2_vis, cue2_aud] = makeCueVectors(sessionStr, m);
 
 
+%% figuring out where to save the log files and which computer we're on
+[~, hostname] = system('hostname');
+
+if strfind(hostname, 'Luke-HP-laptop')
+	m.basedir = 'C:\Users\lukes\Desktop\temp';
+	m.serialPort = 'COM4';  % can look this up in the arduino software
+elseif strfind(hostname, 'bumbrlik01')
+	m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
+	m.serialPort = 'COM4';  
+else
+	error('can''t figure out correct location to store files');
+end
+
+m.dateString = datestr(now, 29);
+timeString = datestr(now, 30);
+m.timeString = timeString(end-5:end);
+sessionStr.basedir = m.basedir;
+sessionStr.timeString = m.timeString;
+sessionStr.dateString = m.dateString;
+
+%% creating directory to store the data, saving structs to disk
+cd(sessionStr.basedir);
+sessionStr.basename = [sessionStr.mouseName '_' datestr(now, 'yymmdd') '_' sessionStr.timeString];
+mkdir(sessionStr.basename);
+cd(sessionStr.basename);
+
+mouseStr = m;
+save('mouseStr.mat', 'mouseStr');
+save('sessionStr.mat', 'sessionStr');
+
 %% put all default box params here
 boxParams = py.dict;
-boxParams.update(pyargs('nTrial',            startTrialNum));
+boxParams.update(pyargs('nTrial',            sessionStr.startTrialNum));
 boxParams.update(pyargs('resetTimeYN',       0)); % setting this to 1 sets the arduino clock zero and sends a sync pulse to the intan
 boxParams.update(pyargs('initPokePunishYN',  0)); % setting to 1 enables punishment for initpoke during standby
 
@@ -179,7 +194,7 @@ boxParams.update(pyargs('syringeSize_mL',       5));
 
 %% connect to arduino
 delete(instrfindall);
-box1 = serial(m.serialPort,'Timeout', 10, 'BaudRate', 115200, 'Terminator', 'LF', 'OutputBufferSize', 10000, 'InputBufferSize', 10000);
+box1 = serial(m.serialPort,'Timeout', 10, 'BaudRate', 115200, 'Terminator', 'LF', 'OutputBufferSize', 100000, 'InputBufferSize', 100000);
 fopen(box1);
 pause(1);
 fprintf(box1, 'checkVersion\n');
@@ -213,16 +228,16 @@ k = boxParams.keys;
 d = boxParams.values;
 for idx = 1:length(d)
 	sendToArduino(box1, [], char(k{idx}), d{idx});
-	pause(0.2); % extended the pause to 0.2 s
+	pause(0.01); % used to be 0.2 s before increasing buffer size
 end
 
 %% main while loop, looping over trials
 t = tic;
-nTrial = startTrialNum;
+nTrial = sessionStr.startTrialNum;
 lastPos = 0;
 close all
 
-while toc(t)/60 < m.sessionLength && nTrial <= m.maxTrials && exitNowYN == 0 && exitAfterTrialYN == 0
+while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && exitNowYN == 0 && exitAfterTrialYN == 0
 	
 	% set box params for this trial
 	% all reward codes default to zero and will be zero unless changed here
@@ -233,6 +248,7 @@ while toc(t)/60 < m.sessionLength && nTrial <= m.maxTrials && exitNowYN == 0 && 
 	
 	trial_dict.update(pyargs('nTrial', nTrial));
 	trial_dict.update(pyargs('trainingPhase', sessionStr.trainingPhase));
+	
 	
 	if sessionStr.trainingPhase == 1
 		trial_dict.update(pyargs('IrewardCode', 1));
@@ -272,9 +288,8 @@ while toc(t)/60 < m.sessionLength && nTrial <= m.maxTrials && exitNowYN == 0 && 
 	
 	
 	%% run actual trial
-	fname = runFivePokeSingleTrial(box1, m, trial_dict);
-	% only pass the freshly made P dict for THAT trial.
-
+	fname = run2AFCSingleTrial(box1, sessionStr, trial_dict);
+	pause(sessionStr.interTrialInterval);
 	
 	
 	%% write additional parameters to logfile
