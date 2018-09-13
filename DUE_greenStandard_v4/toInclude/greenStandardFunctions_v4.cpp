@@ -20,13 +20,6 @@ TO DO:
 
 using namespace std;
 
-#include <Arduino.h>
-#include <LED.h>   // https://playground.arduino.cc/Code/LED - have to open LED.h and manually change Wprogram.h to Arduino.h
-#include <Servo.h>
-#include <Event.h> // https://playground.arduino.cc/Code/Timer
-#include <Timer.h> // https://playground.arduino.cc/Code/Timer
-//#include <string>
-#include <avr/pgmspace.h> // might be required to store waveforms on flash instead of RAM
 #include "arduino_waveforms.h" // stores the sound cues to send to DAC0 to play through the speaker
 #include "arduino_waveform_buzzer.h" // stores the buzzer sound
 

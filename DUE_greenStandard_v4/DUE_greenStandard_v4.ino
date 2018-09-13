@@ -32,7 +32,14 @@
 // tell matlab version 10
 #define VERSION     10
 
-// include the functions
+// include dependencies
+#include <Arduino.h>
+#include "libraries/LED/LED.cpp"   // https://playground.arduino.cc/Code/LED - have to open LED.h and manually change Wprogram.h to Arduino.h
+#include <Servo.h>
+#include "libraries/Timer-master/Event.cpp" // https://playground.arduino.cc/Code/Timer
+#include "libraries/Timer-master/Timer.cpp" // https://playground.arduino.cc/Code/Timer
+//#include <string>
+#include <avr/pgmspace.h> // might be required to store waveforms on flash instead of RAM
 #include "toInclude/greenStandardFunctions_v4.cpp"
 
 // state definitions
