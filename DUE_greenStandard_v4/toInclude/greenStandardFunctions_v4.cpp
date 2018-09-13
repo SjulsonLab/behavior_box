@@ -26,19 +26,21 @@ using namespace std;
 #include <Event.h> // https://playground.arduino.cc/Code/Timer
 #include <Timer.h> // https://playground.arduino.cc/Code/Timer
 //#include <string>
-#define cueLED1pin          13
 #include <avr/pgmspace.h> // might be required to store waveforms on flash instead of RAM
 #include "arduino_waveforms.h" // stores the sound cues to send to DAC0 to play through the speaker
 #include "arduino_waveform_buzzer.h" // stores the buzzer sound
 
 // Pin definitions
+
 // pins not sampled by Intan
 #define servoPin1           36 // connected to servo
 #define servoPin2           38 // connected to servo
 #define servoPin3           40 // connected to servo
 #define servoPin4           42 // not actually connected to a servo yet
 #define servoPin5           44 // not actually connected to a servo yet
+
 // cue lights
+#define cueLED1pin          13
 #define cueLED2pin          12
 #define cueLED3pin          11
 #define cueLED4pin          10
