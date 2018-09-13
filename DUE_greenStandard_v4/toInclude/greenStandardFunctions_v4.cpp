@@ -222,6 +222,12 @@ long lowCueVolume    = 128;
 long highCueVolume   = 128;
 long buzzerVolume    = 128; 
 
+long cueLED1Brightness   = 255;
+long cueLED2Brightness   = 255;
+long cueLED3Brightness   = 255;
+long cueLED4Brightness   = 255;
+long cueLED5Brightness   = 255;
+long cueLED6Brightness   = 255;
 
 // globals for the syringe pumps
 // these are all longs because matlab requires longs
@@ -246,6 +252,8 @@ LED cueLED1   = LED(cueLED1pin);
 LED cueLED2   = LED(cueLED2pin);
 LED cueLED3   = LED(cueLED3pin);
 LED cueLED4   = LED(cueLED4pin);
+LED cueLED5   = LED(cueLED5pin);
+LED cueLED6   = LED(cueLED6pin);
 LED cameraLED = LED(cameraLEDpin);  // will be connected to red or IR LED sampled by camera
 
 
@@ -706,6 +714,13 @@ void processMessage() {
   changeVariableLong("highCueVolume", &highCueVolume, inLine);
   changeVariableLong("buzzerVolume", &buzzerVolume, inLine);
   changeVariableLong("calibrationLength", &calibrationLength, inLine);
+
+  changeVariableLong("cueLED1Brightness", &cueLED1Brightness, inLine);
+  changeVariableLong("cueLED2Brightness", &cueLED1Brightness, inLine);
+  changeVariableLong("cueLED3Brightness", &cueLED1Brightness, inLine);
+  changeVariableLong("cueLED4Brightness", &cueLED1Brightness, inLine);
+  changeVariableLong("cueLED5Brightness", &cueLED1Brightness, inLine);
+  changeVariableLong("cueLED6Brightness", &cueLED1Brightness, inLine);
 
   changeVariableLong("trainingPhase", &trainingPhase, inLine);
   changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);

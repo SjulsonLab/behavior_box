@@ -253,6 +253,13 @@ void loop() {
         cueLED2.on();
         cueLED3.on();
         cueLED4.on();
+
+        // for testing
+        cueLED1.setValue(cueLED1Brightness);
+        cueLED2.setValue(cueLED2Brightness);
+        cueLED3.setValue(cueLED3Brightness);
+        cueLED4.setValue(cueLED4Brightness);
+
         WNvolume = 128;
         switchTo(calibration);
       }

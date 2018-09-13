@@ -192,6 +192,12 @@ boxParams.update(pyargs('RrewardSize_nL',       1000*5));
 boxParams.update(pyargs('deliveryDuration_ms',  1000));
 boxParams.update(pyargs('syringeSize_mL',       5));
 
+boxParams.update(pyargs('cueLED1Brightness',       4000));
+boxParams.update(pyargs('cueLED2Brightness',       4000));
+boxParams.update(pyargs('cueLED3Brightness',       4000));
+boxParams.update(pyargs('cueLED4Brightness',       4000));
+
+
 %% connect to arduino
 delete(instrfindall);
 box1 = serial(m.serialPort,'Timeout', 10, 'BaudRate', 115200, 'Terminator', 'LF', 'OutputBufferSize', 10^6, 'InputBufferSize', 10^6);
