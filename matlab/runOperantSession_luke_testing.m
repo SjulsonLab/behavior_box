@@ -192,10 +192,10 @@ boxParams.update(pyargs('RrewardSize_nL',       1000*5));
 boxParams.update(pyargs('deliveryDuration_ms',  1000));
 boxParams.update(pyargs('syringeSize_mL',       5));
 
-boxParams.update(pyargs('cueLED1Brightness',       4000));
-boxParams.update(pyargs('cueLED2Brightness',       4000));
-boxParams.update(pyargs('cueLED3Brightness',       4000));
-boxParams.update(pyargs('cueLED4Brightness',       4000));
+boxParams.update(pyargs('cueLED1Brightness',       1023));
+boxParams.update(pyargs('cueLED2Brightness',       1023));
+boxParams.update(pyargs('cueLED3Brightness',       1023));
+boxParams.update(pyargs('cueLED4Brightness',       1023));
 
 
 %% connect to arduino

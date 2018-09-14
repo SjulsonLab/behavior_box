@@ -244,7 +244,7 @@ long leftCueWhen       = 0;
 long rightCueWhen      = 0;
 
 
-
+/*
 //***********************************************
 //              declare LEDs
 //***********************************************
@@ -255,7 +255,7 @@ LED cueLED4   = LED(cueLED4pin);
 LED cueLED5   = LED(cueLED5pin);
 LED cueLED6   = LED(cueLED6pin);
 LED cameraLED = LED(cameraLEDpin);  // will be connected to red or IR LED sampled by camera
-
+*/
 
 
 //***********************************************
@@ -716,11 +716,11 @@ void processMessage() {
   changeVariableLong("calibrationLength", &calibrationLength, inLine);
 
   changeVariableLong("cueLED1Brightness", &cueLED1Brightness, inLine);
-  changeVariableLong("cueLED2Brightness", &cueLED1Brightness, inLine);
-  changeVariableLong("cueLED3Brightness", &cueLED1Brightness, inLine);
-  changeVariableLong("cueLED4Brightness", &cueLED1Brightness, inLine);
-  changeVariableLong("cueLED5Brightness", &cueLED1Brightness, inLine);
-  changeVariableLong("cueLED6Brightness", &cueLED1Brightness, inLine);
+  changeVariableLong("cueLED2Brightness", &cueLED2Brightness, inLine);
+  changeVariableLong("cueLED3Brightness", &cueLED3Brightness, inLine);
+  changeVariableLong("cueLED4Brightness", &cueLED4Brightness, inLine);
+  changeVariableLong("cueLED5Brightness", &cueLED5Brightness, inLine);
+  changeVariableLong("cueLED6Brightness", &cueLED6Brightness, inLine);
 
   changeVariableLong("trainingPhase", &trainingPhase, inLine);
   changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
@@ -839,6 +839,18 @@ void checkRewards() {
 
 // function to switch states
 void switchTo(int whichState) {
-    tempTime = millis(); // stores time of last state transition in global variable
-    state = whichState;
+  tempTime = millis(); // stores time of last state transition in global variable
+  state = whichState;
 }
+
+// setting level for LEDs
+void setLEDlevel(int whichPin, int whichLevel) {
+  // the reason for this function is because analogWrite() implements hardware-based PWM
+  // for the digital pins (e.g. for the LEDs), but that only works up to 10-bit resolution,
+  // but we want 12-bit resolution for the DAC, so we have to change the resolution and 
+  // change it back every time we change the PWM level for an LED pin.
+  analogWriteResolution(10);
+  analogWrite(whichPin, whichLevel);
+  analogWriteResolution(12);  
+}
+

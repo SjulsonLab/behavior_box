@@ -34,7 +34,7 @@
 
 // include dependencies
 #include <Arduino.h>
-#include "libraries/LED/LED.cpp"   // https://playground.arduino.cc/Code/LED - have to open LED.h and manually change Wprogram.h to Arduino.h
+//#include "libraries/LED/LED.cpp"   // https://playground.arduino.cc/Code/LED - have to open LED.h and manually change Wprogram.h to Arduino.h
 #include <Servo.h>
 #include "libraries/Timer-master/Event.cpp" // https://playground.arduino.cc/Code/Timer
 #include "libraries/Timer-master/Timer.cpp" // https://playground.arduino.cc/Code/Timer
@@ -156,11 +156,13 @@ void setup() {
   pinMode(triggerPin, OUTPUT);
 
   // turn all LEDs off.
-  cueLED1.off();
-  cueLED2.off();
-  cueLED3.off();
-  cueLED4.off();
-  cameraLED.off();
+  setLEDlevel(cueLED1pin, 0);
+  setLEDlevel(cueLED2pin, 0);
+  setLEDlevel(cueLED3pin, 0);
+  setLEDlevel(cueLED4pin, 0);
+  setLEDlevel(cueLED5pin, 0);
+  setLEDlevel(cueLED6pin, 0);
+  digitalWrite(cameraLEDpin, LOW);
 
   // default state
   state = standby;
@@ -235,7 +237,7 @@ void loop() {
         serLogNum("rightCueWhen", rightCueWhen);
 
         digitalWrite(whiteNoiseTTL, HIGH); // tell the intan you're going to the readyToGo state/you're about to start the white noise
-        cameraLED.on();
+        digitalWrite(cameraLEDpin, HIGH);
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
         if (uncollectedRewardYN==0) {
@@ -249,19 +251,17 @@ void loop() {
 
       // for calibrating the volume levels and cue light brightness
       if (calibrationLength > 0) {
-        cueLED1.on();
-        cueLED2.on();
-        cueLED3.on();
-        cueLED4.on();
-
-        // for testing
-        cueLED1.setValue(cueLED1Brightness);
-        cueLED2.setValue(cueLED2Brightness);
-        cueLED3.setValue(cueLED3Brightness);
-        cueLED4.setValue(cueLED4Brightness);
+        // setting to max brightness. Voltage drop across resistor should be 10 mV
+        setLEDlevel(cueLED1pin, 1023);
+        setLEDlevel(cueLED2pin, 1023);
+        setLEDlevel(cueLED3pin, 1023);
+        setLEDlevel(cueLED4pin, 1023);
 
         WNvolume = 128;
         switchTo(calibration);
+        serLog("voltage drop across cue LED resistor should be 10 mV");
+        serLog("sound volume at center of chamber (with doors open) should be 80 dB");
+
       }
 
       break;
@@ -279,7 +279,7 @@ void loop() {
       // if timeout, switch state to punishDelay
       if ((millis() - tempTime) > readyToGoLength) { // if timeThisStateBegan_ms happened readyToGoLength_ms ago without a nosepoke, the mouse missed the trial.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
-        cameraLED.off();
+        digitalWrite(cameraLEDpin, LOW);
         serLogNum("TrialMissedBeforeInit_ms", millis() - trialAvailTime); // FIX: replace tempTime w/ trialAvailTime
         sndCounter = 0;
         serLogNum("punishDelayLength_ms", punishDelayLength);
@@ -299,7 +299,7 @@ void loop() {
 
         nosePokeInitTime = millis(); // record time when mouse begins the init poke specifically. used to make sure mouse holds long enough.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
-        cameraLED.off();
+        digitalWrite(cameraLEDpin, LOW);
 
         // if training phase 1 and mouse pokes, switch state directly to letTheAnimalDrink
         if (trainingPhase==1) {
@@ -343,20 +343,20 @@ void loop() {
 
         // turn on visual cues
         if (cue1_vis==1) {
-          cueLED1.on();
-          cueLED2.on();
+          setLEDlevel(cueLED1pin, cueLED1Brightness);
+          setLEDlevel(cueLED2pin, cueLED2Brightness);
           digitalWrite(visualCueTTL, HIGH);
         }
         else if (cue1_vis==2) {
-          cueLED3.on();
-          cueLED4.on();
+          setLEDlevel(cueLED3pin, cueLED3Brightness);
+          setLEDlevel(cueLED4pin, cueLED4Brightness);
           digitalWrite(visualCueTTL, HIGH);
         }
         else if (cue1_vis==3) {
-          cueLED1.on();
-          cueLED2.on();
-          cueLED3.on();
-          cueLED4.on();
+          setLEDlevel(cueLED1pin, cueLED1Brightness);
+          setLEDlevel(cueLED2pin, cueLED2Brightness);
+          setLEDlevel(cueLED3pin, cueLED3Brightness);
+          setLEDlevel(cueLED4pin, cueLED4Brightness);
           digitalWrite(visualCueTTL, HIGH);
         }
       }
@@ -395,10 +395,10 @@ void loop() {
 
       else if ((millis() - tempTime) > cue1Length) {
         // turn off any visual cues
-        cueLED1.off();
-        cueLED2.off();
-        cueLED3.off();
-        cueLED4.off();
+        setLEDlevel(cueLED1pin, 0);
+        setLEDlevel(cueLED2pin, 0);
+        setLEDlevel(cueLED3pin, 0);
+        setLEDlevel(cueLED4pin, 0);
         digitalWrite(visualCueTTL, LOW);
 
         sndCounter = 0;
@@ -429,20 +429,20 @@ void loop() {
 
         // turn on visual cues
         if (cue2_vis==1) {
-          cueLED1.on();
-          cueLED2.on();
+          setLEDlevel(cueLED1pin, cueLED1Brightness);
+          setLEDlevel(cueLED2pin, cueLED2Brightness);
           digitalWrite(visualCueTTL, HIGH);
         }
         else if (cue2_vis==2) {
-          cueLED3.on();
-          cueLED4.on();
+          setLEDlevel(cueLED3pin, cueLED3Brightness);
+          setLEDlevel(cueLED4pin, cueLED4Brightness);
           digitalWrite(visualCueTTL, HIGH);
         }
         else if (cue2_vis==3) {
-          cueLED1.on();
-          cueLED2.on();
-          cueLED3.on();
-          cueLED4.on();
+          setLEDlevel(cueLED1pin, cueLED1Brightness);
+          setLEDlevel(cueLED2pin, cueLED2Brightness);
+          setLEDlevel(cueLED3pin, cueLED3Brightness);
+          setLEDlevel(cueLED4pin, cueLED4Brightness);
           digitalWrite(visualCueTTL, HIGH);
         }
       }
@@ -481,10 +481,10 @@ void loop() {
       // start one of the cues when cue2Length time elapsed.
       else if ((millis() - tempTime) > cue2Length) {
         // turn off any visual cues
-        cueLED1.off();
-        cueLED2.off();
-        cueLED3.off();
-        cueLED4.off();
+        setLEDlevel(cueLED1pin, 0);
+        setLEDlevel(cueLED2pin, 0);
+        setLEDlevel(cueLED3pin, 0);
+        setLEDlevel(cueLED4pin, 0);
         digitalWrite(visualCueTTL, LOW);
 
         sndCounter = 0;
@@ -630,10 +630,10 @@ void loop() {
         calibrationLength = 0;
         sndCounter = 0;
         switchTo(standby);
-        cueLED1.off();
-        cueLED2.off();
-        cueLED3.off();
-        cueLED4.off();
+        setLEDlevel(cueLED1pin, 0);
+        setLEDlevel(cueLED2pin, 0);
+        setLEDlevel(cueLED3pin, 0);
+        setLEDlevel(cueLED4pin, 0);
       }
     break;
   }
