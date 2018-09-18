@@ -82,8 +82,8 @@ resetTimeYN              = 'yes'; %
 
 sessionStr.sessionLength             = 60; % in minutes
 sessionStr.maxTrials                 = 300; % program terminates when either sessionLength or maxTrials is reached
-sessionStr.interTrialInterval_mean   = 3;  % number of seconds between trials
-sessionStr.interTrialInterval_SD     = 1; % standard deviation of 
+sessionStr.interTrialInterval_mean   = 2;  % number of seconds between trials
+sessionStr.interTrialInterval_SD     = 2; % standard deviation of 
 
 sessionStr.IrewardSize_nL = 5000; 
 sessionStr.punishForErrorPoke = 'no'; % 0 for no, 1 for yes
@@ -296,7 +296,7 @@ while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && 
 	
 	%% run actual trial
 	fname = run2AFCSingleTrial(box1, sessionStr, trial_dict);
-	pause(sessionStr.interTrialInterval_mean + sessionStr.interTrialInterval_SD .* randn());
+	pause(randn(sessionStr.interTrialInterval);
 	
 	
 	%% write additional parameters to logfile
