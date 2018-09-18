@@ -49,7 +49,7 @@ close all
 
 
 %% parameters for the mouse struct - these should never change
-m.mouseName            = 'jaxmale03b';  % should not change
+m.mouseName            = 'jaxmale07';  % should not change
 m.requiredVersion      = 10;  % version of arduino DUE software required
 
 
@@ -75,15 +75,15 @@ m.rightAudCue        = 0;
 
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
-sessionStr.trainingPhase = 3;
+sessionStr.trainingPhase = 1;
 
 sessionStr.startTrialNum = 1;     % in case you stop and start on the same day
 resetTimeYN              = 'yes'; %
 
 sessionStr.sessionLength             = 60; % in minutes
 sessionStr.maxTrials                 = 300; % program terminates when either sessionLength or maxTrials is reached
-sessionStr.interTrialInterval_mean   = 2;  % number of seconds between trials
-sessionStr.interTrialInterval_SD     = 2; % standard deviation of 
+sessionStr.interTrialInterval_mean   = 3;  % number of seconds between trials
+sessionStr.interTrialInterval_SD     = 1; % standard deviation of 
 
 sessionStr.IrewardSize_nL = 5000; 
 sessionStr.punishForErrorPoke = 'no'; % 0 for no, 1 for yes
@@ -122,10 +122,13 @@ end
 
 if strfind(hostname, 'Luke-HP-laptop')
 	m.basedir = 'C:\Users\lukes\Desktop\temp';
-	m.serialPort = 'COM4';  % can look this up in the arduino software
+	m.serialPort = 'COM4';  % can look this up in the arduino
 elseif strfind(hostname, 'bumbrlik01')
 	m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
-	m.serialPort = 'COM4';  
+	m.serialPort = 'COM4';  %commented by EFO
+elseif strfind(hostname, 'bumbrlik02')
+    m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
+    m.serialPort = 'COM5'; %introduced by EFO, arduino was connected on COM5 only, no matter which USB port  
 else
 	error('can''t figure out correct location to store files');
 end
@@ -296,7 +299,7 @@ while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && 
 	
 	%% run actual trial
 	fname = run2AFCSingleTrial(box1, sessionStr, trial_dict);
-	pause(randn(sessionStr.interTrialInterval);
+	pause(sessionStr.interTrialInterval_mean + sessionStr.interTrialInterval_SD .* randn());
 	
 	
 	%% write additional parameters to logfile

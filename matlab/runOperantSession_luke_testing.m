@@ -49,7 +49,7 @@ close all
 
 
 %% parameters for the mouse struct - these should never change
-m.mouseName            = 'jaxmale03b';  % should not change
+m.mouseName            = 'jaxmale07';  % should not change
 m.requiredVersion      = 10;  % version of arduino DUE software required
 
 
@@ -75,7 +75,7 @@ m.rightAudCue        = 0;
 
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
-sessionStr.trainingPhase = 3;
+sessionStr.trainingPhase = 1;
 
 sessionStr.startTrialNum = 1;     % in case you stop and start on the same day
 resetTimeYN              = 'yes'; %
