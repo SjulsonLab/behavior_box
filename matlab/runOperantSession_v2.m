@@ -150,6 +150,18 @@ mouseStr = m;
 save('mouseStr.mat', 'mouseStr');
 save('sessionStr.mat', 'sessionStr');
 
+%% verify we're using python 2.7, as version 3 creates problems with dicts
+x = pyversion();
+if str2num(x) ~= 2.7
+	try
+		pyversion 2.7
+	catch
+		disp('The wrong version of python is loaded. Restart MATLAB.');
+		return
+	end
+end
+
+
 %% put all default box params here
 boxParams = py.dict;
 boxParams.update(pyargs('nTrial',            sessionStr.startTrialNum));
@@ -200,6 +212,8 @@ boxParams.update(pyargs('cueLED1Brightness',       1023));
 boxParams.update(pyargs('cueLED2Brightness',       1023));
 boxParams.update(pyargs('cueLED3Brightness',       1023));
 boxParams.update(pyargs('cueLED4Brightness',       1023));
+
+
 
 
 %% connect to arduino
