@@ -303,6 +303,7 @@ void loop() {
 
         // if training phase 1 and mouse pokes, switch state directly to letTheAnimalDrink
         if (trainingPhase==1) {
+          serLogNum("TrialStarted_ms", millis() - trialAvailTime);
           uncollectedRewardYN = 0; // only relevant in training phase 1 - indicates the mouse collected the reward, so the port will get a reward next trial
           serLogNum("Phase1RewardCollected_ms", millis() - trialAvailTime);
           switchTo(letTheAnimalDrink);
