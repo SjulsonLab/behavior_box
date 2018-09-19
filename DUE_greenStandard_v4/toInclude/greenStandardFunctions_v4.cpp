@@ -471,6 +471,7 @@ void checkPokes()
     rightPokeDetected = 1; 
   }
 
+/*  // commenting out the extraPokes for now to prevent erroneous messages because they're not connected
   extraPokeReading4 = digitalRead(extraPoke4TTL);
   if ((extraPokeDetected4==0) && (extraPokeReading4==1))  { // if a poke is detected in this time window
     extraPokeDetected4 = 1; 
@@ -485,7 +486,7 @@ void checkPokes()
   if ((extraPokeDetected6==0) && (extraPokeReading6==1))  { // if a poke is detected in this time window
     extraPokeDetected6 = 1; 
   }
-
+*/
   
   // if enough time has passed, log and update status
   if (millis()-pokeLastCheckTime >= pokeDT) { 
