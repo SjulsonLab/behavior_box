@@ -49,7 +49,7 @@ close all
 
 
 %% parameters for the mouse struct - these should never change
-m.mouseName            = 'jaxmale06';  % should not change
+m.mouseName            = 'jaxmale08';  % should not change
 m.requiredVersion      = 10;  % version of arduino DUE software required
 
 

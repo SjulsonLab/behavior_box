@@ -49,7 +49,7 @@ close all
 
 
 %% parameters for the mouse struct - these should never change
-m.mouseName            = 'jaxmale06';  % should not change
+m.mouseName            = 'jaxmale08';  % should not change
 m.requiredVersion      = 10;  % version of arduino DUE software required
 
 
@@ -108,10 +108,10 @@ sessionStr = makeRewardCodes(sessionStr); % adding reward codes to the struct
 % cue lengths, etc.
 if sessionStr.trainingPhase>2
 	sessionStr.preCueLength   = 10;
-	sessionStr.cue1Length     = 100;
-	sessionStr.interCueLength = 1000;
-	sessionStr.cue2Length     = 100;
-	sessionStr.postCueLength  = 10;
+	sessionStr.cue1Length     = 0;
+	sessionStr.interCueLength = 0;
+	sessionStr.cue2Length     = 0;
+	sessionStr.postCueLength  = 0;
 end
 
 [cue1_vis, cue1_aud, cue2_vis, cue2_aud] = makeCueVectors(sessionStr, m);
