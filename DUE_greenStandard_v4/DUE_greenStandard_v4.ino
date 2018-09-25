@@ -154,6 +154,7 @@ void setup() {
   pinMode(pulsePal1, OUTPUT);
   pinMode(pulsePal2, OUTPUT);
   pinMode(triggerPin, OUTPUT);
+  pinMode(cameraTrigTTL, OUTPUT);
 
   // turn all LEDs off.
   setLEDlevel(cueLED1pin, 0);
@@ -190,11 +191,13 @@ void loop() {
     if (cameraRecordingYN==1) {
       triggerCamera();
     }
+    else {
+      digitalWrite(cameraTrigTTL, LOW);
+    }
 
     // set new, most recent timepoint we polled the doors/rewards/pokes status:
     lastCheckTimeMicros = micros();
   }
-
 
   switch (state) {
 
@@ -241,7 +244,6 @@ void loop() {
         serLogNum("rightCueWhen", rightCueWhen);
 
         digitalWrite(whiteNoiseTTL, HIGH); // tell the intan you're going to the readyToGo state/you're about to start the white noise
-        digitalWrite(cameraTrigTTL, HIGH);
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
         if (uncollectedRewardYN==0) {
@@ -283,7 +285,6 @@ void loop() {
       // if timeout, switch state to punishDelay
       if ((millis() - tempTime) > readyToGoLength) { // if timeThisStateBegan_ms happened readyToGoLength_ms ago without a nosepoke, the mouse missed the trial.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
-        digitalWrite(cameraTrigTTL, LOW);
         serLogNum("TrialMissedBeforeInit_ms", millis() - trialAvailTime); // FIX: replace tempTime w/ trialAvailTime
         sndCounter = 0;
         serLogNum("punishDelayLength_ms", punishDelayLength);
@@ -303,7 +304,6 @@ void loop() {
 
         nosePokeInitTime = millis(); // record time when mouse begins the init poke specifically. used to make sure mouse holds long enough.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
-        digitalWrite(cameraTrigTTL, LOW);
 
         // if training phase 1 and mouse pokes, switch state directly to letTheAnimalDrink
         if (trainingPhase==1) {

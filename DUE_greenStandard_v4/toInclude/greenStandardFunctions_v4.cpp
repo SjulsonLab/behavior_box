@@ -383,7 +383,7 @@ void openPoke(String whichPoke) {
     initIsOpen = leftIsOpen = rightIsOpen= extraPoke4IsOpen = extraPoke5IsOpen = 1;
     initOpenNow = leftOpenNow = rightOpenNow = extraPoke4OpenNow = extraPoke5OpenNow = 1;
   }
-  delay(15);
+  //delay(15);
 }
 
 void closePoke(String whichPoke) {
@@ -413,7 +413,7 @@ void closePoke(String whichPoke) {
       if (extraPoke4IsOpen == 1) extraServo4.write(servoTemp);
       if (extraPoke5IsOpen == 1) extraServo5.write(servoTemp);
     }
-    delay(15);
+    //delay(15);
     servoTemp += doorCloseSpeed;
   }
 
@@ -585,16 +585,18 @@ void triggerCamera() {
   localTime = millis();
 
   if (digitalRead(cameraTrigTTL)==HIGH) {
+    //digitalWrite(cameraTrigTTL, LOW);
+
     if ((localTime-lastFrameTime) >= 5) { // hard coding that a camera trigger pulse is 5 ms
       digitalWrite(cameraTrigTTL, LOW);
     }
   }
   else {
-    if ((localTime-lastFrameTime) >= 20) {
-//    if ((localTime-lastFrameTime) > round(1000 / frameRate)) {
+//    if ((localTime-lastFrameTime) >= 20) {
+    if ((localTime-lastFrameTime) > round(1000 / frameRate)) {
       digitalWrite(cameraTrigTTL, HIGH);
       lastFrameTime = localTime;
-      serLogNum("frameTime_ms", localTime);
+//      serLogNum("frameTime_ms", localTime);
     }
   }
 }
@@ -714,107 +716,110 @@ void deliverReward_dc(long volume_nL, long local_deliveryDuration_ms, int local_
 
 
 void processMessage() {
-  String inLine;
-  inLine = "";
-  inLine = Serial.readStringUntil('\n');
 
-  //DPRINTLN("Message received.");
+  if (Serial.available() > 0) {
+    String inLine;
+    inLine = "";
+    inLine = Serial.readStringUntil('\n');
 
-  if (inLine.equalsIgnoreCase("checkVersion")) {
-    char str[100];
-    sprintf(str, "%d", VERSION);
-    Serial.println(str);
+    //DPRINTLN("Message received.");
+
+    if (inLine.equalsIgnoreCase("checkVersion")) {
+      char str[100];
+      sprintf(str, "%d", VERSION);
+      Serial.println(str);
+    }
+    if (inLine.equalsIgnoreCase("reset")) {
+      resetDefaults();
+    }
+
+    // all the variables (ints) go here
+    // order has been fixed w.matlab's order
+    changeVariableLong("nTrial", &nTrial, inLine);
+    changeVariableLong("resetTimeYN", &resetTimeYN, inLine);
+    changeVariableLong("initPokePunishYN", &initPokePunishYN, inLine);
+    changeVariableLong("cameraRecordingYN", &cameraRecordingYN, inLine);
+    changeVariableLong("frameRate", &frameRate, inLine);
+
+    changeVariableLong("WNvolume", &WNvolume, inLine);
+    changeVariableLong("lowCueVolume", &lowCueVolume, inLine);
+    changeVariableLong("highCueVolume", &highCueVolume, inLine);
+    changeVariableLong("buzzerVolume", &buzzerVolume, inLine);
+    changeVariableLong("calibrationLength", &calibrationLength, inLine);
+
+    changeVariableLong("cueLED1Brightness", &cueLED1Brightness, inLine);
+    changeVariableLong("cueLED2Brightness", &cueLED2Brightness, inLine);
+    changeVariableLong("cueLED3Brightness", &cueLED3Brightness, inLine);
+    changeVariableLong("cueLED4Brightness", &cueLED4Brightness, inLine);
+    changeVariableLong("cueLED5Brightness", &cueLED5Brightness, inLine);
+    changeVariableLong("cueLED6Brightness", &cueLED6Brightness, inLine);
+
+    changeVariableLong("trainingPhase", &trainingPhase, inLine);
+    changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
+    changeVariableLong("laserOnCode", &laserOnCode, inLine);
+
+    changeVariableLong("IopenYN", &IopenYN, inLine);
+    changeVariableLong("LopenYN", &LopenYN, inLine);
+    changeVariableLong("RopenYN", &RopenYN, inLine);
+    changeVariableLong("extra4openYN", &extra4openYN, inLine);
+    changeVariableLong("extra5openYN", &extra5openYN, inLine);
+
+    changeVariableLong("readyToGoLength", &readyToGoLength, inLine);
+    changeVariableLong("punishDelayLength", &punishDelayLength, inLine);
+    changeVariableLong("missedLength", &missedLength, inLine);
+    changeVariableLong("buzzerLength", &buzzerLength, inLine);
+    
+    changeVariableLong("preCueLength", &preCueLength, inLine);
+    changeVariableLong("cue1Length", &cue1Length, inLine);
+    changeVariableLong("interCueLength", &interCueLength, inLine);
+    changeVariableLong("cue2Length", &cue2Length, inLine);
+    changeVariableLong("postCueLength", &postCueLength, inLine);
+    changeVariableLong("goToPokesLength", &goToPokesLength, inLine);
+    changeVariableLong("rewardCollectionLength", &rewardCollectionLength, inLine);
+
+    changeVariableLong("cue1_vis", &cue1_vis, inLine);
+    changeVariableLong("cue2_vis", &cue2_vis, inLine);
+    changeVariableLong("cue1_aud", &cue1_aud, inLine);
+    changeVariableLong("cue2_aud", &cue2_aud, inLine);
+
+
+    // reward codes
+    changeVariableLong("IrewardCode", &IrewardCode, inLine);
+    changeVariableLong("LrewardCode", &LrewardCode, inLine);
+    changeVariableLong("RrewardCode", &RrewardCode, inLine);
+    changeVariableLong("extra4rewardCode", &extra4rewardCode, inLine);
+    changeVariableLong("extra5rewardCode", &extra5rewardCode, inLine);
+    changeVariableLong("extra6rewardCode", &extra6rewardCode, inLine);
+
+    // variables for syringe pumps, dc
+    changeVariableLong("IrewardSize_nL", &IrewardSize_nL, inLine);
+    changeVariableLong("LrewardSize_nL", &LrewardSize_nL, inLine);
+    changeVariableLong("RrewardSize_nL", &RrewardSize_nL, inLine);
+    changeVariableLong("deliveryDuration_ms", &deliveryDuration_ms, inLine);
+    changeVariableLong("syringeSize_mL", &syringeSize_mL, inLine);
+
+    // solely for reporting these variables to the text output
+    changeVariableLong("trialLRtype", &trialLRtype, inLine);
+    changeVariableLong("trialAVtype", &trialAVtype, inLine);
+    changeVariableLong("leftCueWhen", &leftCueWhen, inLine);
+    changeVariableLong("rightCueWhen", &rightCueWhen, inLine);
+
+
+    // not in matlab:
+
+    changeVariableLong("initOpenNow", &initOpenNow, inLine);
+    changeVariableLong("leftOpenNow", &leftOpenNow, inLine);
+    changeVariableLong("rightOpenNow", &rightOpenNow, inLine);
+    changeVariableLong("extraPoke4OpenNow", &extraPoke4OpenNow, inLine);
+    changeVariableLong("extraPoke5OpenNow", &extraPoke5OpenNow, inLine);
+
+    changeVariableLong("slowDTmicros", &slowDTmicros, inLine);
+    changeVariableLong("pauseLengthMicros", &pauseLengthMicros, inLine);
+
+    changeVariableLong("startTrialYN", &startTrialYN, inLine);
+    changeVariableLong("goToStandby", &goToStandby, inLine);
+
   }
-  if (inLine.equalsIgnoreCase("reset"))
-    resetDefaults();
-
-  // all the variables (ints) go here
-  // order has been fixed w.matlab's order
-  changeVariableLong("nTrial", &nTrial, inLine);
-  changeVariableLong("resetTimeYN", &resetTimeYN, inLine);
-  changeVariableLong("initPokePunishYN", &initPokePunishYN, inLine);
-  changeVariableLong("cameraRecordingYN", &cameraRecordingYN, inLine);
-  changeVariableLong("frameRate", &frameRate, inLine);
-
-  changeVariableLong("WNvolume", &WNvolume, inLine);
-  changeVariableLong("lowCueVolume", &lowCueVolume, inLine);
-  changeVariableLong("highCueVolume", &highCueVolume, inLine);
-  changeVariableLong("buzzerVolume", &buzzerVolume, inLine);
-  changeVariableLong("calibrationLength", &calibrationLength, inLine);
-
-  changeVariableLong("cueLED1Brightness", &cueLED1Brightness, inLine);
-  changeVariableLong("cueLED2Brightness", &cueLED2Brightness, inLine);
-  changeVariableLong("cueLED3Brightness", &cueLED3Brightness, inLine);
-  changeVariableLong("cueLED4Brightness", &cueLED4Brightness, inLine);
-  changeVariableLong("cueLED5Brightness", &cueLED5Brightness, inLine);
-  changeVariableLong("cueLED6Brightness", &cueLED6Brightness, inLine);
-
-  changeVariableLong("trainingPhase", &trainingPhase, inLine);
-  changeVariableLong("doorCloseSpeed", &doorCloseSpeed, inLine);
-  changeVariableLong("laserOnCode", &laserOnCode, inLine);
-
-  changeVariableLong("IopenYN", &IopenYN, inLine);
-  changeVariableLong("LopenYN", &LopenYN, inLine);
-  changeVariableLong("RopenYN", &RopenYN, inLine);
-  changeVariableLong("extra4openYN", &extra4openYN, inLine);
-  changeVariableLong("extra5openYN", &extra5openYN, inLine);
-
-  changeVariableLong("readyToGoLength", &readyToGoLength, inLine);
-  changeVariableLong("punishDelayLength", &punishDelayLength, inLine);
-  changeVariableLong("missedLength", &missedLength, inLine);
-  changeVariableLong("buzzerLength", &buzzerLength, inLine);
-  
-  changeVariableLong("preCueLength", &preCueLength, inLine);
-  changeVariableLong("cue1Length", &cue1Length, inLine);
-  changeVariableLong("interCueLength", &interCueLength, inLine);
-  changeVariableLong("cue2Length", &cue2Length, inLine);
-  changeVariableLong("postCueLength", &postCueLength, inLine);
-  changeVariableLong("goToPokesLength", &goToPokesLength, inLine);
-  changeVariableLong("rewardCollectionLength", &rewardCollectionLength, inLine);
-
-  changeVariableLong("cue1_vis", &cue1_vis, inLine);
-  changeVariableLong("cue2_vis", &cue2_vis, inLine);
-  changeVariableLong("cue1_aud", &cue1_aud, inLine);
-  changeVariableLong("cue2_aud", &cue2_aud, inLine);
-
-
-  // reward codes
-  changeVariableLong("IrewardCode", &IrewardCode, inLine);
-  changeVariableLong("LrewardCode", &LrewardCode, inLine);
-  changeVariableLong("RrewardCode", &RrewardCode, inLine);
-  changeVariableLong("extra4rewardCode", &extra4rewardCode, inLine);
-  changeVariableLong("extra5rewardCode", &extra5rewardCode, inLine);
-  changeVariableLong("extra6rewardCode", &extra6rewardCode, inLine);
-
-  // variables for syringe pumps, dc
-  changeVariableLong("IrewardSize_nL", &IrewardSize_nL, inLine);
-  changeVariableLong("LrewardSize_nL", &LrewardSize_nL, inLine);
-  changeVariableLong("RrewardSize_nL", &RrewardSize_nL, inLine);
-  changeVariableLong("deliveryDuration_ms", &deliveryDuration_ms, inLine);
-  changeVariableLong("syringeSize_mL", &syringeSize_mL, inLine);
-
-  // solely for reporting these variables to the text output
-  changeVariableLong("trialLRtype", &trialLRtype, inLine);
-  changeVariableLong("trialAVtype", &trialAVtype, inLine);
-  changeVariableLong("leftCueWhen", &leftCueWhen, inLine);
-  changeVariableLong("rightCueWhen", &rightCueWhen, inLine);
-
-
-  // not in matlab:
-
-  changeVariableLong("initOpenNow", &initOpenNow, inLine);
-  changeVariableLong("leftOpenNow", &leftOpenNow, inLine);
-  changeVariableLong("rightOpenNow", &rightOpenNow, inLine);
-  changeVariableLong("extraPoke4OpenNow", &extraPoke4OpenNow, inLine);
-  changeVariableLong("extraPoke5OpenNow", &extraPoke5OpenNow, inLine);
-
-  changeVariableLong("slowDTmicros", &slowDTmicros, inLine);
-  changeVariableLong("pauseLengthMicros", &pauseLengthMicros, inLine);
-
-  changeVariableLong("startTrialYN", &startTrialYN, inLine);
-  changeVariableLong("goToStandby", &goToStandby, inLine);
-
-
 }
 
 // this function gives rewards if the timeCode matches the rewardCode (e.g. at the correct state transition)

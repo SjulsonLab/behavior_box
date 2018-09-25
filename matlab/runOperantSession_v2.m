@@ -237,10 +237,13 @@ exitAfterTrialYN = 0;
 x = operantBoxExitDialog2();
 set(x,'WindowStyle','modal'); % keep this window always on top
 
-waitBest('Hit OK to start the trials', ['Phase ' num2str(sessionStr.trainingPhase)]);
+waitBest('Start camera and recordings now, then hit OK to start the trials', ['Phase ' num2str(sessionStr.trainingPhase)]);
 if strcmpi(resetTimeYN, 'yes')
 	sendToArduino(box1, [], 'resetTimeYN', 1);
 end
+
+%% start camera
+sendToArduino(box1, [], 'cameraRecordingYN', 1);
 
 %% can open a figure here for plotting
 
@@ -313,6 +316,8 @@ while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && 
 	
 	%% run actual trial
 	fname = run2AFCSingleTrial(box1, sessionStr, trial_dict);
+	
+	% randomized inter-trial interval
 	pause(sessionStr.interTrialInterval_mean + sessionStr.interTrialInterval_SD .* randn());
 	
 	
@@ -414,6 +419,10 @@ while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && 
 	%    t1 = title('Right trials, green = correct, red = error, blue = missed');
 	
 end
+
+%% stop camera
+sendToArduino(box1, [], 'cameraRecordingYN', 0);
+
 
 %% close arduino
 fclose(box1);
