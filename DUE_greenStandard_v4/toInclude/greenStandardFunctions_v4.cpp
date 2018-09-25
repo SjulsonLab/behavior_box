@@ -71,7 +71,7 @@ using namespace std;
 #define rewardTTL           43
 
 // last two(2)
-#define cameraLEDpin        45
+#define cameraTrigTTL       45
 #define triggerPin          46
 
 
@@ -97,6 +97,8 @@ int initPokeError                 = 0;     // gets set to 1 if the animal init p
 long nTrial                       = 0;     // trial number
 int uncollectedRewardYN           = 0;     // gets set to 1 if the animal leaves an uncollected reward in the init poke
 long calibrationLength            = 0;     // amount of time for the system to stay in the calibration state
+long frameRate                    = 30;    // frame rate to trigger camera at (in Hz)
+
 
 // variables for timing
 unsigned long trialAvailTime           = 0;
@@ -107,6 +109,7 @@ unsigned long rightPokeEntryTime       = 0;
 unsigned long extraPoke4EntryTime      = 0;
 unsigned long extraPoke5EntryTime      = 0;
 unsigned long extraPoke6EntryTime      = 0;
+unsigned long lastFrameTime            = 0;
 
 // ints to store nosepoke states
 unsigned long pokeLastCheckTime;
@@ -192,6 +195,7 @@ long resetTimeYN         = 0;   // 1 to reset the timer
 long goToStandby         = 0;   // set to 1 using matlab to exit goToPokes state
 long giveRewardNow       = 0;   // 1=init, 2=left, 3=right.
 long initPokePunishYN    = 0;   // 1 to punish for init poke during standby, 0 is default
+long cameraRecordingYN   = 0;   // 1 to start recording, 0 to pause
 
 
 /* reward codes - they are independent of which poke is rewarded
@@ -254,7 +258,7 @@ LED cueLED3   = LED(cueLED3pin);
 LED cueLED4   = LED(cueLED4pin);
 LED cueLED5   = LED(cueLED5pin);
 LED cueLED6   = LED(cueLED6pin);
-LED cameraLED = LED(cameraLEDpin);  // will be connected to red or IR LED sampled by camera
+LED cameraLED = LED(cameraTrigTTL);  // will be connected to red or IR LED sampled by camera
 */
 
 
@@ -575,6 +579,26 @@ void checkPokes()
   }
 }
 
+// triggering camera frame acquisition. This function should only be called when the camera is on
+void triggerCamera() {
+  unsigned long localTime;
+  localTime = millis();
+
+  if (digitalRead(cameraTrigTTL)==HIGH) {
+    if ((localTime-lastFrameTime) >= 5) { // hard coding that a camera trigger pulse is 5 ms
+      digitalWrite(cameraTrigTTL, LOW);
+    }
+  }
+  else {
+    if ((localTime-lastFrameTime) >= 20) {
+//    if ((localTime-lastFrameTime) > round(1000 / frameRate)) {
+      digitalWrite(cameraTrigTTL, HIGH);
+      lastFrameTime = localTime;
+      serLogNum("frameTime_ms", localTime);
+    }
+  }
+}
+
 // triggering pulse pal
 void triggerPulsePal(int oneOrTwo)
 {
@@ -709,6 +733,8 @@ void processMessage() {
   changeVariableLong("nTrial", &nTrial, inLine);
   changeVariableLong("resetTimeYN", &resetTimeYN, inLine);
   changeVariableLong("initPokePunishYN", &initPokePunishYN, inLine);
+  changeVariableLong("cameraRecordingYN", &cameraRecordingYN, inLine);
+  changeVariableLong("frameRate", &frameRate, inLine);
 
   changeVariableLong("WNvolume", &WNvolume, inLine);
   changeVariableLong("lowCueVolume", &lowCueVolume, inLine);

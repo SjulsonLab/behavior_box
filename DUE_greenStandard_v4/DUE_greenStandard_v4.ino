@@ -162,7 +162,7 @@ void setup() {
   setLEDlevel(cueLED4pin, 0);
   setLEDlevel(cueLED5pin, 0);
   setLEDlevel(cueLED6pin, 0);
-  digitalWrite(cameraLEDpin, LOW);
+  digitalWrite(cameraTrigTTL, LOW);
 
   // default state
   state = standby;
@@ -186,11 +186,15 @@ void loop() {
     checkDoors();   // update door state as per matlab instruction
     checkRewards(); // update reward state as per matlab instruction
     checkPokes();   // check nosepokes
+
+    if (cameraRecordingYN==1) {
+      triggerCamera();
+    }
+
     // set new, most recent timepoint we polled the doors/rewards/pokes status:
     lastCheckTimeMicros = micros();
-
-
   }
+
 
   switch (state) {
 
@@ -237,7 +241,7 @@ void loop() {
         serLogNum("rightCueWhen", rightCueWhen);
 
         digitalWrite(whiteNoiseTTL, HIGH); // tell the intan you're going to the readyToGo state/you're about to start the white noise
-        digitalWrite(cameraLEDpin, HIGH);
+        digitalWrite(cameraTrigTTL, HIGH);
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
         if (uncollectedRewardYN==0) {
@@ -279,7 +283,7 @@ void loop() {
       // if timeout, switch state to punishDelay
       if ((millis() - tempTime) > readyToGoLength) { // if timeThisStateBegan_ms happened readyToGoLength_ms ago without a nosepoke, the mouse missed the trial.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
-        digitalWrite(cameraLEDpin, LOW);
+        digitalWrite(cameraTrigTTL, LOW);
         serLogNum("TrialMissedBeforeInit_ms", millis() - trialAvailTime); // FIX: replace tempTime w/ trialAvailTime
         sndCounter = 0;
         serLogNum("punishDelayLength_ms", punishDelayLength);
@@ -299,7 +303,7 @@ void loop() {
 
         nosePokeInitTime = millis(); // record time when mouse begins the init poke specifically. used to make sure mouse holds long enough.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
-        digitalWrite(cameraLEDpin, LOW);
+        digitalWrite(cameraTrigTTL, LOW);
 
         // if training phase 1 and mouse pokes, switch state directly to letTheAnimalDrink
         if (trainingPhase==1) {
