@@ -75,7 +75,7 @@ m.rightAudCue        = 0;
 
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
-sessionStr.trainingPhase = 2;
+sessionStr.trainingPhase = 1;
 
 sessionStr.startTrialNum = 1;     % in case you stop and start on the same day
 resetTimeYN              = 'yes'; %

@@ -107,7 +107,7 @@ sessionStr = makeRewardCodes(sessionStr); % adding reward codes to the struct
 
 % cue lengths, etc.
 if sessionStr.trainingPhase>2
-	sessionStr.preCueLength   = 50;
+	sessionStr.preCueLength   = 10;
 	sessionStr.cue1Length     = 0;
 	sessionStr.interCueLength = 0;
 	sessionStr.cue2Length     = 0;

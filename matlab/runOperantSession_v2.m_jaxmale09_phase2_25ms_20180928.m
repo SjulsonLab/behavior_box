@@ -49,7 +49,7 @@ close all
 
 
 %% parameters for the mouse struct - these should never change
-m.mouseName            = 'jaxmale08';  % should not change
+m.mouseName            = 'jaxmale09';  % should not change
 m.requiredVersion      = 10;  % version of arduino DUE software required
 
 
@@ -107,7 +107,7 @@ sessionStr = makeRewardCodes(sessionStr); % adding reward codes to the struct
 
 % cue lengths, etc.
 if sessionStr.trainingPhase>2
-	sessionStr.preCueLength   = 10;
+	sessionStr.preCueLength   = 25;
 	sessionStr.cue1Length     = 0;
 	sessionStr.interCueLength = 0;
 	sessionStr.cue2Length     = 0;
@@ -149,6 +149,18 @@ cd(sessionStr.basename);
 mouseStr = m;
 save('mouseStr.mat', 'mouseStr');
 save('sessionStr.mat', 'sessionStr');
+
+%% verify we're using python 2.7, as version 3 creates problems with dicts
+x = pyversion();
+if str2num(x) ~= 2.7
+	try
+		pyversion 2.7
+	catch
+		disp('The wrong version of python is loaded. Restart MATLAB.');
+		return
+	end
+end
+
 
 %% put all default box params here
 boxParams = py.dict;
@@ -202,6 +214,8 @@ boxParams.update(pyargs('cueLED3Brightness',       1023));
 boxParams.update(pyargs('cueLED4Brightness',       1023));
 
 
+
+
 %% connect to arduino
 delete(instrfindall);
 box1 = serial(m.serialPort,'Timeout', 10, 'BaudRate', 115200, 'Terminator', 'LF', 'OutputBufferSize', 10^6, 'InputBufferSize', 10^6);
@@ -223,10 +237,13 @@ exitAfterTrialYN = 0;
 x = operantBoxExitDialog2();
 set(x,'WindowStyle','modal'); % keep this window always on top
 
-waitBest('Hit OK to start the trials', ['Phase ' num2str(sessionStr.trainingPhase)]);
+waitBest('Start camera and recordings now, then hit OK to start the trials', ['Phase ' num2str(sessionStr.trainingPhase)]);
 if strcmpi(resetTimeYN, 'yes')
 	sendToArduino(box1, [], 'resetTimeYN', 1);
 end
+
+%% start camera
+sendToArduino(box1, [], 'cameraRecordingYN', 1);
 
 %% can open a figure here for plotting
 
@@ -299,6 +316,8 @@ while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && 
 	
 	%% run actual trial
 	fname = run2AFCSingleTrial(box1, sessionStr, trial_dict);
+	
+	% randomized inter-trial interval
 	pause(sessionStr.interTrialInterval_mean + sessionStr.interTrialInterval_SD .* randn());
 	
 	
@@ -400,6 +419,10 @@ while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && 
 	%    t1 = title('Right trials, green = correct, red = error, blue = missed');
 	
 end
+
+%% stop camera
+sendToArduino(box1, [], 'cameraRecordingYN', 0);
+
 
 %% close arduino
 fclose(box1);
