@@ -48,7 +48,16 @@ using namespace std;
 #define extraPump5             32  // not actually connected
 #define extraPump6             34  // not actually connected
 
-// pins sampled by Intan:
+// five extra I/O pins that are not sampled by the intan
+#define syringePumpENABLE   47      // we thought about using this pin to enable/disable the syringe pump driver, but for now it's not in use
+#define extraTTL2           48
+#define extraTTL3           49
+#define extraTTL4           50
+#define extraTTL5           52
+
+//////////////////////////////////////////////////////////
+// all the pins below are sampled by the Intan:
+//////////////////////////////////////////////////////////
 
 // nosepoke-related pins(6)
 #define initPokeTTL         27
@@ -73,14 +82,6 @@ using namespace std;
 // last two(2)
 #define cameraTrigTTL       45
 #define triggerPin          46
-
-
-// five extra I/O pins that are not sampled by the intan
-#define syringePumpENABLE   47      // we thought about using this pin to enable/disable the syringe pump driver, but for now it's not in use
-#define extraTTL2           48
-#define extraTTL3           49
-#define extraTTL4           50
-#define extraTTL5           52
 
 long doorCloseSpeed        = 1;    // original speed was 10 - can decrease if there are problems
 
