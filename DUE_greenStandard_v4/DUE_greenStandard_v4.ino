@@ -570,7 +570,7 @@ void loop() {
 
       // if left poke occurs
       if (leftPoke==1) {
-        if (LrewardCode==4) {
+        if (LrewardCode==3 || LrewardCode==4) {
           deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
           serLogNum("leftReward_nL", LrewardSize_nL);
           serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
@@ -585,7 +585,7 @@ void loop() {
 
       // if right poke occurs
       if (rightPoke==1) {
-        if (RrewardCode==4) {
+        if (RrewardCode==3 || RrewardCode==4) {
           deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
           serLogNum("rightReward_nL", RrewardSize_nL);
           serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
