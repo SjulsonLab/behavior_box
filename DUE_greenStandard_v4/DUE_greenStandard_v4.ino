@@ -220,7 +220,10 @@ void loop() {
         digitalWrite(triggerPin, HIGH);   // 20ms pulse to Intan at the start of the trial.
         delay(20);
         digitalWrite(triggerPin, LOW);
-        uncollectedRewardYN = 0;          // clear any uncollected rewards when timer is reset
+        uncollectedInitRewardYN  = 0;          // clear any uncollected rewards when timer is reset
+        uncollectedLeftRewardYN  = 0;
+        uncollectedRightRewardYN = 0;
+         
       }
       
 
@@ -246,7 +249,7 @@ void loop() {
         digitalWrite(whiteNoiseTTL, HIGH); // tell the intan you're going to the readyToGo state/you're about to start the white noise
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
-        if (uncollectedRewardYN==0) {
+        if (uncollectedInitRewardYN==0) {
      	   giveRewards(1); // give a reward to the location(s) with reward codes "1" (the init poke before mouse has poked)
     	   }
         probsWritten = 0; // this is a variable that switches off (to zero) after writing the probability once so it's not writing the probability on every loop
@@ -289,7 +292,7 @@ void loop() {
         sndCounter = 0;
         serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
-        uncollectedRewardYN = 1; // indicates the animal is leaving an uncollected reward behind so that another one is not delivered in the next trial - for training phase 1 only
+        uncollectedInitRewardYN = 1; // indicates the animal is leaving an uncollected reward behind so that another one is not delivered in the next trial - for training phase 1 only
       }
 
 
@@ -308,7 +311,7 @@ void loop() {
         // if training phase 1 and mouse pokes, switch state directly to letTheAnimalDrink
         if (trainingPhase==1) {
           serLogNum("TrialStarted_ms", millis() - trialAvailTime);
-          uncollectedRewardYN = 0; // only relevant in training phase 1 - indicates the mouse collected the reward, so the port will get a reward next trial
+          uncollectedInitRewardYN = 0; // only relevant in training phase 1 - indicates the mouse collected the reward, so the port will get a reward next trial
           serLogNum("Phase1RewardCollected_ms", millis() - trialAvailTime);
           switchTo(letTheAnimalDrink);
         }
@@ -516,7 +519,17 @@ void loop() {
       // otherwise mouse held long enough:
       // start one of the cues when postCueLength time elapsed.
       else if ((millis() - tempTime) > postCueLength) {
-        giveRewards(3);
+
+        // pre-reward L or R pokes, but not if there's already an uncollected reward there from the last trial
+        if (LrewardCode==3 && uncollectedLeftRewardYN==0) {
+          deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+          serLogNum("leftReward_nL", LrewardSize_nL);
+        }
+        if (RrewardCode==3 && uncollectedRightRewardYN==0) {
+          deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+          serLogNum("rightReward_nL", RrewardSize_nL);
+        }
+       
         if (trainingPhase==2) {
           serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
@@ -562,6 +575,13 @@ void loop() {
 
       // if timeout, switch state to punishDelay
       if ((millis() - tempTime) > goToPokesLength) {
+        if (LrewardCode==3) {
+          uncollectedLeftRewardYN = 1;
+        }
+        if (RrewardCode==3) {
+          uncollectedRightRewardYN = 1;
+        }
+
         serLogNum("TrialMissedAfterInit_ms", millis() - initPokeExitTime);
         sndCounter = 0;
         serLogNum("punishDelayLength_ms", punishDelayLength);
@@ -570,13 +590,23 @@ void loop() {
 
       // if left poke occurs
       if (leftPoke==1) {
-        if (LrewardCode==3 || LrewardCode==4) {
+        // if poke is pre-rewarded
+        if (LrewardCode==3) {
+          uncollectedLeftRewardYN = 0;
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
+          switchTo(letTheAnimalDrink);
+        }
+
+        // if reward is delivered upon nosepoke
+        if (LrewardCode==4) {
           deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
           serLogNum("leftReward_nL", LrewardSize_nL);
           serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
-        else if (LrewardCode==-1) {
+        
+        // if nosepoke is an error
+        if (LrewardCode==-1) {
           serLog("LeftPokeError");
           serLogNum("punishDelayLength_ms", punishDelayLength);
           switchTo(punishDelay);
@@ -585,13 +615,23 @@ void loop() {
 
       // if right poke occurs
       if (rightPoke==1) {
-        if (RrewardCode==3 || RrewardCode==4) {
+        // if poke is pre-rewarded
+        if (RrewardCode==3) {
+          uncollectedRightRewardYN = 0;
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
+          switchTo(letTheAnimalDrink);
+        }
+
+        // if reward is delivered upon nosepoke
+        if (RrewardCode==4) {
           deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
           serLogNum("rightReward_nL", RrewardSize_nL);
           serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
-        else if (RrewardCode==-1) {
+
+        //if nosepoke is an error
+        if (RrewardCode==-1) {
           serLog("RightPokeError");
           serLogNum("punishDelayLength_ms", punishDelayLength);
           switchTo(punishDelay);
