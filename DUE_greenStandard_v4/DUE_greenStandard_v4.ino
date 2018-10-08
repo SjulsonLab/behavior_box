@@ -419,6 +419,7 @@ void loop() {
         setLEDlevel(cueLED3pin, 0);
         setLEDlevel(cueLED4pin, 0);
         digitalWrite(visualCueTTL, LOW);
+        digitalWrite(auditoryCueTTL, LOW);
 
         serLogNum("Cue1Withdrawal_ms", millis() - nosePokeInitTime);
         serLogNum("punishDelayLength_ms", punishDelayLength);
@@ -489,8 +490,9 @@ void loop() {
         setLEDlevel(cueLED2pin, 0);
         setLEDlevel(cueLED3pin, 0);
         setLEDlevel(cueLED4pin, 0);
-
         digitalWrite(visualCueTTL, LOW);
+        digitalWrite(auditoryCueTTL, LOW);
+
         serLogNum("InterCueWithdrawal_ms", millis() - nosePokeInitTime);
         serLogNum("punishDelayLength_ms", punishDelayLength);
         digitalWrite(visualCueTTL, LOW);
@@ -572,8 +574,9 @@ void loop() {
         setLEDlevel(cueLED2pin, 0);
         setLEDlevel(cueLED3pin, 0);
         setLEDlevel(cueLED4pin, 0);
-
         digitalWrite(visualCueTTL, LOW);
+        digitalWrite(auditoryCueTTL, LOW);
+
         serLogNum("Cue2Withdrawal_ms", millis() - nosePokeInitTime);
         serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
