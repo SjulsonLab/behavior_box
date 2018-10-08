@@ -408,6 +408,13 @@ void loop() {
 
       // if mouse withdraws nose too early, switch state to punishDelay
       if (initPoke == 0) {
+        // turn off any visual cues
+        setLEDlevel(cueLED1pin, 0);
+        setLEDlevel(cueLED2pin, 0);
+        setLEDlevel(cueLED3pin, 0);
+        setLEDlevel(cueLED4pin, 0);
+        digitalWrite(visualCueTTL, LOW);
+
         serLogNum("Cue1Withdrawal_ms", millis() - nosePokeInitTime);
         serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
@@ -437,6 +444,13 @@ void loop() {
 
       // if mouse withdraws nose too early, switch state to punishDelay
       if (initPoke == 0) {
+        // turn off any visual cues
+        setLEDlevel(cueLED1pin, 0);
+        setLEDlevel(cueLED2pin, 0);
+        setLEDlevel(cueLED3pin, 0);
+        setLEDlevel(cueLED4pin, 0);
+
+        digitalWrite(visualCueTTL, LOW);
         serLogNum("InterCueWithdrawal_ms", millis() - nosePokeInitTime);
         serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
@@ -492,6 +506,13 @@ void loop() {
 
       // if mouse withdraws nose too early, switch state to punishDelay
       if (initPoke == 0) {
+        // turn off any visual cues
+        setLEDlevel(cueLED1pin, 0);
+        setLEDlevel(cueLED2pin, 0);
+        setLEDlevel(cueLED3pin, 0);
+        setLEDlevel(cueLED4pin, 0);
+
+        digitalWrite(visualCueTTL, LOW);
         serLogNum("Cue2Withdrawal_ms", millis() - nosePokeInitTime);
         serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
