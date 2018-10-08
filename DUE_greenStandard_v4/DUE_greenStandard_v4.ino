@@ -249,7 +249,7 @@ void loop() {
         digitalWrite(whiteNoiseTTL, HIGH); // tell the intan you're going to the readyToGo state/you're about to start the white noise
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
-        if (uncollectedInitRewardYN==0) {
+        if (uncollectedInitRewardYN==0 && trainingPhase==1) {
      	   giveRewards(1); // give a reward to the location(s) with reward codes "1" (the init poke before mouse has poked)
     	   }
         probsWritten = 0; // this is a variable that switches off (to zero) after writing the probability once so it's not writing the probability on every loop
@@ -323,6 +323,18 @@ void loop() {
           switchTo(preCue);
         }
       }
+
+      // if mouse pokes the wrong poke in phase 3 or later, go to punishDelay
+      if (trainingPhase >= 3) {
+        if (leftPoke==1 || rightPoke==1) {
+          digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
+          serLogNum("ErrorPokeBeforeInit_ms", millis() - trialAvailTime); 
+          sndCounter = 0;
+          serLogNum("punishDelayLength_ms", punishDelayLength);
+          switchTo(punishDelay);
+        }
+      }
+
 
       break;
 
