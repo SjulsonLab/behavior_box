@@ -47,9 +47,9 @@
 #define readyToGo     		2  // plays white noise, waits for init poke
 #define punishDelay   		3  // timeout period after animal makes mistake
 #define preCue        		4  // time delay between white noise and cue
-#define cue1              5  // first cue
-#define interCue          6  // time delay between the two cues
-#define cue2              7  // second cue
+#define cue1              5  // first cue slot
+#define cue2              6  // second cue slot
+#define cue3              7  // third cue slot
 #define postCue       		8  // additional time delay
 #define goToPokes     		9  // nosepokes open, animal can approach and collect reward
 #define letTheAnimalDrink 10 // waiting for animal to collect reward
@@ -82,13 +82,13 @@ reward codes - they are independent of which poke is rewarded
   3 - reward at end of cue
   4 - reward only upon nosepoke
 
-cue1_vis and cue2_vis codes
+cue1_vis/cue2_vis/cue3_vis codes
   0 - no visual cue
   1 - LEDs 1 and 2 on
   2 - LEDs 3 and 4 on
   3 - all LEDs on
 
-cue1_aud and cue2_aud codes
+cue1_aud/cue2_aud/cue3_aud codes
   0 - no auditory cue
   1 - low tone
   2 - high tone
@@ -240,7 +240,7 @@ void loop() {
       else if (startTrialYN == 1) { // if matlab wants to start a trial
         serLog("TrialAvailable");
         serLogNum("TrainingPhase", trainingPhase);
-        serLogNum("requiredPokeHoldLength_ms", preCueLength + cue1Length + interCueLength + cue2Length + postCueLength);
+        serLogNum("requiredPokeHoldLength_ms", preCueLength + cue1Length + cue2Length + cue3Length + postCueLength);
         serLogNum("trialLRtype", trialLRtype);
         serLogNum("trialAVtype", trialAVtype);
         serLogNum("leftCueWhen", leftCueWhen);
@@ -379,6 +379,11 @@ void loop() {
           setLEDlevel(cueLED4pin, cueLED4Brightness);
           digitalWrite(visualCueTTL, HIGH);
         }
+
+        // turn on auditory cue TTL
+        if (cue1_aud > 0) {
+          digitalWrite(auditoryCueTTL, HIGH);
+        }
       }
 
       delayMicroseconds(pauseLengthMicros); 
@@ -410,50 +415,33 @@ void loop() {
       if (initPoke == 0) {
         serLogNum("Cue1Withdrawal_ms", millis() - nosePokeInitTime);
         serLogNum("punishDelayLength_ms", punishDelayLength);
-        switchTo(punishDelay);
-      }
-
-      else if ((millis() - tempTime) > cue1Length) {
-        // turn off any visual cues
-        setLEDlevel(cueLED1pin, 0);
-        setLEDlevel(cueLED2pin, 0);
-        setLEDlevel(cueLED3pin, 0);
-        setLEDlevel(cueLED4pin, 0);
         digitalWrite(visualCueTTL, LOW);
-
-        sndCounter = 0;
-        switchTo(interCue);
-      }
-
-      delayMicroseconds(pauseLengthMicros); 
-      break;
-
-
-    ////////////////////
-    // INTERCUE
-    // pause between cues, check for nosepoke withdrawal
-
-    case interCue:
-
-      // if mouse withdraws nose too early, switch state to punishDelay
-      if (initPoke == 0) {
-        serLogNum("InterCueWithdrawal_ms", millis() - nosePokeInitTime);
-        serLogNum("punishDelayLength_ms", punishDelayLength);
+        digitalWrite(auditoryCueTTL, LOW);
         switchTo(punishDelay);
       }
 
-      // otherwise mouse held long enough:
-      // start one of the cues when interCueLength time elapsed.
-      else if ((millis() - tempTime) > interCueLength) {
-        switchTo(cue2);
+      // mouse held long enough
+      else if ((millis() - tempTime) > cue1Length) {
 
-        // turn on visual cues
-        if (cue2_vis==1) {
+        // turn on/off any visual cues
+        if (cue2_vis==0) {
+          // turn off any visual cues
+          setLEDlevel(cueLED1pin, 0);
+          setLEDlevel(cueLED2pin, 0);
+          setLEDlevel(cueLED3pin, 0);
+          setLEDlevel(cueLED4pin, 0);
+          digitalWrite(visualCueTTL, LOW);
+        }
+        else if (cue2_vis==1) {
           setLEDlevel(cueLED1pin, cueLED1Brightness);
           setLEDlevel(cueLED2pin, cueLED2Brightness);
+          setLEDlevel(cueLED3pin, 0);
+          setLEDlevel(cueLED4pin, 0);
           digitalWrite(visualCueTTL, HIGH);
         }
         else if (cue2_vis==2) {
+          setLEDlevel(cueLED1pin, 0);
+          setLEDlevel(cueLED2pin, 0);
           setLEDlevel(cueLED3pin, cueLED3Brightness);
           setLEDlevel(cueLED4pin, cueLED4Brightness);
           digitalWrite(visualCueTTL, HIGH);
@@ -465,28 +453,101 @@ void loop() {
           setLEDlevel(cueLED4pin, cueLED4Brightness);
           digitalWrite(visualCueTTL, HIGH);
         }
+
+        // turn on/off auditory cue TTL
+        if (cue2_aud == 0) {
+          digitalWrite(auditoryCueTTL, LOW);
+        }
+        else {
+          digitalWrite(auditoryCueTTL, HIGH);
+        }
+
+        switchTo(cue2);
+      }
+
+      delayMicroseconds(pauseLengthMicros); 
+      break;
+
+
+    ////////////////////
+    // CUE2
+    // second cue slot, check for nosepoke withdrawal
+
+    case cue2:
+
+      // if mouse withdraws nose too early, switch state to punishDelay
+      if (initPoke == 0) {
+        serLogNum("InterCueWithdrawal_ms", millis() - nosePokeInitTime);
+        serLogNum("punishDelayLength_ms", punishDelayLength);
+        digitalWrite(visualCueTTL, LOW);
+        digitalWrite(auditoryCueTTL, LOW);
+        switchTo(punishDelay);
+      }
+
+      // otherwise mouse held long enough:
+       else if ((millis() - tempTime) > cue2Length) {
+
+        // turn on/off visual cues
+        if (cue3_vis==0) {
+          // turn off any visual cues
+          setLEDlevel(cueLED1pin, 0);
+          setLEDlevel(cueLED2pin, 0);
+          setLEDlevel(cueLED3pin, 0);
+          setLEDlevel(cueLED4pin, 0);
+          digitalWrite(visualCueTTL, LOW);
+        }
+        else if (cue3_vis==1) {
+          setLEDlevel(cueLED1pin, cueLED1Brightness);
+          setLEDlevel(cueLED2pin, cueLED2Brightness);
+          setLEDlevel(cueLED3pin, 0);
+          setLEDlevel(cueLED4pin, 0);
+          digitalWrite(visualCueTTL, HIGH);
+        }
+        else if (cue3_vis==2) {
+          setLEDlevel(cueLED1pin, 0);
+          setLEDlevel(cueLED2pin, 0);
+          setLEDlevel(cueLED3pin, cueLED3Brightness);
+          setLEDlevel(cueLED4pin, cueLED4Brightness);
+          digitalWrite(visualCueTTL, HIGH);
+        }
+        else if (cue3_vis==3) {
+          setLEDlevel(cueLED1pin, cueLED1Brightness);
+          setLEDlevel(cueLED2pin, cueLED2Brightness);
+          setLEDlevel(cueLED3pin, cueLED3Brightness);
+          setLEDlevel(cueLED4pin, cueLED4Brightness);
+          digitalWrite(visualCueTTL, HIGH);
+        }
+
+        // turn on/off auditory cue TTL
+        if (cue3_aud == 0) {
+          digitalWrite(auditoryCueTTL, LOW);
+        }
+        else {
+          digitalWrite(auditoryCueTTL, HIGH);
+        }
+        switchTo(cue3);
       }
 
       delayMicroseconds(pauseLengthMicros); 
       break;
 
     ////////////////////
-    // CUE2
-    // second cue, check for nosepoke withdrawal
+    // CUE3
+    // third cue slot, check for nosepoke withdrawal
 
-    case cue2:
+    case cue3:
 
       // play auditory cues
-      if (cue2_aud==1) {
+      if (cue3_aud==1) {
         playLowTone();
       }
-      else if (cue2_aud==2) {
+      else if (cue3_aud==2) {
         playHighTone();
       }
-      else if (cue2_aud==3) {
+      else if (cue3_aud==3) {
         playBuzzer();
       }
-      else if (cue2_aud==4) {
+      else if (cue3_aud==4) {
         playWhiteNoise();
       }
 
@@ -495,17 +556,21 @@ void loop() {
         serLogNum("Cue2Withdrawal_ms", millis() - nosePokeInitTime);
         serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
+
       }
 
       // otherwise mouse held long enough:
-      // start one of the cues when cue2Length time elapsed.
-      else if ((millis() - tempTime) > cue2Length) {
+      // start one of the cues when cue3Length time elapsed.
+      else if ((millis() - tempTime) > cue3Length) {
         // turn off any visual cues
         setLEDlevel(cueLED1pin, 0);
         setLEDlevel(cueLED2pin, 0);
         setLEDlevel(cueLED3pin, 0);
         setLEDlevel(cueLED4pin, 0);
         digitalWrite(visualCueTTL, LOW);
+
+        // turn off auditory cue TTL
+        digitalWrite(auditoryCueTTL, LOW);
 
         sndCounter = 0;
         switchTo(postCue);

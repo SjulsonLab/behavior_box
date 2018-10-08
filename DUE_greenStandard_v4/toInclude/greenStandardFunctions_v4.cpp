@@ -179,8 +179,8 @@ long buzzerLength           = 100;
 long punishDelayLength      = 5000;
 long preCueLength           = 50;
 long cue1Length             = 200;
-long interCueLength         = 10;
 long cue2Length             = 10;
+long cue3Length             = 10;
 long postCueLength          = 50;
 long goToPokesLength        = 60000;
 long rewardCollectionLength = 3000;
@@ -188,9 +188,11 @@ long rewardCollectionLength = 3000;
 
 // which cues get played
 long cue1_vis               = 0;
-long cue2_vis               = 0; 
+long cue2_vis               = 0;
+long cue3_vis               = 0; 
 long cue1_aud               = 0;
 long cue2_aud               = 0;
+long cue3_aud               = 0;
 
 
 long startTrialYN        = 0;   // 1 to start a trial
@@ -298,16 +300,18 @@ void resetDefaults() {
   punishDelayLength = 5000;
   preCueLength      = 50; // in msec
   cue1Length        = 200;
-  interCueLength    = 10;
   cue2Length        = 10;
+  cue3Length        = 10;
   postCueLength     = 50;
   goToPokesLength   = 10000; // in msec
 
   // cue-related variables
   cue1_vis               = 0;
-  cue2_vis               = 0; 
+  cue2_vis               = 0;
+  cue3_vis               = 0; 
   cue1_aud               = 0;
   cue2_aud               = 0;
+  cue3_aud               = 0;
 
   // other 
   IrewardCode            = 0; // when (and whether) a particular port is rewarded
@@ -777,16 +781,19 @@ void processMessage() {
     
     changeVariableLong("preCueLength", &preCueLength, inLine);
     changeVariableLong("cue1Length", &cue1Length, inLine);
-    changeVariableLong("interCueLength", &interCueLength, inLine);
     changeVariableLong("cue2Length", &cue2Length, inLine);
+    changeVariableLong("cue3Length", &cue3Length, inLine);
     changeVariableLong("postCueLength", &postCueLength, inLine);
     changeVariableLong("goToPokesLength", &goToPokesLength, inLine);
     changeVariableLong("rewardCollectionLength", &rewardCollectionLength, inLine);
 
     changeVariableLong("cue1_vis", &cue1_vis, inLine);
     changeVariableLong("cue2_vis", &cue2_vis, inLine);
+    changeVariableLong("cue3_vis", &cue3_vis, inLine);
+    
     changeVariableLong("cue1_aud", &cue1_aud, inLine);
     changeVariableLong("cue2_aud", &cue2_aud, inLine);
+    changeVariableLong("cue3_aud", &cue3_aud, inLine);
 
 
     // reward codes
