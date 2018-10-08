@@ -122,7 +122,7 @@ if sessionStr.trainingPhase>2
 	sessionStr.postCueLength  = 0;
 end
 
-[cue1_vis, cue1_aud, cue2_vis, cue2_aud] = makeCueVectors(sessionStr, m);
+[cue1_vis, cue1_aud, cue2_vis, cue2_aud, cue3_vis, cue3_aud] = makeCueVectors_3cue(sessionStr, m);
 
 
 %% figuring out where to save the log files and which computer we're on
