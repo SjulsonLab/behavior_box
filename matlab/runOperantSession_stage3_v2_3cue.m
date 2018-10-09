@@ -44,9 +44,6 @@ clear all
 close all
 
 
-
-
-
 %% parameters for the mouse struct - these should never change
 m.mouseName            = 'jaxmale08';  % should not change
 m.requiredVersion      = 10;  % version of arduino DUE software required
@@ -103,10 +100,10 @@ sessionStr.trialAVtype_info = '1 = auditory only, 2 = visual only, 3 = both aud 
 
 
 % when to give cues
-sessionStr.leftCueWhen  = repmat([1 2 3], 1, 1000);
-sessionStr.leftCueWhen_info = '1 = first cue slot, 2 = second cue slot, 3 = both cue slots';
-sessionStr.rightCueWhen = repmat([1 2 3], 1, 1000); % 1 = first cue slot, 2 = second cue slot, 3 = both cue slots
-sessionStr.rightCueWhen_info = '1 = first cue slot, 2 = second cue slot, 3 = both cue slots';
+sessionStr.leftCueWhen  = repmat([1], 1, 1000);
+sessionStr.leftCueWhen_info = '1 = first cue slot, 2 = second cue slot, 4 = third cue slot';
+sessionStr.rightCueWhen = repmat([1], 1, 1000); 
+sessionStr.rightCueWhen_info = '1 = first cue slot, 2 = second cue slot, 4 = third cue slot';
 
 sessionStr.LrewardSize_nL = 5000 * ones(size(sessionStr.trialLRtype));
 sessionStr.RrewardSize_nL = 5000 * ones(size(sessionStr.trialLRtype));
@@ -116,9 +113,9 @@ sessionStr = makeRewardCodes(sessionStr); % adding reward codes to the struct
 % cue lengths, etc.
 if sessionStr.trainingPhase>2
 	sessionStr.preCueLength   = 0;
-	sessionStr.cue1Length     = 200;
-	sessionStr.cue2Length     = 200;
-	sessionStr.cue3Length     = 200;
+	sessionStr.cue1Length     = 150;
+	sessionStr.cue2Length     = 0;
+	sessionStr.cue3Length     = 0;
 	sessionStr.postCueLength  = 0;
 end
 
@@ -313,8 +310,8 @@ while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && 
 		
 		trial_dict.update(pyargs('preCueLength', sessionStr.preCueLength));
 		trial_dict.update(pyargs('cue1Length', sessionStr.cue1Length));
-		trial_dict.update(pyargs('interCueLength', sessionStr.interCueLength));
 		trial_dict.update(pyargs('cue2Length', sessionStr.cue2Length));
+		trial_dict.update(pyargs('cue3Length', sessionStr.cue3Length));
 		trial_dict.update(pyargs('postCueLength', sessionStr.postCueLength));
 		
 	end
