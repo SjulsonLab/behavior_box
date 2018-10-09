@@ -564,6 +564,7 @@ void loop() {
         }
        
         if (trainingPhase==2) {
+          giveRewards(3);
           serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }

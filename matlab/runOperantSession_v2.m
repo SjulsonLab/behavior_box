@@ -88,6 +88,8 @@ sessionStr.interTrialInterval_SD     = 1; % standard deviation of
 sessionStr.IrewardSize_nL = 5000; 
 sessionStr.punishForErrorPoke = 'no'; % 0 for no, 1 for yes
 
+sessionStr.phase3_firstblock = 'no';
+
 % info about trials - will figure out something more sophisticated later
 sessionStr.trialLRtype  = [3 3 2 1 3 2 3 1 2 1 3 3 2 1]; % 1 = left, 2 = right, 3 = free choice (i.e. both)
 sessionStr.trialLRtype_info = '1 = left, 2 = right, 3 = free choice (i.e. both)';
