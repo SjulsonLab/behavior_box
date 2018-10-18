@@ -75,7 +75,6 @@ resetTimeYN              = 'yes'; %
 
 sessionStr.sessionLength             = 60; % in minutes
 sessionStr.maxTrials                 = 10000; % program terminates when either sessionLength or maxTrials is reached
-sessionStr.maxRewards                = 3; % program also terminates if maxRewards is reached
 sessionStr.interTrialInterval_mean   = 0;  % number of seconds between trials
 sessionStr.interTrialInterval_SD     = 0 ; % standard deviation of seconds between trials
 
@@ -258,10 +257,9 @@ end
 t = tic;
 nTrial = sessionStr.startTrialNum;
 lastPos = 0;
-totalRewards = 0;
 close all
 
-while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && exitNowYN == 0 && exitAfterTrialYN == 0 && totalRewards < sessionStr.maxRewards
+while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && exitNowYN == 0 && exitAfterTrialYN == 0
 	
 	% set box params for this trial
 	% all reward codes default to zero and will be zero unless changed here
@@ -310,14 +308,7 @@ while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && 
 	%% run actual trial
 	fname = run2AFCSingleTrial(box1, sessionStr, trial_dict);
 	
-	%% extract trial info
-	[trialStr, lastPos] = extractTrial_v2([sessionStr.basedir '/' sessionStr.basename '/' sessionStr.basename '.txt'], lastPos);
-	if any(contains(trialStr.eventType, 'eward'))
-		totalRewards = totalRewards + 1;
-	end
-	
-	
-	%% randomized inter-trial interval
+	% randomized inter-trial interval
 	pause(sessionStr.interTrialInterval_mean + sessionStr.interTrialInterval_SD .* randn());
 	
 end

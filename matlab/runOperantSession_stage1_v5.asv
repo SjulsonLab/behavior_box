@@ -75,6 +75,7 @@ resetTimeYN              = 'yes'; %
 
 sessionStr.sessionLength             = 60; % in minutes
 sessionStr.maxTrials                 = 10000; % program terminates when either sessionLength or maxTrials is reached
+sessionStr.maxRewards                = 200; % program also terminates if maxRewards is reached
 sessionStr.interTrialInterval_mean   = 0;  % number of seconds between trials
 sessionStr.interTrialInterval_SD     = 0 ; % standard deviation of seconds between trials
 
@@ -85,7 +86,7 @@ sessionStr.cueWithdrawalPunishYN = 0; % 0 for no, 1 for yes
 % sessionStr.phase3_firstblock = 'no'; % if 'yes', in phase 3 the left/right pokes get pre-rewarded
 
 % info about trials - will figure out something more sophisticated later
-sessionStr.trialLRtype  = [3 3 2 1 3 2 3 1 2 1 3 3 2 1]; % 1 = left, 2 = right, 3 = free choice (i.e. both). No free choice until stage 3
+sessionStr.trialLRtype  = [1 2 2 1 2 2 1 1 2 1 2 1 2 1]; % 1 = left, 2 = right, 3 = free choice (i.e. both). No free choice until stage 3
 sessionStr.trialLRtype_info = '1 = left, 2 = right, 3 = free choice (i.e. both)';
 
 sessionStr.trialAVtype  = [3 3 3 3 3 3 3 3 3 3 3 3 3 3]; % 1 = auditory only, 2 = visual only, 3 = both aud + vis
@@ -257,9 +258,10 @@ end
 t = tic;
 nTrial = sessionStr.startTrialNum;
 lastPos = 0;
+totalRewards = 0;
 close all
 
-while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && exitNowYN == 0 && exitAfterTrialYN == 0
+while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && exitNowYN == 0 && exitAfterTrialYN == 0 && totalRewards < sessionStr.
 	
 	% set box params for this trial
 	% all reward codes default to zero and will be zero unless changed here
@@ -308,7 +310,17 @@ while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && 
 	%% run actual trial
 	fname = run2AFCSingleTrial(box1, sessionStr, trial_dict);
 	
-	% randomized inter-trial interval
+	%% extract trial info
+	[trialStr, lastPos] = extractTrial_v2([sessionStr.basedir '/' sessionStr.basename '/' sessionStr.basename '.txt'], lastPos);
+	if any(contains(trialStr.eventType, 'eward'))
+		totalRewards = totalRewards + 1;
+	end
+	
+	if totalRewards >= sessionStr.maxRewards
+		
+	
+	
+	%% randomized inter-trial interval
 	pause(sessionStr.interTrialInterval_mean + sessionStr.interTrialInterval_SD .* randn());
 	
 end
