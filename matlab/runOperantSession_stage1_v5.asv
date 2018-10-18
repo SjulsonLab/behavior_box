@@ -261,7 +261,7 @@ lastPos = 0;
 totalRewards = 0;
 close all
 
-while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && exitNowYN == 0 && exitAfterTrialYN == 0 && totalRewards < sessionStr.
+while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && exitNowYN == 0 && exitAfterTrialYN == 0 && totalRewards < sessionStr.maxRewards
 	
 	% set box params for this trial
 	% all reward codes default to zero and will be zero unless changed here
@@ -316,8 +316,12 @@ while toc(t)/60 < sessionStr.sessionLength && nTrial <= sessionStr.maxTrials && 
 		totalRewards = totalRewards + 1;
 	end
 	
-	if totalRewards >= sessionStr.maxRewards
-		
+	%% reasons for exiting
+	if sessionStr.sessionLength > toc(t)/60
+		disp('Session reached maximum duration. Exiting.');
+		exitNowYN = 1;
+	elseif sessionStr.maxTrials > 
+	
 	
 	
 	%% randomized inter-trial interval
