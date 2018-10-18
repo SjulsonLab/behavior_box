@@ -182,7 +182,7 @@ boxParams.update(pyargs('laserOnCode', 0));
 
 % these are all in milliseconds
 boxParams.update(pyargs('readyToGoLength',        1000*30));
-boxParams.update(pyargs('punishDelayLength',      1000*16));
+boxParams.update(pyargs('punishDelayLength',      1000*6));
 boxParams.update(pyargs('preCueLength',           10));
 boxParams.update(pyargs('cue1Length',             5));
 boxParams.update(pyargs('cue2Length',             5));

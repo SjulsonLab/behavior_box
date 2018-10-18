@@ -1,4 +1,4 @@
-% code for training phase 1, using arduino code v5
+% code for training phase 2, using arduino code v5
 % Luke Sjulson, 2018-10-18
 
 % ////////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ m.rightAudCue        = 0;
 
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
-sessionStr.trainingPhase = 1;
+sessionStr.trainingPhase = 2;
 
 sessionStr.startTrialNum = 1;     % in case you stop and start on the same day
 resetTimeYN              = 'yes'; %
@@ -182,7 +182,7 @@ boxParams.update(pyargs('laserOnCode', 0));
 
 % these are all in milliseconds
 boxParams.update(pyargs('readyToGoLength',        1000*30));
-boxParams.update(pyargs('punishDelayLength',      1000*16));
+boxParams.update(pyargs('punishDelayLength',      1000*6));
 boxParams.update(pyargs('preCueLength',           10));
 boxParams.update(pyargs('cue1Length',             5));
 boxParams.update(pyargs('cue2Length',             5));
@@ -282,7 +282,14 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	trial_dict.update(pyargs('rightCueWhen', sessionStr.rightCueWhen(nTrial)));
 	
 	% reward info
-	trial_dict.update(pyargs('IrewardCode', 1));
+	if sessionStr.trainingPhase==1
+		trial_dict.update(pyargs('IrewardCode', 1));
+	elseif sessionStr.trainingPhase==2
+		trial_dict.update(pyargs('IrewardCode', 2));
+	elseif sessionStr.trainingPhase>2
+		trial_dict.update(pyargs('IrewardCode', 0));
+	end
+	
 	trial_dict.update(pyargs('IrewardSize_nL', sessionStr.IrewardSize_nL));
 	trial_dict.update(pyargs('LrewardCode', sessionStr.LrewardCode(nTrial)));
 	trial_dict.update(pyargs('LrewardSize_nL', sessionStr.LrewardSize_nL(nTrial)));

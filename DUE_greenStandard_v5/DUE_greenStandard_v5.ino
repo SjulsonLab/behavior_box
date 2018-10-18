@@ -308,15 +308,29 @@ void loop() {
         nosePokeInitTime = millis(); // record time when mouse begins the init poke specifically. used to make sure mouse holds long enough.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
 
-        // if training phase 1 and mouse pokes, switch state directly to letTheAnimalDrink
+  /*      // if training phase 1 and mouse pokes, switch state directly to letTheAnimalDrink
         if (trainingPhase==1) {
           serLogNum("TrialStarted_ms", millis() - trialAvailTime);
           uncollectedInitRewardYN = 0; // only relevant in training phase 1 - indicates the mouse collected the reward, so the port will get a reward next trial
           serLogNum("Phase1RewardCollected_ms", millis() - trialAvailTime);
           switchTo(letTheAnimalDrink);
-        }
-        // for other training phases, go to preCue 
-        else {
+        } */
+
+        
+        if (trainingPhase==2) { // go to letTheAnimalDrink
+          serLogNum("TrialStarted_ms", millis() - trialAvailTime);
+          if (IrewardCode != 2) {
+            serLog("Error_init_reward_code_is_wrong");
+            switchTo(standby);
+          }
+          else {
+            giveRewards(2);
+            switchTo(letTheAnimalDrink);
+          }
+
+
+        } 
+        if (trainingPhase >= 3) { // for other training phases, go to preCue 
           serLogNum("TrialStarted_ms", millis() - trialAvailTime);
           sndCounter = 0;
           giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) 
@@ -324,8 +338,8 @@ void loop() {
         }
       }
 
-      // if mouse pokes the wrong poke in phase 3 or later, go to punishDelay
-      if (trainingPhase >= 3) {
+      // if mouse pokes the wrong poke in phase 6 or later, go to punishDelay
+      if (trainingPhase >= 6) {
         if (leftPoke==1 || rightPoke==1) {
           digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
           serLogNum("ErrorPokeBeforeInit_ms", millis() - trialAvailTime); 
