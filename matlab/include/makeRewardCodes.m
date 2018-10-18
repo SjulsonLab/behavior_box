@@ -38,13 +38,8 @@ else
     error('Can not interpret sessionStr.punishForErrorPoke');
 end
 
-if contains(sessionStr.phase3_firstblock, 'yes')
-    LrewardCode(sessionStr.trialLRtype==1 | sessionStr.trialLRtype==3) = 3;
-    RrewardCode(sessionStr.trialLRtype==2 | sessionStr.trialLRtype==3) = 3;
-else
-    LrewardCode(sessionStr.trialLRtype==1 | sessionStr.trialLRtype==3) = 4;
-    RrewardCode(sessionStr.trialLRtype==2 | sessionStr.trialLRtype==3) = 4;
-end
+LrewardCode(sessionStr.trialLRtype==1 | sessionStr.trialLRtype==3) = 4;
+RrewardCode(sessionStr.trialLRtype==2 | sessionStr.trialLRtype==3) = 4;
 
 
 sessionStr.LrewardCode = LrewardCode;

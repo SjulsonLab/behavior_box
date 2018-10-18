@@ -101,6 +101,7 @@ int uncollectedLeftRewardYN       = 0;     // gets set to 1 if the animal leaves
 int uncollectedRightRewardYN      = 0;     // gets set to 1 if the animal leaves an uncollected reward in the right poke
 long calibrationLength            = 0;     // amount of time for the system to stay in the calibration state
 long frameRate                    = 30;    // frame rate to trigger camera at (in Hz)
+long cueWithdrawalPunishYN        = 0;     // set to 1 to punish for withdrawal during cues
 
 
 // variables for timing
@@ -750,6 +751,7 @@ void processMessage() {
     changeVariableLong("initPokePunishYN", &initPokePunishYN, inLine);
     changeVariableLong("cameraRecordingYN", &cameraRecordingYN, inLine);
     changeVariableLong("frameRate", &frameRate, inLine);
+    changeVariableLong("cueWithdrawalPunishYN", &cueWithdrawalPunishYN, inLine);
 
     changeVariableLong("WNvolume", &WNvolume, inLine);
     changeVariableLong("lowCueVolume", &lowCueVolume, inLine);
