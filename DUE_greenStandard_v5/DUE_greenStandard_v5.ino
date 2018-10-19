@@ -51,9 +51,9 @@
 #define readyToGo     		2  // plays white noise, waits for init poke
 #define punishDelay   		3  // timeout period after animal makes mistake
 #define preCue        		4  // time delay between white noise and cue
-#define slot1              5  // first cue slot
-#define slot2              6  // second cue slot
-#define slot3              7  // third cue slot
+#define slot1             5  // first cue slot
+#define slot2             6  // second cue slot
+#define slot3             7  // third cue slot
 #define postCue       		8  // additional time delay
 #define goToPokes     		9  // nosepokes open, animal can approach and collect reward
 #define letTheAnimalDrink 10 // waiting for animal to collect reward
@@ -490,6 +490,20 @@ void loop() {
     // second cue slot, check for nosepoke withdrawal
 
     case slot2:
+
+      // play auditory cues
+      if (slot2_aud==1) {
+        playLowTone();
+      }
+      else if (slot2_aud==2) {
+        playHighTone();
+      }
+      else if (slot2_aud==3) {
+        playBuzzer();
+      }
+      else if (slot2_aud==4) {
+        playWhiteNoise();
+      }
 
       // if mouse withdraws nose too early, switch state to punishDelay
       if (initPoke == 0 && cueWithdrawalPunishYN==1) {

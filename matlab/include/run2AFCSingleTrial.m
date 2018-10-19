@@ -31,7 +31,6 @@ end
 
 % open log file (separately for each trial)
 cd(sessionStr.basedir);
-cd(sessionStr.basename);
 fname = [sessionStr.basename '.txt'];
 logfid = fopen(fname, 'at');
 Astr = '';

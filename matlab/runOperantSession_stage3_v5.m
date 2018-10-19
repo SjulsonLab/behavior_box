@@ -73,21 +73,21 @@ sessionStr.trainingPhase = 3;
 sessionStr.startTrialNum = 1;     % in case you stop and start on the same day
 resetTimeYN              = 'yes'; %
 
-sessionStr.sessionLength             = 60; % in minutes
-sessionStr.maxTrials                 = 10000; % program terminates when either sessionLength or maxTrials is reached
+sessionStr.maxSessionLength_min      = 60; % in minutes
+sessionStr.maxTrials                 = 10000; % program terminates when either maxSessionLength_min or maxTrials is reached
 sessionStr.maxRewards                = 200; % program also terminates if maxRewards is reached
 sessionStr.interTrialInterval_mean   = 0;  % number of seconds between trials
 sessionStr.interTrialInterval_SD     = 0; % standard deviation of seconds between trials
 
 sessionStr.IrewardSize_nL = 5000; 
-sessionStr.punishForErrorPoke = 'no'; % 'no' for stages 1-5, 'yes' for stage 6
-sessionStr.cueWithdrawalPunishYN = 0; % 0 for no, 1 for yes
+sessionStr.punishForErrorPokeYN = 0; % 0 = no, 1 = yes for stage 5 only
+sessionStr.cueWithdrawalPunishYN = 0; % only 1 in phase 4
 
 % sessionStr.phase3_firstblock = 'no'; % if 'yes', in phase 3 the left/right pokes get pre-rewarded
 
 % info about trials - will figure out something more sophisticated later
 allTrials = ones(1, 500);
-sessionStr.trialLRtype  = makeRandomVector([1 2 3 4 5 6], length(allTrials)); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
+sessionStr.trialLRtype  = makeRandomVector([1 2], length(allTrials)); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
 sessionStr.trialLRtype_info = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)';
 
 % this is planning for the future, when we will likely want two auditory
@@ -102,7 +102,7 @@ sessionStr.rewardSizeMax_nL    = 8000;
 sessionStr.rewardSizeMin_nL    = 2000;
 sessionStr.rewardSizeDelta_nL  = 500; % the number of nanoliters to adjust reward size by to prevent 
 
-sessionStr = makeRewardCodes(sessionStr); % adding reward codes to the struct
+sessionStr = makeRewardCodes_v5(sessionStr, 1:length(allTrials)); % adding reward codes to the struct
 
 % cue lengths, etc. - for phase 3 only
 sessionStr.preCueLength         = 0 * allTrials; % should be zero until stage 4, when it is gradually increased
@@ -131,19 +131,17 @@ end
 m.dateString = datestr(now, 29);
 timeString = datestr(now, 30);
 m.timeString = timeString(end-5:end);
-sessionStr.basedir = m.basedir;
 sessionStr.timeString = m.timeString;
 sessionStr.dateString = m.dateString;
 
 %% creating directory to store the data, saving structs to disk
-cd(sessionStr.basedir);
+cd(m.basedir);
 sessionStr.basename = [sessionStr.mouseName '_' datestr(now, 'yymmdd') '_' sessionStr.timeString];
+sessionStr.basedir = [m.basedir '\' sessionStr.basename];
 mkdir(sessionStr.basename);
 cd(sessionStr.basename);
 
-mouseStr = m;
-save('mouseStr.mat', 'mouseStr');
-save('sessionStr.mat', 'sessionStr');
+
 
 %% verify we're using python 2.7, as version 3 creates problems with dicts
 x = pyversion();
@@ -272,9 +270,7 @@ close all
 while exitNowYN == 0 && exitAfterTrialYN == 0
 	
 	% set box params for this trial
-	
-	
-	
+
 	
 	% all reward codes default to zero and will be zero unless changed here
 	
@@ -325,7 +321,7 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	fname = run2AFCSingleTrial(box1, sessionStr, trial_dict);
 	
 	%% extract trial info
-	[trialStr, lastPos] = extractTrial_v2([sessionStr.basedir '/' sessionStr.basename '/' sessionStr.basename '.txt'], lastPos);
+	[trialStr, lastPos] = extractTrial_v2([sessionStr.basedir '/' sessionStr.basename '.txt'], lastPos);
 	if any(contains(trialStr.eventType, 'eward'))
 		sessionStr.rewardThisTrialYN(nTrial) = 1;
 		totalRewards = totalRewards + 1;
@@ -335,6 +331,8 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	
 	%% generate stuff for next trial
 	sessionStr = makeCues_v5(sessionStr, m, nTrial+1);
+	sessionStr.trialNum(nTrial+1) = sessionStr.trialNum(nTrial) + 1;
+
 	
 	%% adjust cue lengths, etc. (stage 4 only)
 	
@@ -357,7 +355,7 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	end
 	
 	%% reasons for exiting
-	if toc(t)/60 > sessionStr.sessionLength
+	if toc(t)/60 > sessionStr.maxSessionLength_min
 		disp('Session reached maximum duration. Exiting.');
 		exitNowYN = 1;
 	elseif nTrial > sessionStr.maxTrials
@@ -374,6 +372,11 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	
 	nTrial = nTrial + 1;
 end
+
+%% save structs to disk
+mouseStr = m;
+save('mouseStr.mat', 'mouseStr');
+save('sessionStr.mat', 'sessionStr');
 
 %% stop camera
 sendToArduino(box1, [], 'cameraRecordingYN', 0);
