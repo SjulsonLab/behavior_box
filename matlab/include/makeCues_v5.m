@@ -19,7 +19,7 @@ function sessionStr = makeCues_v5(sessionStr, mouseStr, trialNums)
 % rightAudCue
 %
 % The fields added to sessionStr are: 
-% cue1_vis, cue2_vis, cue3_vis, cue1_aud, cue2_aud, cue3_aud  - to give to arduino
+% slot1_vis, slot2_vis, slot3_vis, slot1_aud, slot2_aud, slot3_aud  - to give to arduino
 % slot1Length, slot2Length, slot3Length  - also to give to arduino
 %
 % Luke Sjulson, 2018-10-19
@@ -50,12 +50,12 @@ function sessionStr = makeCues_v5(sessionStr, mouseStr, trialNums)
 for idx = 1:length(trialNums)
 	nTrial = trialNums(idx);
 	
-	cue1_vis = 0;
-	cue1_aud = 0;
-	cue2_vis = 0;
-	cue2_aud = 0;
-	cue3_vis = 0;
-	cue3_aud = 0;
+	slot1_vis = 0;
+	slot1_aud = 0;
+	slot2_vis = 0;
+	slot2_aud = 0;
+	slot3_vis = 0;
+	slot3_aud = 0;
 	
 	trialLRtype = sessionStr.trialLRtype(nTrial);
 	trialAVtype = sessionStr.trialAVtype(nTrial);
@@ -86,17 +86,17 @@ for idx = 1:length(trialNums)
 	if trialLRtype==1 || trialLRtype==5 % if left cue is played in first slot
 		% if aud cue is played
 		if trialAVtype==1 || trialAVtype==3
-			cue1_aud = mouseStr.leftAudCue;
+			slot1_aud = mouseStr.leftAudCue;
 			if slot2StimYN==1 % if it's played in the second slot
-				cue2_aud = mouseStr.leftAudCue;
+				slot2_aud = mouseStr.leftAudCue;
 			end
 		end
 		
 		% if vis cue is played
 		if trialAVtype==2 || trialAVtype==3
-			cue1_vis = mouseStr.leftVisCue;
+			slot1_vis = mouseStr.leftVisCue;
 			if slot2StimYN==1 % if it's played in the second slot
-				cue2_vis = mouseStr.leftVisCue;
+				slot2_vis = mouseStr.leftVisCue;
 			end
 		end
 	end
@@ -104,17 +104,17 @@ for idx = 1:length(trialNums)
 	if trialLRtype==3 || trialLRtype==6 % if right cue is played in first slot
 		% if aud cue is played
 		if trialAVtype==1 || trialAVtype==3
-			cue1_aud = mouseStr.rightAudCue;
+			slot1_aud = mouseStr.rightAudCue;
 			if slot2StimYN==1 % if it's played in the second slot
-				cue2_aud = mouseStr.rightAudCue;
+				slot2_aud = mouseStr.rightAudCue;
 			end
 		end
 		
 		% if vis cue is played
 		if trialAVtype==2 || trialAVtype==3
-			cue1_vis = mouseStr.rightVisCue;
+			slot1_vis = mouseStr.rightVisCue;
 			if slot2StimYN==1 % if it's played in the second slot
-				cue2_vis = mouseStr.rightVisCue;
+				slot2_vis = mouseStr.rightVisCue;
 			end
 		end
 	end
@@ -123,11 +123,11 @@ for idx = 1:length(trialNums)
 	if trialLRtype==2 || trialLRtype==6 % if left cue is played in third slot
 		% if aud cue is played
 		if trialAVtype==1 || trialAVtype==3
-			cue3_aud = mouseStr.leftAudCue;
+			slot3_aud = mouseStr.leftAudCue;
 			if slot2StimYN==1 % if it's played in the second slot
 				if mouseStr.leftAudCue~=0
-					if cue2_aud==0
-						cue2_aud = mouseStr.leftAudCue;
+					if slot2_aud==0
+						slot2_aud = mouseStr.leftAudCue;
 					else
 						warning('Attempting to play two contradictory auditory stimuli simultaneously');
 					end
@@ -137,11 +137,11 @@ for idx = 1:length(trialNums)
 		
 		% if vis cue is played
 		if trialAVtype==2 || trialAVtype==3
-			cue3_vis = mouseStr.leftVisCue;
+			slot3_vis = mouseStr.leftVisCue;
 			if slot2StimYN==1 % if it's played in the second slot
 				if mouseStr.leftVisCue~=0
-					if cue2_vis==0
-						cue2_vis = mouseStr.leftVisCue;
+					if slot2_vis==0
+						slot2_vis = mouseStr.leftVisCue;
 					else
 						warning('Attempting to play two contradictory visual stimuli simultaneously');
 					end
@@ -154,11 +154,11 @@ for idx = 1:length(trialNums)
 	if trialLRtype==4 || trialLRtype==5 % if right cue is played in third slot
 		% if aud cue is played
 		if trialAVtype==1 || trialAVtype==3
-			cue3_aud = mouseStr.rightAudCue;
+			slot3_aud = mouseStr.rightAudCue;
 			if slot2StimYN==1 % if it's played in the second slot
 				if mouseStr.rightAudCue~=0
-					if cue2_aud==0
-						cue2_aud = mouseStr.rightAudCue;
+					if slot2_aud==0
+						slot2_aud = mouseStr.rightAudCue;
 					else
 						warning('Attempting to play two contradictory auditory stimuli simultaneously');
 					end
@@ -168,11 +168,11 @@ for idx = 1:length(trialNums)
 		
 		% if vis cue is played
 		if trialAVtype==2 || trialAVtype==3
-			cue3_vis = mouseStr.rightVisCue;
+			slot3_vis = mouseStr.rightVisCue;
 			if slot2StimYN==1 % if it's played in the second slot
 				if mouseStr.rightVisCue~=0
-					if cue2_vis==0
-						cue2_vis = mouseStr.rightVisCue;
+					if slot2_vis==0
+						slot2_vis = mouseStr.rightVisCue;
 					else
 						warning('Attempting to play two contradictory visual stimuli simultaneously');
 					end
@@ -187,12 +187,12 @@ for idx = 1:length(trialNums)
 	sessionStr.slot2Length(nTrial) = slot2Length;
 	sessionStr.slot3Length(nTrial) = slot3Length;
 	
-	sessionStr.cue1_aud(nTrial) = cue1_aud;
-	sessionStr.cue2_aud(nTrial) = cue2_aud;
-	sessionStr.cue3_aud(nTrial) = cue3_aud;
-	sessionStr.cue1_vis(nTrial) = cue1_vis;
-	sessionStr.cue2_vis(nTrial) = cue2_vis;
-	sessionStr.cue3_vis(nTrial) = cue3_vis;
+	sessionStr.slot1_aud(nTrial) = slot1_aud;
+	sessionStr.slot2_aud(nTrial) = slot2_aud;
+	sessionStr.slot3_aud(nTrial) = slot3_aud;
+	sessionStr.slot1_vis(nTrial) = slot1_vis;
+	sessionStr.slot2_vis(nTrial) = slot2_vis;
+	sessionStr.slot3_vis(nTrial) = slot3_vis;
 	
 end
 
