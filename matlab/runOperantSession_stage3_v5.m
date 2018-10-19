@@ -87,7 +87,7 @@ sessionStr.cueWithdrawalPunishYN = 0; % only 1 in phase 4
 
 % info about trials - will figure out something more sophisticated later
 allTrials = ones(1, 500);
-sessionStr.trialLRtype  = makeRandomVector([1 2], length(allTrials)); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
+sessionStr.trialLRtype  = makeRandomVector([5 6], length(allTrials)); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
 sessionStr.trialLRtype_info = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)';
 
 % this is planning for the future, when we will likely want two auditory
@@ -101,10 +101,13 @@ sessionStr.RrewardSize_nL      = 5000;
 sessionStr.rewardSizeMax_nL    = 8000;
 sessionStr.rewardSizeMin_nL    = 2000;
 sessionStr.rewardSizeDelta_nL  = 500; % the number of nanoliters to adjust reward size by to prevent 
-
 sessionStr = makeRewardCodes_v5(sessionStr, 1:length(allTrials)); % adding reward codes to the struct
 
-% cue lengths, etc. - for phase 3 only
+% in phase 3, mouse only gets 4 seconds to poke L or R
+sessionStr.goToPokesLength     = 1000*4;
+
+
+% cue lengths, etc. - for phases 3-5 only
 sessionStr.preCueLength         = 0 * allTrials; % should be zero until stage 4, when it is gradually increased
 sessionStr.cue1Length           = 100 * allTrials;
 sessionStr.cue2Length           = 100 * allTrials;
@@ -280,7 +283,7 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	
 	trial_dict.update(pyargs('nTrial', sessionStr.trialNum(nTrial)));
 	trial_dict.update(pyargs('trainingPhase', sessionStr.trainingPhase));
-	
+	trial_dict.update(pyargs('goToPokesLength', sessionStr.goToPokesLength));
 	
 	% info about trial type - sent to arduino only so that they get
 	% saved in text log file
@@ -341,7 +344,7 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	sessionStr.LrewardSize_nL(nTrial+1) = sessionStr.LrewardSize_nL(nTrial);
 	sessionStr.RrewardSize_nL(nTrial+1) = sessionStr.RrewardSize_nL(nTrial);
 	
-	%% adjust reward sizes if necessary
+	%% adjust reward sizes for free choice trials (phase 3 and 4 only)
  	if sessionStr.trialLRtype(nTrial)==5 || sessionStr.trialLRtype(nTrial)==6 % if it's a free choice trial
 		if any(contains(trialStr.eventType, 'leftReward'))
 			sessionStr.LrewardSize_nL(nTrial+1) = max(sessionStr.LrewardSize_nL(nTrial) - sessionStr.rewardSizeDelta_nL, sessionStr.rewardSizeMin_nL);
@@ -369,7 +372,6 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	
 	%% randomized inter-trial interval
 	pause(sessionStr.interTrialInterval_mean + sessionStr.interTrialInterval_SD .* randn());
-	
 	nTrial = nTrial + 1;
 end
 
@@ -384,7 +386,7 @@ sendToArduino(box1, [], 'cameraRecordingYN', 0);
 
 %% close arduino
 fclose(box1);
-% close all force;
+close all force;
 fprintf('Session completed.\n');
 
 
