@@ -80,14 +80,12 @@ sessionStr.interTrialInterval_mean   = 0;  % number of seconds between trials
 sessionStr.interTrialInterval_SD     = 0; % standard deviation of seconds between trials
 
 sessionStr.IrewardSize_nL = 5000; 
-sessionStr.punishForErrorPokeYN = 0; % 0 = no, 1 = yes for stage 5 only
-sessionStr.cueWithdrawalPunishYN = 0; % only 1 in phase 4
-
-% sessionStr.phase3_firstblock = 'no'; % if 'yes', in phase 3 the left/right pokes get pre-rewarded
+sessionStr.punishForErrorPokeYN      = 0; % 0 = no, 1 = yes for stage 5 only
+sessionStr.cueWithdrawalPunishYN     = 0; % only 1 in phase 4-5
 
 % info about trials - will figure out something more sophisticated later
 allTrials = ones(1, 500);
-sessionStr.trialLRtype  = makeRandomVector([5 6], length(allTrials)); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
+sessionStr.trialLRtype  = makeRandomVector([1 2 3 4 5 6], length(allTrials)); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
 sessionStr.trialLRtype_info = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)';
 
 % this is planning for the future, when we will likely want two auditory
@@ -105,7 +103,6 @@ sessionStr = makeRewardCodes_v5(sessionStr, 1:length(allTrials)); % adding rewar
 
 % in phase 3, mouse only gets 4 seconds to poke L or R
 sessionStr.goToPokesLength     = 1000*4;
-
 
 % cue lengths, etc. - for phases 3-5 only
 sessionStr.preCueLength         = 0 * allTrials; % should be zero until stage 4, when it is gradually increased
