@@ -252,7 +252,10 @@ end
 
 %% main while loop, looping over trials
 t = tic;
-nTrial = sessionStr.startTrialNum;
+nTrial = 1;
+sessionStr.trialNum(nTrial) = sessionStr.startTrialNum -1 + nTrial;
+
+
 lastPos = 0;
 totalRewards = 0;
 close all
@@ -270,7 +273,7 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	trial_dict = py.dict; % empty python dict that fills only w/parameters that
 	% are updated in the current trial.
 	
-	trial_dict.update(pyargs('nTrial', nTrial));
+	trial_dict.update(pyargs('nTrial', sessionStr.trialNum(nTrial)));
 	trial_dict.update(pyargs('trainingPhase', sessionStr.trainingPhase));
 	
 	
@@ -278,8 +281,6 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	% saved in text log file
 	trial_dict.update(pyargs('trialLRtype', sessionStr.trialLRtype(nTrial)));
 	trial_dict.update(pyargs('trialAVtype', sessionStr.trialAVtype(nTrial)));
-	trial_dict.update(pyargs('leftCueWhen', sessionStr.leftCueWhen(nTrial)));
-	trial_dict.update(pyargs('rightCueWhen', sessionStr.rightCueWhen(nTrial)));
 	
 	% reward info
 	if sessionStr.trainingPhase==1
@@ -297,19 +298,19 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	trial_dict.update(pyargs('RrewardSize_nL', sessionStr.RrewardSize_nL(nTrial)));
 	
 	% cue info
-	trial_dict.update(pyargs('slot1_vis', slot1_vis(nTrial)));
-	trial_dict.update(pyargs('slot1_aud', slot1_aud(nTrial)));
-	trial_dict.update(pyargs('slot2_vis', slot2_vis(nTrial)));
-	trial_dict.update(pyargs('slot2_aud', slot2_aud(nTrial)));
-	trial_dict.update(pyargs('slot3_vis', slot3_vis(nTrial)));
-	trial_dict.update(pyargs('slot3_aud', slot3_aud(nTrial)));
+	trial_dict.update(pyargs('slot1_vis', sessionStr.slot1_vis(nTrial)));
+	trial_dict.update(pyargs('slot1_aud', sessionStr.slot1_aud(nTrial)));
+	trial_dict.update(pyargs('slot2_vis', sessionStr.slot2_vis(nTrial)));
+	trial_dict.update(pyargs('slot2_aud', sessionStr.slot2_aud(nTrial)));
+	trial_dict.update(pyargs('slot3_vis', sessionStr.slot3_vis(nTrial)));
+	trial_dict.update(pyargs('slot3_aud', sessionStr.slot3_aud(nTrial)));
 	
 	trial_dict.update(pyargs('cueWithdrawalPunishYN', sessionStr.cueWithdrawalPunishYN));
-	trial_dict.update(pyargs('preCueLength', sessionStr.preCueLength));
-	trial_dict.update(pyargs('slot1Length', sessionStr.slot1Length));
-	trial_dict.update(pyargs('slot2Length', sessionStr.slot2Length));
-	trial_dict.update(pyargs('slot3Length', sessionStr.slot3Length));
-	trial_dict.update(pyargs('postCueLength', sessionStr.postCueLength));
+	trial_dict.update(pyargs('preCueLength', sessionStr.preCueLength(nTrial)));
+	trial_dict.update(pyargs('slot1Length', sessionStr.slot1Length(nTrial)));
+	trial_dict.update(pyargs('slot2Length', sessionStr.slot2Length(nTrial)));
+	trial_dict.update(pyargs('slot3Length', sessionStr.slot3Length(nTrial)));
+	trial_dict.update(pyargs('postCueLength', sessionStr.postCueLength(nTrial)));
 	
 	
 	

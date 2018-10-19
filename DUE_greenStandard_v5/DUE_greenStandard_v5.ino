@@ -242,8 +242,6 @@ void loop() {
         serLogNum("requiredPokeHoldLength_ms", preCueLength + slot1Length + slot2Length + slot3Length + postCueLength);
         serLogNum("trialLRtype", trialLRtype);
         serLogNum("trialAVtype", trialAVtype);
-        serLogNum("leftCueWhen", leftCueWhen);
-        serLogNum("rightCueWhen", rightCueWhen);
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
         trialAvailTime = millis(); // assign time in ms when trial becomes available/when you're switching to readyToGo state.
@@ -292,7 +290,6 @@ void loop() {
         sndCounter = 0;
         serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
-        uncollectedInitRewardYN = 1; // indicates the animal is leaving an uncollected reward behind so that another one is not delivered in the next trial - for training phase 1 only
       }
 
 
@@ -308,15 +305,7 @@ void loop() {
         nosePokeInitTime = millis(); // record time when mouse begins the init poke specifically. used to make sure mouse holds long enough.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
 
-  /*      // if training phase 1 and mouse pokes, switch state directly to letTheAnimalDrink
-        if (trainingPhase==1) {
-          serLogNum("TrialStarted_ms", millis() - trialAvailTime);
-          uncollectedInitRewardYN = 0; // only relevant in training phase 1 - indicates the mouse collected the reward, so the port will get a reward next trial
-          serLogNum("Phase1RewardCollected_ms", millis() - trialAvailTime);
-          switchTo(letTheAnimalDrink);
-        } */
-
-        
+       
         if (trainingPhase==2) { // go to letTheAnimalDrink
           serLogNum("TrialStarted_ms", millis() - trialAvailTime);
           if (IrewardCode != 2) {
@@ -700,6 +689,7 @@ void loop() {
         sndCounter = 0;
         serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
+        uncollectedInitRewardYN = 1; // not relevant unless you're pre-rewarding the init port
       }
 
 

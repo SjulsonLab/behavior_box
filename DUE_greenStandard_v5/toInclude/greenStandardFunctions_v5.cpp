@@ -93,7 +93,6 @@ unsigned long nosePokeInitTime    = 0;
 long slowDTmicros                 = 100;   // DT of slow loop in microseconds
 long pauseLengthMicros            = 5;     // length of pause for each iteration of the fast loop
 unsigned long lastCheckTimeMicros = 0;
-int probsWritten                  = 0;     // if reward probabilities are sent to serial, turns to 1
 int initPokeError                 = 0;     // gets set to 1 if the animal init pokes during standby
 long nTrial                       = 0;     // trial number
 int uncollectedInitRewardYN       = 0;     // gets set to 1 if the animal leaves an uncollected reward in the init poke
@@ -250,8 +249,6 @@ long syringeSize_mL          = 5;
 // these variables have no function other than to allow matlab to write them into the log file
 long trialLRtype       = 0;   
 long trialAVtype       = 0; 
-long leftCueWhen       = 0;
-long rightCueWhen      = 0;
 
 
 /*
@@ -330,8 +327,7 @@ void resetDefaults() {
 
   trialLRtype       = 0;   
   trialAVtype       = 0; 
-  leftCueWhen       = 0;
-  rightCueWhen      = 0;
+
 
 }
 
@@ -816,8 +812,6 @@ void processMessage() {
     // solely for reporting these variables to the text output
     changeVariableLong("trialLRtype", &trialLRtype, inLine);
     changeVariableLong("trialAVtype", &trialAVtype, inLine);
-    changeVariableLong("leftCueWhen", &leftCueWhen, inLine);
-    changeVariableLong("rightCueWhen", &rightCueWhen, inLine);
 
 
     // not in matlab:
