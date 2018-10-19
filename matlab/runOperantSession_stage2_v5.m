@@ -22,13 +22,13 @@
 %   3 - reward at end of cue
 %   4 - reward only upon nosepoke
 % 
-% cue1_vis and cue2_vis codes
+% slot1_vis and slot2_vis codes
 %   0 - no visual cue
 %   1 - LEDs 1 and 2 on
 %   2 - LEDs 3 and 4 on
 %   3 - all LEDs on
 % 
-% cue1_aud and cue2_aud codes
+% slot1_aud and slot2_aud codes
 %   0 - no auditory cue
 %   1 - low tone
 %   2 - high tone
@@ -47,7 +47,7 @@ m.mouseName            = 'jaxmale08';  % should not change
 m.requiredVersion      = 5;  % version of arduino DUE software required
 
 % setting which cues are used for this animal - must be consistent for a given animal
-% cue1_vis and cue2_vis codes
+% slot1_vis and slot2_vis codes
 %   0 - no visual cue
 %   1 - LEDs 1 and 2 on
 %   2 - LEDs 3 and 4 on
@@ -55,7 +55,7 @@ m.requiredVersion      = 5;  % version of arduino DUE software required
 m.leftVisCue         = 0;
 m.rightVisCue        = 3;
 
-% cue1_aud and cue2_aud codes
+% slot1_aud and slot2_aud codes
 %   0 - no auditory cue
 %   1 - low tone
 %   2 - high tone
@@ -104,12 +104,12 @@ sessionStr = makeRewardCodes(sessionStr); % adding reward codes to the struct
 
 % cue lengths, etc.
 sessionStr.preCueLength   = 1;
-sessionStr.cue1Length     = 100;
-sessionStr.cue2Length     = 0;
-sessionStr.cue3Length     = 0;
+sessionStr.slot1Length     = 100;
+sessionStr.slot2Length     = 0;
+sessionStr.slot3Length     = 0;
 sessionStr.postCueLength  = 0;
 
-[cue1_vis, cue1_aud, cue2_vis, cue2_aud, cue3_vis, cue3_aud] = makeCueVectors_3cue(sessionStr, m);
+[slot1_vis, slot1_aud, slot2_vis, slot2_aud, slot3_vis, slot3_aud] = makeCueVectors_3cue(sessionStr, m);
 
 
 %% figuring out where to save the log files and which computer we're on
@@ -184,9 +184,9 @@ boxParams.update(pyargs('laserOnCode', 0));
 boxParams.update(pyargs('readyToGoLength',        1000*30));
 boxParams.update(pyargs('punishDelayLength',      1000*6));
 boxParams.update(pyargs('preCueLength',           10));
-boxParams.update(pyargs('cue1Length',             5));
-boxParams.update(pyargs('cue2Length',             5));
-boxParams.update(pyargs('cue3Length',             5));
+boxParams.update(pyargs('slot1Length',             5));
+boxParams.update(pyargs('slot2Length',             5));
+boxParams.update(pyargs('slot3Length',             5));
 boxParams.update(pyargs('postCueLength',          10));
 boxParams.update(pyargs('goToPokesLength',        1000*60));
 boxParams.update(pyargs('rewardCollectionLength', 1000*5));
@@ -297,16 +297,16 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	trial_dict.update(pyargs('RrewardSize_nL', sessionStr.RrewardSize_nL(nTrial)));
 	
 	% cue info
-	trial_dict.update(pyargs('cue1_vis', cue1_vis(nTrial)));
-	trial_dict.update(pyargs('cue1_aud', cue1_aud(nTrial)));
-	trial_dict.update(pyargs('cue2_vis', cue2_vis(nTrial)));
-	trial_dict.update(pyargs('cue2_aud', cue2_aud(nTrial)));
+	trial_dict.update(pyargs('slot1_vis', slot1_vis(nTrial)));
+	trial_dict.update(pyargs('slot1_aud', slot1_aud(nTrial)));
+	trial_dict.update(pyargs('slot2_vis', slot2_vis(nTrial)));
+	trial_dict.update(pyargs('slot2_aud', slot2_aud(nTrial)));
 	
 	trial_dict.update(pyargs('cueWithdrawalPunishYN', sessionStr.cueWithdrawalPunishYN));
 	trial_dict.update(pyargs('preCueLength', sessionStr.preCueLength));
-	trial_dict.update(pyargs('cue1Length', sessionStr.cue1Length));
-	trial_dict.update(pyargs('cue2Length', sessionStr.cue2Length));
-	trial_dict.update(pyargs('cue3Length', sessionStr.cue3Length));
+	trial_dict.update(pyargs('slot1Length', sessionStr.slot1Length));
+	trial_dict.update(pyargs('slot2Length', sessionStr.slot2Length));
+	trial_dict.update(pyargs('slot3Length', sessionStr.slot3Length));
 	trial_dict.update(pyargs('postCueLength', sessionStr.postCueLength));
 	
 	

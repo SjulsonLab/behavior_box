@@ -1,4 +1,4 @@
-% code for training phase 1, using arduino code v5
+% code for training phase 3, using arduino code v5
 % Luke Sjulson, 2018-10-18
 
 % ////////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ m.rightAudCue        = 0;
 
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
-sessionStr.trainingPhase = 1;
+sessionStr.trainingPhase = 2;
 
 sessionStr.startTrialNum = 1;     % in case you stop and start on the same day
 resetTimeYN              = 'yes'; %
@@ -77,39 +77,35 @@ sessionStr.sessionLength             = 60; % in minutes
 sessionStr.maxTrials                 = 10000; % program terminates when either sessionLength or maxTrials is reached
 sessionStr.maxRewards                = 200; % program also terminates if maxRewards is reached
 sessionStr.interTrialInterval_mean   = 0;  % number of seconds between trials
-sessionStr.interTrialInterval_SD     = 0 ; % standard deviation of seconds between trials
+sessionStr.interTrialInterval_SD     = 0; % standard deviation of seconds between trials
 
 sessionStr.IrewardSize_nL = 5000; 
-sessionStr.punishForErrorPoke = 'no'; % 0 for no, 1 for yes
+sessionStr.punishForErrorPoke = 'no'; % 'no' for stages 1-5, 'yes' for stage 6
 sessionStr.cueWithdrawalPunishYN = 0; % 0 for no, 1 for yes
 
 % sessionStr.phase3_firstblock = 'no'; % if 'yes', in phase 3 the left/right pokes get pre-rewarded
 
 % info about trials - will figure out something more sophisticated later
-sessionStr.trialLRtype  = [1 2 2 1 2 2 1 1 2 1 2 1 2 1]; % 1 = left, 2 = right, 3 = free choice (i.e. both). No free choice until stage 3
-sessionStr.trialLRtype_info = '1 = left, 2 = right, 3 = free choice (i.e. both)';
+sessionStr.trialLRtype  = makeRandomVector([1 2 3 4 5 6], 200); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
+sessionStr.trialLRtype_info = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)';
 
-sessionStr.trialAVtype  = [3 3 3 3 3 3 3 3 3 3 3 3 3 3]; % 1 = auditory only, 2 = visual only, 3 = both aud + vis
+% this is planning for the future, when we will likely want two auditory
+% stimuli and two visual stimuli. For now, just leave it as all 3's
+sessionStr.trialAVtype  = 3 * ones(1, 1000); % 1 = auditory only, 2 = visual only, 3 = both aud + vis
 sessionStr.trialAVtype_info = '1 = auditory only, 2 = visual only, 3 = both aud + vis';
 
-sessionStr.leftCueWhen  = ones(size(sessionStr.trialLRtype)); % 1 = first cue slot, 2 = second cue slot, 3 = both cue slots
-sessionStr.leftCueWhen_info = '1 = first cue slot, 2 = second cue slot, 3 = both cue slots';
-sessionStr.rightCueWhen = ones(size(sessionStr.trialLRtype)); % 1 = first cue slot, 2 = second cue slot, 3 = both cue slots
-sessionStr.rightCueWhen_info = '1 = first cue slot, 2 = second cue slot, 3 = both cue slots';
-
-sessionStr.LrewardSize_nL = 5000 * ones(size(sessionStr.trialLRtype));
-sessionStr.RrewardSize_nL = 5000 * ones(size(sessionStr.trialLRtype));
+% just the starting values - they will be updated later
+sessionStr.LrewardSize_nL = 5000;
+sessionStr.RrewardSize_nL = 5000;
 
 sessionStr = makeRewardCodes(sessionStr); % adding reward codes to the struct
 
 % cue lengths, etc.
-sessionStr.preCueLength   = 1;
-sessionStr.slot1Length     = 100;
-sessionStr.slot2Length     = 0;
-sessionStr.slot3Length     = 0;
+sessionStr.preCueLength   = 0; % should be zero until stage 4, when it is gradually increased
+sessionStr.cue1Length     = 100;
+sessionStr.cue2Length     = 100;
+sessionStr.interOnsetInterval = 0; % in stage 4, the interOnsetInterval increases gradually
 sessionStr.postCueLength  = 0;
-
-[slot1_vis, slot1_aud, slot2_vis, slot2_aud, slot3_vis, slot3_aud] = makeCueVectors_3cue(sessionStr, m);
 
 
 %% figuring out where to save the log files and which computer we're on
@@ -264,6 +260,10 @@ close all
 while exitNowYN == 0 && exitAfterTrialYN == 0
 	
 	% set box params for this trial
+	
+	
+	
+	
 	% all reward codes default to zero and will be zero unless changed here
 	
 	clear trial_dict;
@@ -282,7 +282,14 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	trial_dict.update(pyargs('rightCueWhen', sessionStr.rightCueWhen(nTrial)));
 	
 	% reward info
-	trial_dict.update(pyargs('IrewardCode', 1));
+	if sessionStr.trainingPhase==1
+		trial_dict.update(pyargs('IrewardCode', 1));
+	elseif sessionStr.trainingPhase==2
+		trial_dict.update(pyargs('IrewardCode', 2));
+	elseif sessionStr.trainingPhase>2
+		trial_dict.update(pyargs('IrewardCode', 0));
+	end
+	
 	trial_dict.update(pyargs('IrewardSize_nL', sessionStr.IrewardSize_nL));
 	trial_dict.update(pyargs('LrewardCode', sessionStr.LrewardCode(nTrial)));
 	trial_dict.update(pyargs('LrewardSize_nL', sessionStr.LrewardSize_nL(nTrial)));
@@ -294,6 +301,8 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	trial_dict.update(pyargs('slot1_aud', slot1_aud(nTrial)));
 	trial_dict.update(pyargs('slot2_vis', slot2_vis(nTrial)));
 	trial_dict.update(pyargs('slot2_aud', slot2_aud(nTrial)));
+	trial_dict.update(pyargs('slot3_vis', slot3_vis(nTrial)));
+	trial_dict.update(pyargs('slot3_aud', slot3_aud(nTrial)));
 	
 	trial_dict.update(pyargs('cueWithdrawalPunishYN', sessionStr.cueWithdrawalPunishYN));
 	trial_dict.update(pyargs('preCueLength', sessionStr.preCueLength));
@@ -304,11 +313,12 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	
 	
 	
-	nTrial = nTrial + 1;
+
 	
 	
 	%% run actual trial
 	fname = run2AFCSingleTrial(box1, sessionStr, trial_dict);
+	nTrial = nTrial + 1;
 	
 	%% extract trial info
 	[trialStr, lastPos] = extractTrial_v2([sessionStr.basedir '/' sessionStr.basename '/' sessionStr.basename '.txt'], lastPos);

@@ -179,21 +179,21 @@ long missedLength           = 50;
 long buzzerLength           = 100;
 long punishDelayLength      = 5000;
 long preCueLength           = 50;
-long cue1Length             = 200;
-long cue2Length             = 10;
-long cue3Length             = 10;
+long slot1Length             = 200;
+long slot2Length             = 10;
+long slot3Length             = 10;
 long postCueLength          = 50;
 long goToPokesLength        = 60000;
 long rewardCollectionLength = 3000;
 
 
 // which cues get played
-long cue1_vis               = 0;
-long cue2_vis               = 0;
-long cue3_vis               = 0; 
-long cue1_aud               = 0;
-long cue2_aud               = 0;
-long cue3_aud               = 0;
+long slot1_vis               = 0;
+long slot2_vis               = 0;
+long slot3_vis               = 0; 
+long slot1_aud               = 0;
+long slot2_aud               = 0;
+long slot3_aud               = 0;
 
 
 long startTrialYN        = 0;   // 1 to start a trial
@@ -300,19 +300,19 @@ void resetDefaults() {
   buzzerLength      = 100; // in msec
   punishDelayLength = 5000;
   preCueLength      = 50; // in msec
-  cue1Length        = 200;
-  cue2Length        = 10;
-  cue3Length        = 10;
+  slot1Length        = 200;
+  slot2Length        = 10;
+  slot3Length        = 10;
   postCueLength     = 50;
   goToPokesLength   = 10000; // in msec
 
   // cue-related variables
-  cue1_vis               = 0;
-  cue2_vis               = 0;
-  cue3_vis               = 0; 
-  cue1_aud               = 0;
-  cue2_aud               = 0;
-  cue3_aud               = 0;
+  slot1_vis               = 0;
+  slot2_vis               = 0;
+  slot3_vis               = 0; 
+  slot1_aud               = 0;
+  slot2_aud               = 0;
+  slot3_aud               = 0;
 
   // other 
   IrewardCode            = 0; // when (and whether) a particular port is rewarded
@@ -782,20 +782,20 @@ void processMessage() {
     changeVariableLong("buzzerLength", &buzzerLength, inLine);
     
     changeVariableLong("preCueLength", &preCueLength, inLine);
-    changeVariableLong("cue1Length", &cue1Length, inLine);
-    changeVariableLong("cue2Length", &cue2Length, inLine);
-    changeVariableLong("cue3Length", &cue3Length, inLine);
+    changeVariableLong("slot1Length", &slot1Length, inLine);
+    changeVariableLong("slot2Length", &slot2Length, inLine);
+    changeVariableLong("slot3Length", &slot3Length, inLine);
     changeVariableLong("postCueLength", &postCueLength, inLine);
     changeVariableLong("goToPokesLength", &goToPokesLength, inLine);
     changeVariableLong("rewardCollectionLength", &rewardCollectionLength, inLine);
 
-    changeVariableLong("cue1_vis", &cue1_vis, inLine);
-    changeVariableLong("cue2_vis", &cue2_vis, inLine);
-    changeVariableLong("cue3_vis", &cue3_vis, inLine);
+    changeVariableLong("slot1_vis", &slot1_vis, inLine);
+    changeVariableLong("slot2_vis", &slot2_vis, inLine);
+    changeVariableLong("slot3_vis", &slot3_vis, inLine);
     
-    changeVariableLong("cue1_aud", &cue1_aud, inLine);
-    changeVariableLong("cue2_aud", &cue2_aud, inLine);
-    changeVariableLong("cue3_aud", &cue3_aud, inLine);
+    changeVariableLong("slot1_aud", &slot1_aud, inLine);
+    changeVariableLong("slot2_aud", &slot2_aud, inLine);
+    changeVariableLong("slot3_aud", &slot3_aud, inLine);
 
 
     // reward codes
