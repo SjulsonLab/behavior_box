@@ -140,7 +140,7 @@ sessionStr.dateString = m.dateString;
 %% creating directory to store the data, saving structs to disk
 cd(m.basedir);
 sessionStr.basename = [sessionStr.mouseName '_' datestr(now, 'yymmdd') '_' sessionStr.timeString];
-sessionStr.basedir = [m.basedir '\' sessionStr.basename];
+sessionStr.basedir = [m.basedir '/' sessionStr.basename];
 mkdir(sessionStr.basename);
 cd(sessionStr.basename);
 
