@@ -124,6 +124,9 @@ elseif strfind(hostname, 'bumbrlik01')
 elseif strfind(hostname, 'bumbrlik02')
     m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
     m.serialPort = 'COM5'; %introduced by EFO, arduino was connected on COM5 only, no matter which USB port  
+elseif strfind(hostname, 'gammalsjul')
+    m.basedir = '/home/luke/temp';
+    m.serialPort = '/dev/ttyACM0';
 else
 	error('can''t figure out correct location to store files');
 end
@@ -131,13 +134,13 @@ end
 m.dateString = datestr(now, 29);
 timeString = datestr(now, 30);
 m.timeString = timeString(end-5:end);
-sessionStr.basedir = m.basedir;
 sessionStr.timeString = m.timeString;
 sessionStr.dateString = m.dateString;
 
 %% creating directory to store the data, saving structs to disk
-cd(sessionStr.basedir);
+cd(m.basedir);
 sessionStr.basename = [sessionStr.mouseName '_' datestr(now, 'yymmdd') '_' sessionStr.timeString];
+sessionStr.basedir = [m.basedir '/' sessionStr.basename];
 mkdir(sessionStr.basename);
 cd(sessionStr.basename);
 
