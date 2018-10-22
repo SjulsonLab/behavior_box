@@ -124,6 +124,9 @@ elseif strfind(hostname, 'bumbrlik01')
 elseif strfind(hostname, 'bumbrlik02')
     m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
     m.serialPort = 'COM5'; %introduced by EFO, arduino was connected on COM5 only, no matter which USB port  
+elseif strfind(hostname, 'gammalsjul')
+    m.basedir = '/home/luke/temp';
+    m.serialPort = '/dev/ttyACM0';
 else
 	error('can''t figure out correct location to store files');
 end
