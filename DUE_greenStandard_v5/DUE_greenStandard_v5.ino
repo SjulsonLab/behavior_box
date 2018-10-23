@@ -648,9 +648,9 @@ void loop() {
           serLogNum("rightReward_nL", RrewardSize_nL);
         }
        
-        if (trainingPhase==2) {
+        if (trainingPhase==1 || trainingPhase==2) {
           giveRewards(3);
-          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
+          serLogNum("letTheAnimalDrink_ms2", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
         else {
@@ -720,12 +720,12 @@ void loop() {
         if (LrewardCode==4) {
           deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
           serLogNum("leftReward_nL", LrewardSize_nL);
-          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
-          if (trainingPhase>1) {
-            switchTo(letTheAnimalDrink);
+          if (trainingPhase==1) {
+            switchTo(preCue);
           }
           else {
-            switchTo(preCue);
+            serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
+            switchTo(letTheAnimalDrink);
           }
         }
         
@@ -744,12 +744,12 @@ void loop() {
         if (RrewardCode==4) {
           deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
           serLogNum("rightReward_nL", RrewardSize_nL);
-          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
-          if (trainingPhase>1) {
-            switchTo(letTheAnimalDrink);
+          if (trainingPhase==1) {
+            switchTo(preCue);
           }
           else {
-            switchTo(preCue);
+            serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
+            switchTo(letTheAnimalDrink);
           }
         }
 
