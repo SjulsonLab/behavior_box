@@ -68,7 +68,7 @@ m.rightAudCue        = 0;
 
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
-sessionStr.trainingPhase = 1;
+sessionStr.trainingPhase = 3;
 
 sessionStr.startTrialNum = 1;     % in case you stop and start on the same day
 resetTimeYN              = 'yes'; %
@@ -85,7 +85,7 @@ sessionStr.cueWithdrawalPunishYN     = 0; % only 1 in phase 4-5
 
 % info about trials - will figure out something more sophisticated later
 allTrials = ones(1, sessionStr.maxTrials);
-sessionStr.trialLRtype  = makeRandomVector([1], length(allTrials)); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
+sessionStr.trialLRtype  = makeRandomVector([1 2 3 4 5 6], length(allTrials)); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
 sessionStr.trialLRtype_info = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)';
 
 % this is planning for the future, when we will likely want two auditory

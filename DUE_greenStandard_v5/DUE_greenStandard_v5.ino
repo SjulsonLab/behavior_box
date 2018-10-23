@@ -473,7 +473,7 @@ void loop() {
           digitalWrite(auditoryCueTTL, HIGH);
         }
 
-  		switchTo(letTheAnimalDrink);
+  		switchTo(slot2);
       }
 
       delayMicroseconds(pauseLengthMicros); 
