@@ -473,12 +473,7 @@ void loop() {
           digitalWrite(auditoryCueTTL, HIGH);
         }
 
-        if (trainingPhase>1) {
-          switchTo(slot2);
-        }
-        else {
-          switchTo(letTheAnimalDrink);
-        }
+  		switchTo(letTheAnimalDrink);
       }
 
       delayMicroseconds(pauseLengthMicros); 

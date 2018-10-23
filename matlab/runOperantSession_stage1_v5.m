@@ -112,121 +112,20 @@ sessionStr.postCueLength  = 0;
 [slot1_vis, slot1_aud, slot2_vis, slot2_aud, slot3_vis, slot3_aud] = makeCueVectors_3cue(sessionStr, m);
 
 
+
 %% figuring out where to save the log files and which computer we're on
-[~, hostname] = system('hostname');
+m = setSerialPort(m); % edit this file if you want to change serial ports or add a new machine
 
-if strfind(hostname, 'Luke-HP-laptop')
-	m.basedir = 'C:\Users\lukes\Desktop\temp';
-	m.serialPort = 'COM4';  % can look this up in the arduino
-elseif strfind(hostname, 'bumbrlik01')
-	m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
-	m.serialPort = 'COM4';  %commented by EFO
-elseif strfind(hostname, 'bumbrlik02')
-    m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
-    m.serialPort = 'COM5'; %introduced by EFO, arduino was connected on COM5 only, no matter which USB port  
-elseif strfind(hostname, 'gammalsjul')
-    m.basedir = '/home/luke/temp';
-    m.serialPort = '/dev/ttyACM0';
-else
-	error('can''t figure out correct location to store files');
-end
-
-m.dateString = datestr(now, 29);
-timeString = datestr(now, 30);
-m.timeString = timeString(end-5:end);
-sessionStr.timeString = m.timeString;
-sessionStr.dateString = m.dateString;
-
-%% creating directory to store the data, saving structs to disk
-cd(m.basedir);
-sessionStr.basename = [sessionStr.mouseName '_' datestr(now, 'yymmdd') '_' sessionStr.timeString];
-sessionStr.basedir = [m.basedir '/' sessionStr.basename];
-mkdir(sessionStr.basename);
-cd(sessionStr.basename);
-
-mouseStr = m;
-save('mouseStr.mat', 'mouseStr');
-save('sessionStr.mat', 'sessionStr');
-
-%% verify we're using python 2.7, as version 3 creates problems with dicts
-x = pyversion();
-if str2num(x) ~= 2.7
-	try
-		pyversion 2.7
-	catch
-		disp('The wrong version of python is loaded. Restart MATLAB.');
-		return
-	end
-end
-
+%% creating directory to store the data
+sessionStr = makeNewDataDirectory(sessionStr, m);
+cd(sessionStr.basedir);
 
 %% put all default box params here
-boxParams = py.dict;
-boxParams.update(pyargs('nTrial',            sessionStr.startTrialNum));
-boxParams.update(pyargs('resetTimeYN',       0)); % setting this to 1 sets the arduino clock zero and sends a sync pulse to the intan
-boxParams.update(pyargs('initPokePunishYN',  0)); % setting to 1 enables punishment for initpoke during standby
-boxParams.update(pyargs('cueWithdrawalPunishYN', 0)); % setting to 1 enables punishment for poke withdrawal during cues
-
-boxParams.update(pyargs('WNvolume',      50));
-boxParams.update(pyargs('lowCueVolume',  120));
-boxParams.update(pyargs('highCueVolume', 120));
-boxParams.update(pyargs('buzzerVolume',  90));
-
-boxParams.update(pyargs('trainingPhase', 0));
-boxParams.update(pyargs('laserOnCode', 0));
-
-% % stuff we're not using now that we don't have doors
-% boxParams.update(pyargs('doorCloseSpeed',        1)); % original default was 10
-% boxParams.update(pyargs('IopenYN', 0)); % 1 means open port, 0 means keep closed
-% boxParams.update(pyargs('LopenYN', 0));
-% boxParams.update(pyargs('RopenYN', 0));
-% boxParams.update(pyargs('extra4openYN', 0));
-% boxParams.update(pyargs('extra5openYN', 0));
-
-% these are all in milliseconds
-boxParams.update(pyargs('readyToGoLength',        1000*30));
-boxParams.update(pyargs('punishDelayLength',      1000*6));
-boxParams.update(pyargs('preCueLength',           10));
-boxParams.update(pyargs('slot1Length',             5));
-boxParams.update(pyargs('slot2Length',             5));
-boxParams.update(pyargs('slot3Length',             5));
-boxParams.update(pyargs('postCueLength',          10));
-boxParams.update(pyargs('goToPokesLength',        1000*60));
-boxParams.update(pyargs('rewardCollectionLength', 1000*5));
-
-boxParams.update(pyargs('IrewardCode',  0));
-boxParams.update(pyargs('LrewardCode',  0));
-boxParams.update(pyargs('RrewardCode',  0));
-% boxParams.update(pyargs('extra4rewardCode',  0));
-% boxParams.update(pyargs('extra5rewardCode',  0));
-% boxParams.update(pyargs('extra6rewardCode',  0));
-
-boxParams.update(pyargs('IrewardSize_nL',       1000*5));
-boxParams.update(pyargs('LrewardSize_nL',       1000*5));
-boxParams.update(pyargs('RrewardSize_nL',       1000*5));
-boxParams.update(pyargs('deliveryDuration_ms',  1000));
-boxParams.update(pyargs('syringeSize_mL',       5));
-
-boxParams.update(pyargs('cueLED1Brightness',       1023));
-boxParams.update(pyargs('cueLED2Brightness',       1023));
-boxParams.update(pyargs('cueLED3Brightness',       1023));
-boxParams.update(pyargs('cueLED4Brightness',       1023));
-
-
+boxParams = setDefaultBoxParams(sessionStr);
 
 
 %% connect to arduino
-delete(instrfindall);
-box1 = serial(m.serialPort,'Timeout', 10, 'BaudRate', 115200, 'Terminator', 'LF', 'OutputBufferSize', 10^6, 'InputBufferSize', 10^6);
-fopen(box1);
-pause(1);
-fprintf(box1, 'checkVersion\n');
-tstr = fgetl(box1);
-if str2num(tstr) ~= m.requiredVersion
-	error(sprintf('The arduino has version %d, but the matlab script requires version %d', str2num(tstr), m.requiredVersion));
-end
-
-% box1.FlowControl = 'software';
+box1 = connectToArduino(m);
 
 %% generate UI, wait before starting
 global exitNowYN;
@@ -257,11 +156,21 @@ for idx = 1:length(d)
 	pause(0.01); % used to be 0.2 s before increasing buffer size
 end
 
+
 %% main while loop, looping over trials
+
+% generate stuff for first trial
 t = tic;
-nTrial = sessionStr.startTrialNum;
+nTrial = 1;
+sessionStr.trialNum(nTrial) = sessionStr.startTrialNum -1 + nTrial;
+% sessionStr = makeCues_v5(sessionStr, m, 1);
 lastPos = 0;
 totalRewards = 0;
+
+% t = tic;
+% nTrial = sessionStr.startTrialNum;
+% lastPos = 0;
+% totalRewards = 0;
 close all
 
 while exitNowYN == 0 && exitAfterTrialYN == 0
@@ -269,6 +178,10 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	% set box params for this trial
 	% all reward codes default to zero and will be zero unless changed here
 	
+    %% create new trial_dict for each trial
+% 	clear trial_dict;
+%     trial_dict = makeTrialDict(sessionStr, nTrial);
+    
 	clear trial_dict;
 	trial_dict = py.dict; % empty python dict that fills only w/parameters that
 	% are updated in the current trial.
@@ -281,8 +194,6 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	% saved in text log file
 	trial_dict.update(pyargs('trialLRtype', sessionStr.trialLRtype(nTrial)));
 	trial_dict.update(pyargs('trialAVtype', sessionStr.trialAVtype(nTrial)));
-	trial_dict.update(pyargs('leftCueWhen', sessionStr.leftCueWhen(nTrial)));
-	trial_dict.update(pyargs('rightCueWhen', sessionStr.rightCueWhen(nTrial)));
 	
 	% reward info
 	trial_dict.update(pyargs('IrewardCode', 1));
@@ -304,7 +215,7 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	trial_dict.update(pyargs('slot2Length', sessionStr.slot2Length));
 	trial_dict.update(pyargs('slot3Length', sessionStr.slot3Length));
 	trial_dict.update(pyargs('postCueLength', sessionStr.postCueLength));
-	
+% 	
 	
 	
 	nTrial = nTrial + 1;
@@ -312,12 +223,15 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	
 	%% run actual trial
 	fname = run2AFCSingleTrial(box1, sessionStr, trial_dict);
-	
-	%% extract trial info
-	[trialStr, lastPos] = extractTrial_v2([sessionStr.basedir '/' sessionStr.basename '/' sessionStr.basename '.txt'], lastPos);
+
+    %% extract trial info
+	[trialStr, lastPos] = extractTrial_v2([sessionStr.basedir '/' sessionStr.basename '.txt'], lastPos);
 	if any(contains(trialStr.eventType, 'eward'))
+		sessionStr.rewardThisTrialYN(nTrial) = 1;
 		totalRewards = totalRewards + 1;
-	end
+	else
+		sessionStr.rewardThisTrialYN(nTrial) = 0;
+    end
 	
 	%% reasons for exiting
 	if toc(t)/60 > sessionStr.sessionLength
