@@ -20,6 +20,9 @@ elseif strfind(hostname, 'bumbrlik02')
 elseif strfind(hostname, 'gammalsjul')
     m.basedir = '/home/luke/temp';
     m.serialPort = '/dev/ttyACM0';
+elseif strfind(hostname, 'DESKTOP-RE9G846')
+    m.basedir = 'C:\Users\lab\Desktop\temp'
+    m.serialPort = 'COM6';
 else
 	error('can''t figure out correct location to store files');
 end
