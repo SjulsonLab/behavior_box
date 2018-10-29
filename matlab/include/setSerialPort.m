@@ -21,10 +21,10 @@ elseif strfind(hostname, 'gammalsjul')
     m.basedir = '/home/luke/temp';
     m.serialPort = '/dev/ttyACM0';
 elseif strfind(hostname, 'DESKTOP-RE9G846')
-    m.basedir = 'C:\Users\lab\Desktop\temp'
+    m.basedir = 'C:\Users\lab\Desktop\temp';
     m.serialPort = 'COM6';
 else
-	error('can''t figure out correct location to store files');
+	error('This computer is not on the list. Edit setSerialPort.m to add it.');
 end
 
 m.dateString = datestr(now, 29);
