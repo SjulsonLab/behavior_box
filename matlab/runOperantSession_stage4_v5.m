@@ -88,7 +88,7 @@ sessionStr.IrewardSize_nL = 5000;
 allTrials = ones(1, sessionStr.maxTrials);
 
 % for stages 1-2, this should be [1 3]. For stage 3 and higher, it should be [1:6]
-sessionStr.trialLRtype  = makeRandomVector([5:6], length(allTrials)); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
+sessionStr.trialLRtype  = makeRandomVector([1:6], length(allTrials)); % (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL). No free choice until stage 3
 sessionStr.trialLRtype_info = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)';
 
 % this is planning for the future, when we will likely want two auditory
