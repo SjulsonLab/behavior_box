@@ -127,11 +127,11 @@ sessionStr.rewardSizeMin_nL    = 2000;
 sessionStr.rewardSizeDelta_nL  = 500; % the number of nanoliters to adjust reward size by to prevent 
 sessionStr = makeRewardCodes_v5(sessionStr, 1:length(allTrials)); % adding reward codes to the struct
 
-% cue lengths, etc.
-sessionStr.preCueLength         = 0 * allTrials; % should be zero until stage 4, when it is gradually increased
+% cue lengths, etc. - for phases 4 and 5, they are changed below
+sessionStr.preCueLength         = 0 * allTrials; 
 sessionStr.cue1Length           = 100 * allTrials;
 sessionStr.cue2Length           = 100 * allTrials;
-sessionStr.interOnsetInterval   = 0 * allTrials; % in stage 4, the interOnsetInterval increases gradually
+sessionStr.interOnsetInterval   = 0 * allTrials; 
 sessionStr.postCueLength        = 0 * allTrials;
 
 
@@ -198,6 +198,9 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	%% adjust cue lengths, etc. (stage 4 only)
     if sessionStr.trainingPhase==4
 		sessionStr = setCueLengthsPhase4(sessionStr, nTrial, totalRewards);
+		sessionStr = makeCues_v5(sessionStr, m, nTrial);
+	elseif sessionStr.trainingPhase==5
+		sessionStr = setCueLengthsPhase4(sessionStr, nTrial, Inf); % for phase 5, use the same as the very end of phase 4
 		sessionStr = makeCues_v5(sessionStr, m, nTrial);
     end
 	
