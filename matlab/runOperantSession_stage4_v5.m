@@ -68,7 +68,7 @@ sessionStr.mouseName     = m.mouseName;
 sessionStr.trainingPhase = 4;
 
 % for phase 4 only - see other parameters below in loop
-sessionStr.fakeRewards   = 1000;       % only used for training in phase 4
+sessionStr.fakeRewards   = 0;          % used for training in phase 4
 sessionStr.fakeRewards_info = 'for phase 4 of training, you can add fake rewards so the animal doesn''t start from scratch';
 sessionStr.numRewardsToAdvance = 10;   % how many rewards required to advance in stage 4. Default is 10
 stage3_goToPokesLength = 60 * 1000;    % over time, decrease this to 4 seconds. Stages 4-5 will default to 4 seconds.
