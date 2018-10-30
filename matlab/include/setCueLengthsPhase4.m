@@ -108,7 +108,7 @@ elseif (totalRewards + sessionStr.fakeRewards) >18*R % && (totalRewards + sessio
 	% IOI = 125
 	sessionStr.preCueLength(nTrial) = 75;
 	sessionStr.postCueLength(nTrial) = 25;
-	sessionStr.interOnsetInterval(nTrial) = 1250; % wotan
+	sessionStr.interOnsetInterval(nTrial) = 125; 
 end
 
 disp(['Animal has ' num2str(totalRewards) ' real rewards and ' num2str(sessionStr.fakeRewards) ' fake ones. precue = ' ...

@@ -198,6 +198,7 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 	%% adjust cue lengths, etc. (stage 4 only)
     if sessionStr.trainingPhase==4
 		sessionStr = setCueLengthsPhase4(sessionStr, nTrial, totalRewards);
+		sessionStr = makeCues_v5(sessionStr, m, nTrial);
     end
 	
     %% create new trial_dict for each trial
