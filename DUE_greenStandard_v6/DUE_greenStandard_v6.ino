@@ -4,6 +4,9 @@
 
 /*
 
+  v6 - by Luke Sjulson, 2018-11-15. Now correctly follows modified version of the 
+  Jaramillo and Zador protocol. Center poke is never rewarded.
+
   v5 - by Luke Sjulson, 2018-10-18. Rewritten to follow a modified version of the 
   training protocol in Jaramillo and Zador, Front Syst Neuro 2014
 
