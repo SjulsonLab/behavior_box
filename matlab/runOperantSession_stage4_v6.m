@@ -41,7 +41,7 @@ close all
 
 %% parameters for the mouse struct - these should never change
 m.mouseName            = 'jaxmale08';  % should not change
-m.requiredVersion      = 5;  % version of arduino DUE software required
+m.requiredVersion      = 6;  % version of arduino DUE software required
 
 % setting which cues are used for this animal - must be consistent for a given animal
 % slot1_vis and slot2_vis codes
@@ -65,7 +65,13 @@ m.rightAudCue        = 0;
 
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
-sessionStr.trainingPhase = 3;
+sessionStr.trainingPhase = 4;
+
+% for phase 4 only - see other parameters below in loop
+sessionStr.fakeRewards   = 0;          % used for training in phase 4
+sessionStr.fakeRewards_info = 'for phase 4 of training, you can add fake rewards so the animal doesn''t start from scratch';
+sessionStr.numRewardsToAdvance = 10;   % how many rewards required to advance in stage 4. Default is 10
+stage3_goToPokesLength = 60 * 1000;    % over time, decrease this to 4 seconds. Stages 4-5 will default to 4 seconds.
 
 sessionStr.startTrialNum = 1;     % in case you stop and start on the same day
 resetTimeYN              = 'yes'; %
@@ -77,8 +83,6 @@ sessionStr.interTrialInterval_mean   = 0;  % number of seconds between trials
 sessionStr.interTrialInterval_SD     = 0; % standard deviation of seconds between trials
 
 sessionStr.IrewardSize_nL = 5000; 
-sessionStr.punishForErrorPokeYN      = 0; % 0 = no, 1 = yes for stage 5 only
-sessionStr.cueWithdrawalPunishYN     = 0; % only 1 in phase 4-5
 
 % info about trials - will figure out something more sophisticated later
 allTrials = ones(1, sessionStr.maxTrials);
@@ -92,6 +96,29 @@ sessionStr.trialLRtype_info = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)'
 sessionStr.trialAVtype  = 3 * allTrials; % 1 = auditory only, 2 = visual only, 3 = both aud + vis
 sessionStr.trialAVtype_info = '1 = auditory only, 2 = visual only, 3 = both aud + vis';
 
+% setting parameters based on training phase
+if sessionStr.trainingPhase==1
+	sessionStr.punishForErrorPokeYN      = 0; % 0 = no, 1 = yes for stage 5 only
+	sessionStr.cueWithdrawalPunishYN     = 0; % only 1 in phase 4-5
+	sessionStr.goToPokesLength           = 60 * 1000;
+elseif sessionStr.trainingPhase==2
+	sessionStr.punishForErrorPokeYN      = 0; % 0 = no, 1 = yes for stage 5 only
+	sessionStr.cueWithdrawalPunishYN     = 0; % only 1 in phase 4-5
+	sessionStr.goToPokesLength           = 60 * 1000;
+elseif sessionStr.trainingPhase==3
+	sessionStr.punishForErrorPokeYN      = 0; % 0 = no, 1 = yes for stage 5 only
+	sessionStr.cueWithdrawalPunishYN     = 0; % only 1 in phase 4-5
+	sessionStr.goToPokesLength           = stage3_goToPokesLength;
+elseif sessionStr.trainingPhase==4
+	sessionStr.punishForErrorPokeYN      = 0; % 0 = no, 1 = yes for stage 5 only
+	sessionStr.cueWithdrawalPunishYN     = 1; % only 1 in phase 4-5
+	sessionStr.goToPokesLength           = 4 * 1000;
+elseif sessionStr.trainingPhase==5
+	sessionStr.punishForErrorPokeYN      = 1; % 0 = no, 1 = yes for stage 5 only
+	sessionStr.cueWithdrawalPunishYN     = 1; % only 1 in phase 4-5
+	sessionStr.goToPokesLength           = 4 * 1000;
+end
+
 % just the starting values - they will be updated later
 sessionStr.LrewardSize_nL      = 5000; % the starting value, which will be updated over time
 sessionStr.RrewardSize_nL      = 5000;
@@ -100,18 +127,11 @@ sessionStr.rewardSizeMin_nL    = 2000;
 sessionStr.rewardSizeDelta_nL  = 500; % the number of nanoliters to adjust reward size by to prevent 
 sessionStr = makeRewardCodes_v5(sessionStr, 1:length(allTrials)); % adding reward codes to the struct
 
-% in phases 3-5, mouse only gets 4 seconds to poke L or R
-if sessionStr.trainingPhase>=3
-    sessionStr.goToPokesLength     = 4 * 1000;
-else
-    sessionStr.goToPokesLength     = 60 * 1000;
-end
-    
-% cue lengths, etc.
-sessionStr.preCueLength         = 0 * allTrials; % should be zero until stage 4, when it is gradually increased
+% cue lengths, etc. - for phases 4 and 5, they are changed below
+sessionStr.preCueLength         = 0 * allTrials; 
 sessionStr.cue1Length           = 100 * allTrials;
 sessionStr.cue2Length           = 100 * allTrials;
-sessionStr.interOnsetInterval   = 0 * allTrials; % in stage 4, the interOnsetInterval increases gradually
+sessionStr.interOnsetInterval   = 0 * allTrials; 
 sessionStr.postCueLength        = 0 * allTrials;
 
 
@@ -169,9 +189,20 @@ sessionStr = makeCues_v5(sessionStr, m, 1);
 lastPos = 0;
 totalRewards = 0;
 
+
+
 close all
 
 while exitNowYN == 0 && exitAfterTrialYN == 0
+	
+	%% adjust cue lengths, etc. (stage 4 only)
+    if sessionStr.trainingPhase==4
+		sessionStr = setCueLengthsPhase4(sessionStr, nTrial, totalRewards);
+		sessionStr = makeCues_v5(sessionStr, m, nTrial);
+	elseif sessionStr.trainingPhase==5
+		sessionStr = setCueLengthsPhase4(sessionStr, nTrial, Inf); % for phase 5, use the same as the very end of phase 4
+		sessionStr = makeCues_v5(sessionStr, m, nTrial);
+    end
 	
     %% create new trial_dict for each trial
 	clear trial_dict;
@@ -212,12 +243,7 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
         end
     end
     
-	%% adjust cue lengths, etc. (stage 4 only)
-    if sessionStr.trainingPhase==4
-        % insert code here
-        
-        
-    end
+
     
 	%% reasons for exiting
 	if toc(t)/60 > sessionStr.maxSessionLength_min

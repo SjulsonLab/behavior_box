@@ -44,7 +44,7 @@ close all
 
 %% parameters for the mouse struct - these should never change
 m.mouseName            = 'jaxmale08';  % should not change
-m.requiredVersion      = 5;  % version of arduino DUE software required
+m.requiredVersion      = 6;  % version of arduino DUE software required
 
 % setting which cues are used for this animal - must be consistent for a given animal
 % slot1_vis and slot2_vis codes

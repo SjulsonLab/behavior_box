@@ -36,6 +36,12 @@ if sessionStr.punishForErrorPokeYN==0  % no punishment for incorrect poke
 else 
 	defCode = -1;
 end
+
+if sessionStr.trainingPhase == 2
+	Rnum = 3; % reward code of 3 for phase 2
+elseif sessionStr.trainingPhase > 2
+	Rnum = 4;
+end
 	
 
 for idx = 1:length(trialNums)
@@ -43,12 +49,12 @@ for idx = 1:length(trialNums)
 	
 	% if left reward will be given
 	if any(sessionStr.trialLRtype(nTrial) == [1 2 5 6])
-		sessionStr.LrewardCode(nTrial) = 4;
+		sessionStr.LrewardCode(nTrial) = Rnum;
 	end
 	
 	% if right reward will be given
 	if any(sessionStr.trialLRtype(nTrial) == [3 4 5 6])
-		sessionStr.RrewardCode(nTrial) = 4;
+		sessionStr.RrewardCode(nTrial) = Rnum;
 	end
 	
 	% for punishment
@@ -57,8 +63,4 @@ for idx = 1:length(trialNums)
 	elseif any(sessionStr.trialLRtype(nTrial) == [3 4])
 		sessionStr.LrewardCode(nTrial) = defCode;
 	end
-		
-		
-
-
 end
