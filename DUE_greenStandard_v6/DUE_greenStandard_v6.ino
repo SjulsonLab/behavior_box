@@ -44,7 +44,7 @@
 #include "libraries/Timer-master/Timer.cpp" // https://playground.arduino.cc/Code/Timer
 //#include <string>
 #include <avr/pgmspace.h> // might be required to store waveforms on flash instead of RAM
-#include "toInclude/greenStandardFunctions_v5.cpp"
+#include "toInclude/greenStandardFunctions_v6.cpp"
 
 // state definitions
 #define standby       		1  // standby - the inactive state
