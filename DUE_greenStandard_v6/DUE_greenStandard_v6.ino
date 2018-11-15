@@ -33,8 +33,8 @@
 
 */
 
-// tell matlab version 5 (changing this so it matches the version in the filename)
-#define VERSION     5
+// tell matlab version 6 (changing this so it matches the version in the filename)
+#define VERSION     6
 
 // include dependencies
 #include <Arduino.h>
@@ -60,10 +60,11 @@
 #define calibration       11 // state for calibrating the sound and light cue levels
 /*
 
+phases 1 and 2 are different in v6, but the rest are the same as in v5
 ////////////////////////////////////////////////////////////////////////////
-  PHASE 1. collection: no white noise, mice get reward for center poke or for poking the "correct"
-    nosepoke for that trial. Cue is given when animal does correct side poke.
-  PHASE 2. initiation: white noise, animal must center poke to get reward
+  PHASE 1. collection: no white noise, mice get reward (in side poke) for center poke or for poking the "correct"
+    sidepoke for that trial. Cue is given when animal does correct side or center poke.
+  PHASE 2. initiation: white noise, animal must center poke to get reward delivered in side poke
   PHASE 3. fast choice: white noise, center poke, cue given, then animal must collect
     the reward within four seconds.
   PHASE 4. nosepoke hold: same as phase 3, except mice must hold nosepoke for longer duration.
@@ -654,7 +655,7 @@ void loop() {
        
         if (trainingPhase==1 || trainingPhase==2) {
           giveRewards(3);
-          serLogNum("letTheAnimalDrink_ms2", rewardCollectionLength);
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
         else {
@@ -706,6 +707,7 @@ void loop() {
       }
 
 
+/*    // commenting this out - no reward for init poke in phase 1
       // in phase 1, animal is rewarded for init poke
       if (trainingPhase==1) {
         if (initPoke==1) {
@@ -714,7 +716,7 @@ void loop() {
           deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
           switchTo(letTheAnimalDrink);
         }
-      }
+      }  */
 
 
       // if left poke occurs
