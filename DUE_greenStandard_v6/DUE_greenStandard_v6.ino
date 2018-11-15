@@ -647,14 +647,15 @@ void loop() {
         if (LrewardCode==3 && uncollectedLeftRewardYN==0) {
           deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
           serLogNum("leftReward_nL", LrewardSize_nL);
+          uncollectedLeftRewardYN = 1;
         }
         if (RrewardCode==3 && uncollectedRightRewardYN==0) {
           deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
           serLogNum("rightReward_nL", RrewardSize_nL);
+          uncollectedRightRewardYN = 1;
         }
        
         if (trainingPhase==1 || trainingPhase==2) {
-          giveRewards(3);
           serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
