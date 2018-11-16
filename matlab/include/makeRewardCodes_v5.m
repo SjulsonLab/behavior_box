@@ -39,7 +39,7 @@ end
 
 if sessionStr.trainingPhase == 2
 	Rnum = 3; % reward code of 3 for phase 2
-elseif sessionStr.trainingPhase > 2
+else
 	Rnum = 4;
 end
 	
