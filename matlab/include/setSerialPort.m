@@ -17,13 +17,17 @@ elseif strfind(hostname, 'bumbrlik01')
 elseif strfind(hostname, 'bumbrlik02')
     m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
     m.serialPort = 'COM5'; %introduced by EFO, arduino was connected on COM5 only, no matter which USB port  
+elseif strfind(hostname, 'bumbrlik03')
+    m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
+    m.serialPort = 'COM6';
 elseif strfind(hostname, 'gammalsjul')
     m.basedir = '/home/luke/temp';
     m.serialPort = '/dev/ttyACM0';
 elseif strfind(hostname, 'DESKTOP-RE9G846')
     m.basedir = 'C:\Users\lab\Desktop\temp';
     %m.serialPort = 'COM6';
-    m.serialPort = 'COM4';
+    m.serialPort = 'COM11';
+
 else
 	error('This computer is not on the list. Edit setSerialPort.m to add it.');
 end
