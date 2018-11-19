@@ -314,7 +314,7 @@ void loop() {
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
 
        
-        if (trainingPhase==2) { // go to letTheAnimalDrink
+/*        if (trainingPhase==2) { // go to letTheAnimalDrink
           serLogNum("TrialStarted_ms", millis() - trialAvailTime);
           if (IrewardCode != 2) {
             serLog("Error_init_reward_code_is_wrong");
@@ -324,10 +324,9 @@ void loop() {
             giveRewards(2);
             switchTo(letTheAnimalDrink);
           }
+        }   */
 
-
-        } 
-        if (trainingPhase >= 3) { // for other training phases, go to preCue 
+        if (trainingPhase >= 2) { // for other training phases, go to preCue 
           serLogNum("TrialStarted_ms", millis() - trialAvailTime);
           sndCounter = 0;
           giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) 
