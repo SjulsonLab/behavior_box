@@ -38,7 +38,7 @@ else
 end
 
 if sessionStr.trainingPhase == 2
-	Rnum = 3; % reward code of 3 for phase 2
+	Rnum = 2; % reward code of 2 for phase 2 - reward at init poke
 else
 	Rnum = 4;
 end
