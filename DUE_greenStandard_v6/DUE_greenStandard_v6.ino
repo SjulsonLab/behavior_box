@@ -272,11 +272,16 @@ void loop() {
         setLEDlevel(cueLED3pin, 1023);
         setLEDlevel(cueLED4pin, 1023);
 
-        WNvolume = 128;
         switchTo(calibration);
         serLog("voltage drop across cue LED resistor should be 10 mV");
         serLog("sound volume at center of chamber (with doors open) should be 80 dB");
+        serLog("Volume can be between 0-255");
+        serLog("whichSound: 1 -> lowCue, 2 -> highCue, 3 -> buzzer, 4 -> white noise");
 
+        serLogNum("lowCueVolume", lowCueVolume);
+        serLogNum("highCueVolume", highCueVolume);
+        serLogNum("buzzerVolume", buzzerVolume);
+        serLogNum("WNvolume", WNvolume);
       }
 
       break;
@@ -806,7 +811,22 @@ void loop() {
 
     case calibration:
       
-      playWhiteNoise();
+  //   1 - low tone
+  //   2 - high tone
+  //   3 - buzzer
+  //   4 - white noise
+      if (whichSound==1) {
+        playLowTone();
+      }
+      else if (whichSound==2) {
+        playHighTone();
+      }
+      else if (whichSound==3) {
+        playBuzzer();
+      }
+      else if (whichSound==4) {
+        playWhiteNoise();  
+      }
 
       if ((millis() - tempTime) > calibrationLength) {
         calibrationLength = 0;

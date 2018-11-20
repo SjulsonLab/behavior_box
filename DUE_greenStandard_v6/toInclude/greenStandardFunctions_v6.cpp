@@ -226,10 +226,11 @@ long RopenYN                = 1;
 long extra4openYN           = 0;
 long extra5openYN           = 0;
 
-long WNvolume        = 128; // between 0-255
 long lowCueVolume    = 128;
 long highCueVolume   = 128;
 long buzzerVolume    = 128; 
+long WNvolume        = 128; // between 0-255
+long whichSound      = 1;
 
 long cueLED1Brightness   = 255;
 long cueLED2Brightness   = 255;
@@ -754,6 +755,7 @@ void processMessage() {
     changeVariableLong("highCueVolume", &highCueVolume, inLine);
     changeVariableLong("buzzerVolume", &buzzerVolume, inLine);
     changeVariableLong("calibrationLength", &calibrationLength, inLine);
+    changeVariableLong("whichSound", &whichSound, inLine);
 
     changeVariableLong("cueLED1Brightness", &cueLED1Brightness, inLine);
     changeVariableLong("cueLED2Brightness", &cueLED2Brightness, inLine);
