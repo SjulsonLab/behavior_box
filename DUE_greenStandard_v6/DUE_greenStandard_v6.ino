@@ -65,8 +65,8 @@
 
 phases 1 and 2 are different in v6, but the rest are the same as in v5
 ////////////////////////////////////////////////////////////////////////////
-  PHASE 1. collection: no white noise, mice get reward (in side poke) for center poke or for poking the "correct"
-    sidepoke for that trial. Cue is given when animal does correct side or center poke.
+  PHASE 1. collection: no white noise, mice get reward (in side poke) for poking the "correct"
+    sidepoke for that trial. Cue is given when animal does correct side poke. 
   PHASE 2. initiation: white noise, animal must center poke to get reward delivered in side poke
   PHASE 3. fast choice: white noise, center poke, cue given, then animal must collect
     the reward within four seconds.
@@ -360,7 +360,7 @@ void loop() {
     case preCue:
 
       // if mouse withdraws nose too early, switch state to punishDelay
-      if (initPoke == 0 && leftPoke==0 && rightPoke==0) {
+      if (initPoke == 0 && leftPoke==0 && rightPoke==0 && cueWithdrawalPunishYN==1) {
         serLogNum("PreCueWithdrawal_ms", millis() - nosePokeInitTime);
         serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
@@ -657,7 +657,7 @@ void loop() {
           uncollectedRightRewardYN = 1;
         }
        
-        if (trainingPhase==1 || trainingPhase==2) {
+        if (trainingPhase==1) {
           serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
           switchTo(letTheAnimalDrink);
         }
@@ -726,9 +726,12 @@ void loop() {
       if (leftPoke==1) {
 
         // if reward is delivered upon nosepoke
-        if (LrewardCode==4) {
-          deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-          serLogNum("leftReward_nL", LrewardSize_nL);
+        if (LrewardCode==2 || LrewardCode==3 || LrewardCode==4) {
+          if (LrewardCode==4) {
+            deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+            serLogNum("leftReward_nL", LrewardSize_nL);
+          }
+          serLog("leftRewardCollected");
           if (trainingPhase==1) {
             switchTo(preCue);
           }
@@ -750,9 +753,11 @@ void loop() {
       if (rightPoke==1) {
 
         // if reward is delivered upon nosepoke
-        if (RrewardCode==4) {
-          deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
-          serLogNum("rightReward_nL", RrewardSize_nL);
+        if (RrewardCode==2 || RrewardCode==3 || RrewardCode==4) {
+          if (RrewardCode==4) {
+            deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+            serLogNum("rightReward_nL", RrewardSize_nL);
+          }
           if (trainingPhase==1) {
             switchTo(preCue);
           }
