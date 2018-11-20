@@ -70,9 +70,8 @@ phases 1 and 2 are different in v6, but the rest are the same as in v5
   PHASE 2. initiation: white noise, animal must center poke to get reward delivered in side poke
   PHASE 3. fast choice: white noise, center poke, cue given, then animal must collect
     the reward within four seconds.
-  PHASE 4. nosepoke hold: same as phase 3, except mice must hold nosepoke for longer duration.
-  PHASE 5. nosepoke hold during two stimuli: now IOI (stimulus inter-onset interval) increases.
-  PHASE 6. correct choice: full task with punishment for incorrect choice
+  PHASE 4. nosepoke hold through precue, then nosepoke hold through increased IOI (stimulus inter-onset interval)
+  PHASE 5. correct choice: full task with punishment for incorrect choice
 ////////////////////////////////////////////////////////////////////////////
 
 
@@ -339,8 +338,8 @@ void loop() {
         }
       }
 
-      // if mouse pokes the wrong poke in phase 6 or later, go to punishDelay
-      if (trainingPhase >= 6) {
+      // if mouse pokes the wrong poke in phase 5, go to punishDelay
+      if (trainingPhase >= 5) {
         if (leftPoke==1 || rightPoke==1) {
           digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
           serLogNum("ErrorPokeBeforeInit_ms", millis() - trialAvailTime); 

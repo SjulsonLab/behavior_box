@@ -1,15 +1,14 @@
-% code for training phase 3, using arduino code v5
-% Luke Sjulson, 2018-10-18
+% code for training phases 4-5, using arduino code v6
+% Luke Sjulson, 2018-11-20
 
 % ////////////////////////////////////////////////////////////////////////////
-%   PHASE 1. collection: no white noise, mice get reward for center poke or for poking the "correct"
-%     nosepoke for that trial. Cue is given when animal does correct side poke.
-%   PHASE 2. initiation: white noise, animal must center poke to get reward
+%   PHASE 1. collection: no white noise, mice get reward (in side poke) for poking the "correct"
+%     sidepoke for that trial. Cue is given when animal does correct side poke. 
+%   PHASE 2. initiation: white noise, animal must center poke to get reward delivered in side poke
 %   PHASE 3. fast choice: white noise, center poke, cue given, then animal must collect
 %     the reward within four seconds.
-%   PHASE 4. nosepoke hold: same as phase 3, except mice must hold nosepoke for longer duration.
-%   PHASE 5. nosepoke hold during two stimuli: now IOI (stimulus inter-onset interval) increases.
-%   PHASE 6. correct choice: full task with punishment for incorrect choice
+%   PHASE 4. nosepoke hold through precue, then nosepoke hold through increased IOI (stimulus inter-onset interval)
+%   PHASE 5. correct choice: full task with punishment for incorrect choice
 % ////////////////////////////////////////////////////////////////////////////
 % 
 % 
