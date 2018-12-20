@@ -762,6 +762,7 @@ void loop() {
             deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
             serLogNum("rightReward_nL", RrewardSize_nL);
           }
+          serLog("rightRewardCollected");
           if (trainingPhase==1) {
             switchTo(preCue);
           }
