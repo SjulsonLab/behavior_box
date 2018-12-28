@@ -10,7 +10,7 @@ function m = setSerialPort(m)
 [~, hostname] = system('hostname');
 if strfind(hostname, 'Luke-HP-laptop')
 	m.basedir = 'C:\Users\lukes\Desktop\temp';
-	m.serialPort = 'COM4';  % can look this up in the arduino
+	m.serialPort = 'COM5';  % can look this up in the arduino
 elseif strfind(hostname, 'bumbrlik01')
 	m.basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior';
 	m.serialPort = 'COM4';  %commented by EFO
