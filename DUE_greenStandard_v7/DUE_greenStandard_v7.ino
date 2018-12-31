@@ -4,6 +4,11 @@
 
 /*
 
+  v7 - by Luke Sjulson, 2018-12-31. Making changes to work with python version
+  of client. Uses 230400 baud instead of 115200. Will modify to match phase 1
+  of the Jaramillo and Zador protocol better (center poke will trigger reward 
+  release at side ports)	
+
   v6 - by Luke Sjulson, 2018-11-15. Now correctly follows modified version of the 
   Jaramillo and Zador protocol. Center poke is never rewarded.
 
@@ -36,8 +41,8 @@
 
 */
 
-// tell matlab version 6 (changing this so it matches the version in the filename)
-#define VERSION     6
+// tell matlab/python version 7 (changing this so it matches the version in the filename)
+#define VERSION     7
 
 // include dependencies
 #include <Arduino.h>
@@ -47,7 +52,7 @@
 #include "libraries/Timer-master/Timer.cpp" // https://playground.arduino.cc/Code/Timer
 //#include <string>
 #include <avr/pgmspace.h> // might be required to store waveforms on flash instead of RAM
-#include "toInclude/greenStandardFunctions_v6.cpp"
+#include "toInclude/greenStandardFunctions_v7.cpp"
 
 // state definitions
 #define standby       		1  // standby - the inactive state
@@ -107,7 +112,7 @@ slot1_aud/slot2_aud/slot3_aud codes
 // runs once on initial setup
 void setup() {
 
-  Serial.begin(115200); // begin serial with 115200 baud rate
+  Serial.begin(230400); // begin serial with 115200 baud rate
   Serial.setTimeout(100); // wait 100 ms for timeout (was originally 20 ms)
 
   randomSeed(analogRead(1)); // seed rng with reading from pin 1
