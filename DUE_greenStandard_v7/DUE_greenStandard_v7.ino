@@ -5,7 +5,7 @@
 /*
 
   v7 - by Luke Sjulson, 2018-12-31. Making changes to work with python version
-  of client. Uses 230400 baud instead of 115200. Will modify to match phase 1
+  of client. Will modify to match phase 1
   of the Jaramillo and Zador protocol better (center poke will trigger reward 
   release at side ports)	
 
@@ -112,7 +112,7 @@ slot1_aud/slot2_aud/slot3_aud codes
 // runs once on initial setup
 void setup() {
 
-  Serial.begin(230400); // begin serial with 115200 baud rate
+  Serial.begin(115200); // begin serial with 115200 baud rate
   Serial.setTimeout(100); // wait 100 ms for timeout (was originally 20 ms)
 
   randomSeed(analogRead(1)); // seed rng with reading from pin 1
