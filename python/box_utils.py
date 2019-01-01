@@ -1,4 +1,4 @@
-def makeCues_v5(session_info, mouse_info, trialNums):
+def make_cues(session_info, mouse_info):
 
     # function session_info = makeCue_v5(session_info, mouse_info, trialNums)
     #
@@ -54,133 +54,120 @@ def makeCues_v5(session_info, mouse_info, trialNums):
     ####################################################################
     #&& start of actual function
     ####################################################################
-
-    # declaring extra list fields in the session_info dict
-    session_info['slot1Length'] = []
-    session_info['slot2Length'] = []
-    session_info['slot3Length'] = []
-
-    session_info['slot1_aud'] = []
-    session_info['slot2_aud'] = []
-    session_info['slot3_aud'] = []
-    session_info['slot1_vis'] = []
-    session_info['slot2_vis'] = []
-    session_info['slot3_vis'] = []
-
-
-    for nTrial in trialNums:
+    
+    import warnings
+    
+    slot1_vis = 0
+    slot1_aud = 0
+    slot2_vis = 0
+    slot2_aud = 0
+    slot3_vis = 0
+    slot3_aud = 0
+    
+    trialLRtype = session_info['trialLRtype'][-1]
+    trialAVtype = session_info['trialAVtype'][-1]
+    
+    ## calculating lengths of slots
+    slot1Length = min(session_info['cue1Length'][-1], session_info['interOnsetInterval'][-1])
+    tempSlot = session_info['interOnsetInterval'][-1] - session_info['cue1Length'][-1]
+    slot2Length = abs(tempSlot)
+    
+    if tempSlot < 0: # the two stimuli are overlapping
+        slot2StimYN = 1 # stimuli on for slot 2
+    else: # the stimuli are not overlapping
+        slot2StimYN = 0 # stimuli off for slot 2
+        tempSlot = 0
+    
+    slot3Length = session_info['cue2Length'][-1] + tempSlot
+    
+    if slot1Length<0 or slot2Length<0 or slot3Length<0:
+        print('You attempted to generate a cue duration less than zero. No stimulus will be given on this trial.')
+        slot1Length = 0
+        slot2Length = 0
+        slot3Length = 0
         
-        slot1_vis = 0
-        slot1_aud = 0
-        slot2_vis = 0
-        slot2_aud = 0
-        slot3_vis = 0
-        slot3_aud = 0
-        
-        trialLRtype = session_info['trialLRtype'][nTrial-1]
-        trialAVtype = session_info['trialAVtype'][nTrial-1]
-        
-        ## calculating lengths of slots
-        slot1Length = min(session_info['cue1Length'][nTrial-1], session_info['interOnsetInterval'][nTrial-1])
-        tempSlot = session_info['interOnsetInterval'][nTrial-1] - session_info['cue1Length'][nTrial-1]
-        slot2Length = abs(tempSlot)
-        
-        if tempSlot < 0: # the two stimuli are overlapping
-            slot2StimYN = 1 # stimuli on for slot 2
-        else: # the stimuli are not overlapping
-            slot2StimYN = 0 # stimuli off for slot 2
-            tempSlot = 0
-        
-        slot3Length = session_info['cue2Length'][nTrial-1] + tempSlot
-        
-        if slot1Length<0 or slot2Length<0 or slot3Length<0:
-            print('You attempted to generate a cue duration less than zero. No stimulus will be given on this trial.')
-            slot1Length = 0
-            slot2Length = 0
-            slot3Length = 0
-            
-        ## figuring out which stimuli should be turned on in which slots
-        
-        if trialLRtype==1 or trialLRtype==5: # if left cue is played in first slot
-            # if aud cue is played
-            if trialAVtype==1 or trialAVtype==3:
-                slot1_aud = mouse_info['leftAudCue']
-                if slot2StimYN==1: # if it's played in the second slot
-                    slot2_aud = mouse_info['leftAudCue']
+    ## figuring out which stimuli should be turned on in which slots
+    
+    if trialLRtype==1 or trialLRtype==5: # if left cue is played in first slot
+        # if aud cue is played
+        if trialAVtype==1 or trialAVtype==3:
+            slot1_aud = mouse_info['leftAudCue']
+            if slot2StimYN==1: # if it's played in the second slot
+                slot2_aud = mouse_info['leftAudCue']
 
-            # if vis cue is played
-            if trialAVtype==2 or trialAVtype==3:
-                slot1_vis = mouse_info['leftVisCue']
-                if slot2StimYN==1: # if it's played in the second slot
-                    slot2_vis = mouse_info['leftVisCue']
+        # if vis cue is played
+        if trialAVtype==2 or trialAVtype==3:
+            slot1_vis = mouse_info['leftVisCue']
+            if slot2StimYN==1: # if it's played in the second slot
+                slot2_vis = mouse_info['leftVisCue']
 
-        if trialLRtype==3 or trialLRtype==6: # if right cue is played in first slot
-            # if aud cue is played
-            if trialAVtype==1 or trialAVtype==3:
-                slot1_aud = mouse_info['rightAudCue']
-                if slot2StimYN==1: # if it's played in the second slot
-                    slot2_aud = mouse_info['rightAudCue']
+    if trialLRtype==3 or trialLRtype==6: # if right cue is played in first slot
+        # if aud cue is played
+        if trialAVtype==1 or trialAVtype==3:
+            slot1_aud = mouse_info['rightAudCue']
+            if slot2StimYN==1: # if it's played in the second slot
+                slot2_aud = mouse_info['rightAudCue']
 
-            # if vis cue is played
-            if trialAVtype==2 or trialAVtype==3:
-                slot1_vis = mouse_info['rightVisCue']
-                if slot2StimYN==1: # if it's played in the second slot
-                    slot2_vis = mouse_info['rightVisCue']
+        # if vis cue is played
+        if trialAVtype==2 or trialAVtype==3:
+            slot1_vis = mouse_info['rightVisCue']
+            if slot2StimYN==1: # if it's played in the second slot
+                slot2_vis = mouse_info['rightVisCue']
 
-        if trialLRtype==2 or trialLRtype==6: # if left cue is played in third slot
-            # if aud cue is played
-            if trialAVtype==1 or trialAVtype==3:
-                slot3_aud = mouse_info['leftAudCue']
-                if slot2StimYN==1: # if it's played in the second slot
-                    if mouse_info['leftAudCue'] != 0:
-                        if slot2_aud==0:
-                            slot2_aud = mouse_info['leftAudCue']
-                        else:
-                            warning('Attempting to play two contradictory auditory stimuli simultaneously')
+    if trialLRtype==2 or trialLRtype==6: # if left cue is played in third slot
+        # if aud cue is played
+        if trialAVtype==1 or trialAVtype==3:
+            slot3_aud = mouse_info['leftAudCue']
+            if slot2StimYN==1: # if it's played in the second slot
+                if mouse_info['leftAudCue'] != 0:
+                    if slot2_aud==0:
+                        slot2_aud = mouse_info['leftAudCue']
+                    else:
+                        warnings.warn('Attempting to play two contradictory auditory stimuli simultaneously')
 
-            # if vis cue is played
-            if trialAVtype==2 or trialAVtype==3:
-                slot3_vis = mouse_info['leftVisCue']
-                if slot2StimYN==1: # if it's played in the second slot
-                    if mouse_info['leftVisCue'] != 0:
-                        if slot2_vis==0:
-                            slot2_vis = mouse_info['leftVisCue']
-                        else:
-                            warning('Attempting to play two contradictory visual stimuli simultaneously')
+        # if vis cue is played
+        if trialAVtype==2 or trialAVtype==3:
+            slot3_vis = mouse_info['leftVisCue']
+            if slot2StimYN==1: # if it's played in the second slot
+                if mouse_info['leftVisCue'] != 0:
+                    if slot2_vis==0:
+                        slot2_vis = mouse_info['leftVisCue']
+                    else:
+                        warnings.warn('Attempting to play two contradictory visual stimuli simultaneously')
 
-        if trialLRtype==4 or trialLRtype==5: # if right cue is played in third slot
-            # if aud cue is played
-            if trialAVtype==1 or trialAVtype==3:
-                slot3_aud = mouse_info['rightAudCue']
-                if slot2StimYN==1: # if it's played in the second slot
-                    if mouse_info['rightAudCue'] != 0:
-                        if slot2_aud==0:
-                            slot2_aud = mouse_info['rightAudCue']
-                        else:
-                            warning('Attempting to play two contradictory auditory stimuli simultaneously')
-                        
+    if trialLRtype==4 or trialLRtype==5: # if right cue is played in third slot
+        # if aud cue is played
+        if trialAVtype==1 or trialAVtype==3:
+            slot3_aud = mouse_info['rightAudCue']
+            if slot2StimYN==1: # if it's played in the second slot
+                if mouse_info['rightAudCue'] != 0:
+                    if slot2_aud==0:
+                        slot2_aud = mouse_info['rightAudCue']
+                    else:
+                        warnings.warn('Attempting to play two contradictory auditory stimuli simultaneously')
                     
-            # if vis cue is played
-            if trialAVtype==2 or trialAVtype==3:
-                slot3_vis = mouse_info['rightVisCue']
-                if slot2StimYN==1: # if it's played in the second slot
-                    if mouse_info['rightVisCue'] != 0:
-                        if slot2_vis==0:
-                            slot2_vis = mouse_info['rightVisCue']
-                        else:
-                            warning('Attempting to play two contradictory visual stimuli simultaneously')
-                        
-        ## append each new entry to the list
-        session_info['slot1Length'].append(slot1Length)
-        session_info['slot2Length'].append(slot2Length)
-        session_info['slot3Length'].append(slot3Length)
-        
-        session_info['slot1_aud'].append(slot1_aud)
-        session_info['slot2_aud'].append(slot2_aud)
-        session_info['slot3_aud'].append(slot3_aud)
-        session_info['slot1_vis'].append(slot1_vis)
-        session_info['slot2_vis'].append(slot2_vis)
-        session_info['slot3_vis'].append(slot3_vis)
+                
+        # if vis cue is played
+        if trialAVtype==2 or trialAVtype==3:
+            slot3_vis = mouse_info['rightVisCue']
+            if slot2StimYN==1: # if it's played in the second slot
+                if mouse_info['rightVisCue'] != 0:
+                    if slot2_vis==0:
+                        slot2_vis = mouse_info['rightVisCue']
+                    else:
+                        warnings.warn('Attempting to play two contradictory visual stimuli simultaneously')
+                    
+    ## append each new entry to the list
+    session_info['slot1Length'].append(slot1Length)
+    session_info['slot2Length'].append(slot2Length)
+    session_info['slot3Length'].append(slot3Length)
+    
+    session_info['slot1_aud'].append(slot1_aud)
+    session_info['slot2_aud'].append(slot2_aud)
+    session_info['slot3_aud'].append(slot3_aud)
+    session_info['slot1_vis'].append(slot1_vis)
+    session_info['slot2_vis'].append(slot2_vis)
+    session_info['slot3_vis'].append(slot3_vis)
         
 
 
@@ -257,3 +244,30 @@ def send_dict_to_arduino(send_this, arduino):
         else: 
             warnings.warn(i + 'not recognized as acceptable variable type')
         time.sleep(0.010) # this is necessary to prevent buffer overrun
+
+
+def make_reward_codes(session_info):
+    # this function takes session_info and appends an extra entry onto the end of
+    # LrewardCode and RrewardCode, based on which type of trial it is.
+
+    if session_info['punishForErrorPokeYN'] == 0:  # no punishment for incorrect poke
+        wrong_poke_code = 0
+    else: 
+        wrong_poke_code = -1  # -1 means punishment for incorrect poke
+        
+    if session_info['trainingPhase'] == 2:
+        Rnum = 3 # reward code of 3 for phase 2 - reward at end of cue delivery
+    else:
+        Rnum = 4
+        
+    # set code for Left poke
+    if session_info['trialLRtype'][-1] in [1, 2, 5, 6]:
+        session_info['LrewardCode'].append(Rnum)
+    else: 
+        session_info['LrewardCode'].append(wrong_poke_code)  
+
+    # set code for right poke
+    if session_info['trialLRtype'][-1] in [3, 4, 5, 6]:
+        session_info['RrewardCode'].append(Rnum)
+    else:
+        session_info['RrewardCode'].append(wrong_poke_code)

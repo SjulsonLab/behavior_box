@@ -1,0 +1,17 @@
+todo for python box client
+
+[ ] make directory
+[ ] write logfile
+[ ] insert date, time, etc. in session_info
+
+[ ] stage 3 go to pokes option
+[ ] function to pick left vs. right trials
+
+[ ] interface to start/end the session 
+
+[ ] trial loop, editing parameters on each trial
+
+[ ] way to determine the correct serial port
+[ ] look in the serial device code and see if there's a way to check the output buffer and time based on that
+[ ] replace all camelCase?
+
