@@ -1,11 +1,11 @@
 todo for python box client
 
-[ ] make directory
-[ ] write logfile
-[ ] insert date, time, etc. in session_info
+[X] make directory
+[X] write logfile
+[X] insert date, time, etc. in session_info
 
-[ ] stage 3 go to pokes option
-[ ] function to pick left vs. right trials
+[X] stage 3 go to pokes option
+[X] function to pick left vs. right trials
 
 [ ] interface to start/end the session 
 

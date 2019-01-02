@@ -1,4 +1,4 @@
-def make_cues(session_info, mouse_info):
+def append_cue_codes(session_info, mouse_info):
 
     # function session_info = makeCue_v5(session_info, mouse_info, trialNums)
     #
@@ -56,7 +56,7 @@ def make_cues(session_info, mouse_info):
     ####################################################################
     
     import warnings
-    
+
     slot1_vis = 0
     slot1_aud = 0
     slot2_vis = 0
@@ -246,7 +246,7 @@ def send_dict_to_arduino(send_this, arduino):
         time.sleep(0.010) # this is necessary to prevent buffer overrun
 
 
-def make_reward_codes(session_info):
+def append_reward_code(session_info):
     # this function takes session_info and appends an extra entry onto the end of
     # LrewardCode and RrewardCode, based on which type of trial it is.
 
@@ -271,3 +271,66 @@ def make_reward_codes(session_info):
         session_info['RrewardCode'].append(Rnum)
     else:
         session_info['RrewardCode'].append(wrong_poke_code)
+
+
+def append_random_LR(session_info):
+    import random
+
+    if session_info['trainingPhase'] in [1, 2]:
+        options = [1, 3]
+    elif session_info['trainingPhase'] in [3, 4, 5, 6]:
+        options = [1, 2, 3, 4, 5, 6]
+    else: 
+        warnings.warn('Incorrect training phase')
+        options = [1]
+    session_info['trialLRtype'].append(random.choice(options))
+
+
+def ask_if_ready(session_info):
+    import time
+    import tkinter
+    from tkinter import Tk
+    from tkinter import Toplevel
+    from tkinter import messagebox
+    root = Tk()
+    texto = Toplevel(root)
+
+    ready_to_go = False
+    while ready_to_go == False:
+        time.sleep(0.1)
+        ready_to_go = messagebox.askokcancel(session_info['mouseName'] + ', Phase ' + str(session_info['trainingPhase']), \
+                               'Start camera and recordings now, then hit OK to start the trials', default='cancel', master=texto)
+        root.update()
+    root.destroy()
+
+
+def stop_dialog(session_info):
+    import time
+    import tkinter
+    from tkinter import Tk
+    from tkinter import Toplevel
+    from tkinter import messagebox
+    root = Tk()
+    texto = Toplevel(root)
+    ready_to_go = messagebox.askokcancel(session_info['mouseName'] + ', Phase ' + str(session_info['trainingPhase']), \
+                'Start camera and recordings now, then hit OK to start the trials', default='cancel', master=texto)
+    #root.update()
+    #return root
+
+
+
+
+# def check_keyboard(keyqueue):
+#     import msvcrt
+
+#         x = msvcrt.getch()
+#         keyqueue.append(x)
+#         keyqueue.pop(0)
+
+#         print('keyqueue is: ' + str(keyqueue))
+#         if keyqueue[0] == keyqueue[1] == keyqueue[2] == keyqueue[3] == keyqueue[4] == 'x':
+#             exit = 1
+#         else: 
+#             exit = 0
+#         return exit
+#             
