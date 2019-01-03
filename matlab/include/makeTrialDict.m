@@ -16,16 +16,16 @@ trial_dict.update(pyargs('goToPokesLength', sessionStr.goToPokesLength));
 trial_dict.update(pyargs('trialLRtype', sessionStr.trialLRtype(nTrial)));
 trial_dict.update(pyargs('trialAVtype', sessionStr.trialAVtype(nTrial)));
 
-% reward info
-if sessionStr.trainingPhase==1
-    trial_dict.update(pyargs('IrewardCode', 1));
-elseif sessionStr.trainingPhase==2
-    trial_dict.update(pyargs('IrewardCode', 2));
-elseif sessionStr.trainingPhase>2
-    trial_dict.update(pyargs('IrewardCode', 0));
-end
+% % reward info - defunct, as we're no longer using init rewards
+% if sessionStr.trainingPhase==1
+%     trial_dict.update(pyargs('IrewardCode', 1));
+% elseif sessionStr.trainingPhase==2
+%     trial_dict.update(pyargs('IrewardCode', 2));
+% elseif sessionStr.trainingPhase>2
+%     trial_dict.update(pyargs('IrewardCode', 0));
+% end
 
-trial_dict.update(pyargs('IrewardSize_nL', sessionStr.IrewardSize_nL));
+% trial_dict.update(pyargs('IrewardSize_nL', sessionStr.IrewardSize_nL));
 trial_dict.update(pyargs('LrewardCode', sessionStr.LrewardCode(nTrial)));
 trial_dict.update(pyargs('LrewardSize_nL', sessionStr.LrewardSize_nL(nTrial)));
 trial_dict.update(pyargs('RrewardCode', sessionStr.RrewardCode(nTrial)));
