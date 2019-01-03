@@ -214,7 +214,7 @@ long cameraRecordingYN   = 0;   // 1 to start recording, 0 to pause
     4 - reward only upon successful nosepoke
 */
 
-long IrewardCode            = 1; // determines if/when reward is given
+long IrewardCode            = 0; // determines if/when reward is given
 long LrewardCode            = 0; 
 long RrewardCode            = 0;
 long extra4rewardCode       = 0;

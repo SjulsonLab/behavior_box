@@ -284,8 +284,8 @@ def append_reward_code(session_info):
     else: 
         wrong_poke_code = -1  # -1 means punishment for incorrect poke
         
-    if session_info['trainingPhase'] == 2:
-        Rnum = 3 # reward code of 3 for phase 2 - reward at end of cue delivery
+    if session_info['trainingPhase'] in [1, 2]:
+        Rnum = 3 # reward code of 3 for phases 1 or 2 - reward at end of cue delivery
     else:
         Rnum = 4
         
