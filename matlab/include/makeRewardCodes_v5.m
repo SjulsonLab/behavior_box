@@ -37,8 +37,8 @@ else
 	defCode = -1;
 end
 
-if sessionStr.trainingPhase == 2
-	Rnum = 3; % reward code of 3 for phase 2 - reward at end of cue delivery
+if sessionStr.trainingPhase == 1 || sessionStr.trainingPhase == 2
+	Rnum = 3; % reward code of 3 for phases 1 and 2 - reward at end of cue delivery
 else
 	Rnum = 4;
 end
