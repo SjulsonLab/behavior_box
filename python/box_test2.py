@@ -39,7 +39,7 @@ phase3_go_to_pokes_length                 = 60 * 1000
 
 # other parameters
 session_info['maxSessionLength_min']      = 60     # in minutes
-session_info['maxTrials']                 = 3   # program terminates when either maxSessionLength_min or maxTrials is reached
+session_info['maxTrials']                 = 300   # program terminates when either maxSessionLength_min or maxTrials is reached
 session_info['maxRewards']                = 200    # program also terminates if maxRewards is reached
 session_info['interTrialInterval_mean']   = 0      # number of extra seconds between trials
 session_info['interTrialInterval_SD']     = 0    # standard deviation of seconds between trials
