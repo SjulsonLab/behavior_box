@@ -248,10 +248,11 @@ void loop() {
         serLog("TrialAvailable");
         serLogNum("TrainingPhase", trainingPhase);
         serLogNum("requiredPokeHoldLength_ms", preCueLength + slot1Length + slot2Length + slot3Length + postCueLength);
+        serLogNum("goToPokesLength", goToPokesLength);
         serLogNum("trialLRtype", trialLRtype);
         serLogNum("trialAVtype", trialAVtype);
         serLogNum("Lsize_nL", LrewardSize_nL);
-        serLogNum("Isize_nL", IrewardSize_nL);
+        //serLogNum("Isize_nL", IrewardSize_nL);
         serLogNum("Rsize_nL", RrewardSize_nL);
 
         sndCounter = 0; // reset sound counter
