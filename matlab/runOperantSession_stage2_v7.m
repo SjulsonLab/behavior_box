@@ -1,4 +1,4 @@
-% code for training phase 2, using arduino code v6
+% code for training phase 2, using arduino code v7
 % Luke Sjulson, 2018-10-18
 
 % ////////////////////////////////////////////////////////////////////////////

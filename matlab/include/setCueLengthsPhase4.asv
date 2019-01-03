@@ -26,8 +26,6 @@ if sessionStr.trainingPhase == 4
 	R = sessionStr.numRewardsToAdvance;
 	if (totalRewards + sessionStr.fakeRewards) < R
 		% no extra delays
-		sessionStr.preCueLength(nTrial) = 0;
-		sessionStr.postCueLength(nTrial) = 0;
 	elseif (totalRewards + sessionStr.fakeRewards) >1*R && (totalRewards + sessionStr.fakeRewards) <= 2*R
 		% add precue and postcue 25
 		sessionStr.preCueLength(nTrial) = 25;
@@ -113,7 +111,6 @@ if sessionStr.trainingPhase == 4
 		sessionStr.postCueLength(nTrial) = 25;
 		sessionStr.interOnsetInterval(nTrial) = 125;
 	end
-	
 elseif sessionStr.trainingPhase == 5
 	sessionStr.preCueLength(nTrial) = 75;
 	sessionStr.postCueLength(nTrial) = 25;
