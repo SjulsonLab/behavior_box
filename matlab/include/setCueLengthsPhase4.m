@@ -3,7 +3,8 @@ function sessionStr = setCueLengthsPhase4(sessionStr, nTrial, totalRewards)
 % function sessionStr = setCueLengthsPhase4(sessionStr, nTrial, totalRewards)
 %
 % for setting cue delivery parameters for stage 4 training, where they vary
-% as a function of the number of rewards the animal has received.
+% as a function of the number of rewards the animal has received. Also
+% works for stage 5.
 %
 % Luke Sjulson, 2018-10-29
 
@@ -118,6 +119,8 @@ elseif sessionStr.trainingPhase == 5
 	sessionStr.preCueLength(nTrial) = 75;
 	sessionStr.postCueLength(nTrial) = 25;
 	sessionStr.interOnsetInterval(nTrial) = 125;
+else
+	error('sessionStr.trainingPhase needs to be 4 or 5 to use this function');
 end
 	
 	disp(['Animal has ' num2str(totalRewards) ' real rewards and ' num2str(sessionStr.fakeRewards) ' fake ones. precue = ' ...
