@@ -115,6 +115,11 @@ if sessionStr.trainingPhase == 4
 		sessionStr.interOnsetInterval(nTrial) = 125;
 	end
 	
+	% display status for phase 4
+	disp(['Animal has ' num2str(totalRewards) ' real rewards and ' num2str(sessionStr.fakeRewards) ' fake ones. precue = ' ...
+	num2str(sessionStr.preCueLength(nTrial)) ', postcue = ' num2str(sessionStr.postCueLength(nTrial)) ...
+	', IOI = ' num2str(sessionStr.interOnsetInterval(nTrial))]);
+	
 elseif sessionStr.trainingPhase == 5
 	sessionStr.preCueLength(nTrial) = 75;
 	sessionStr.postCueLength(nTrial) = 25;
@@ -122,15 +127,13 @@ elseif sessionStr.trainingPhase == 5
 else
 	error('sessionStr.trainingPhase needs to be 4 or 5 to use this function');
 end
-	
-	disp(['Animal has ' num2str(totalRewards) ' real rewards and ' num2str(sessionStr.fakeRewards) ' fake ones. precue = ' ...
-		num2str(sessionStr.preCueLength(nTrial)) ', postcue = ' num2str(sessionStr.postCueLength(nTrial)) ...
-		', IOI = ' num2str(sessionStr.interOnsetInterval(nTrial))]);
-	
-	
-	% %% for testing
-	% sessionStr.preCueLength(nTrial)
-	% sessionStr.postCueLength(nTrial)
-	% sessionStr.interOnsetInterval(nTrial)
-	
-	
+
+
+
+
+% %% for testing
+% sessionStr.preCueLength(nTrial)
+% sessionStr.postCueLength(nTrial)
+% sessionStr.interOnsetInterval(nTrial)
+
+

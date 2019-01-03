@@ -64,7 +64,7 @@ m.rightAudCue        = 0;
 
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
-sessionStr.trainingPhase = 4;
+sessionStr.trainingPhase = 5;
 
 % for phase 4 only - see other parameters below in loop
 sessionStr.fakeRewards   = 0;          % used for training in phase 4
