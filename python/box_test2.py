@@ -31,6 +31,7 @@ session_info['time']                      = datetime.datetime.now().strftime('%H
 session_info['basename']                  = mouse_info['mouseName'] + '_' + session_info['date'] + '_' + session_info['time']
 session_info['box_number']                = 1      # put the number of the behavior box here
 session_info['computer_name']             = socket.gethostname()
+resetTimeYN                               = 1      # whether or not to restart arduino timer at beginning of session
 
 box_utils.set_COM_port(session_info)                # looking up the COM port in the list in box_utils.py
 
@@ -48,7 +49,7 @@ session_info['cueWithdrawalPunishYN']     = 0      # only 1 in phase 4-5
 session_info['initPokePunishYN']          = 0      # whether to punish for init poke between trials
 nTrial                                    = 1      # the number of the first trial
 session_info['nTrial']                    = []     # just leave this blank
-session_info['resetTimeYN']               = 1      # whether or not to restart arduino timer at beginning of session
+
 
 # initializing trial L/R parameters, will set them later
 session_info['trialLRtype']               = [] # (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL).
@@ -176,6 +177,7 @@ try:
     start_time = time.time()
     exit_loop = False
     total_rewards = 0
+    box_utils.send_dict_to_arduino({'resetTimeYN' : resetTimeYN}, arduino)
 
     while exit_loop == False:
 
