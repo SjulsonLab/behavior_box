@@ -316,7 +316,10 @@ void loop() {
       if (initPoke == 1) { // init poke activated
         tempInit = 1;
       }
-      if ((trainingPhase==1) && ((leftPoke == 1) || (rightPoke == 1))) {  // either right or left poke activated in phase 1
+      if (trainingPhase == 1 && leftPoke == 1 && LrewardCode > 0) {
+        tempInit = 1;
+      }
+      if (trainingPhase == 1 && rightPoke == 1 && RrewardCode > 0) {
         tempInit = 1;
       }
 
