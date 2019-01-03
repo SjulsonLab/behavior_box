@@ -1,3 +1,32 @@
+def set_COM_port(session_info):
+
+# this is where we keep track of the COM ports and base data directories for the different computers    
+    if session_info['computer_name'].lower() == 'Luke-HP-laptop'.lower() \
+        and session_info['box_number'] == 1:
+        session_info['basedir'] = 'C:\\Users\\lukes\\Desktop\\temp'
+        session_info['COM_port'] = 'COM5'
+    elif session_info['computer_name'].lower() == 'bumbrlik01'.lower() \
+        and session_info['box_number'] == 1:
+        session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
+        session_info['COM_port'] = 'COM4'
+    elif session_info['computer_name'].lower() == 'bumbrlik02'.lower() \
+        and session_info['box_number'] == 1:
+        session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
+        session_info['COM_port'] = 'COM5'
+    elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
+        and session_info['box_number'] == 1:
+        session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
+        session_info['COM_port'] = 'COM6'
+    elif session_info['computer_name'].lower() == 'DESKTOP-RE9G846'.lower() \
+        and session_info['box_number'] == 1:
+        session_info['basedir'] = 'C:\\Users\\lab\\Desktop\\temp'
+        session_info['COM_port'] = 'COM11'
+    else: 
+        raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
+
+
+
+
 def append_cue_codes(session_info, mouse_info):
 
     # function session_info = makeCue_v5(session_info, mouse_info, trialNums)
@@ -316,7 +345,6 @@ def stop_dialog(session_info):
                 'Start camera and recordings now, then hit OK to start the trials', default='cancel', master=texto)
     #root.update()
     #return root
-
 
 
 

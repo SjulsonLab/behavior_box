@@ -6,10 +6,11 @@ todo for python box client
 
 [X] stage 3 go to pokes option
 [X] function to pick left vs. right trials
+[ ] changing reward sizes
+[ ] detect rewards 
+[ ] interface to end the session 
 
-[ ] interface to start/end the session 
-
-[ ] trial loop, editing parameters on each trial
+[X] trial loop, editing parameters on each trial
 
 [ ] way to determine the correct serial port
 [ ] look in the serial device code and see if there's a way to check the output buffer and time based on that
