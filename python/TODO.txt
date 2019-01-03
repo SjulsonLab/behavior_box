@@ -1,5 +1,8 @@
 todo for python box client
 
+[ ] implement center nosepoke in phase 1
+[ ] save dicts as mat files
+
 [X] make directory
 [X] write logfile
 [X] insert date, time, etc. in session_info
@@ -7,12 +10,12 @@ todo for python box client
 [X] stage 3 go to pokes option
 [X] function to pick left vs. right trials
 [ ] changing reward sizes
-[ ] detect rewards 
-[ ] interface to end the session 
+[X] detect rewards 
+[X] interface to end the session 
 
 [X] trial loop, editing parameters on each trial
 
-[ ] way to determine the correct serial port
+[X] way to determine the correct serial port
 [ ] look in the serial device code and see if there's a way to check the output buffer and time based on that
 [ ] replace all camelCase?
 

@@ -47,7 +47,7 @@ Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
 Lrewards = getEventTimes('leftReward_nL', [basename '.txt']);
 Rrewards = getEventTimes('rightReward_nL', [basename '.txt']);
 
-trialStarts = getEventTimes('TrialAvailable');
+trialStarts = getEventTimes('TrialAvailable', [basename '.txt']);
 
 
 %% plotting
