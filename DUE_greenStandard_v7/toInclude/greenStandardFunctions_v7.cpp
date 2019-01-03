@@ -147,6 +147,8 @@ int extraPokeLast6      = 0;
 int extraPokeReading6   = 0;
 int extraPokeDetected6  = 0;
 
+int tempInit            = 0; // temporary variable to simplify code
+
 
 // servos to control nosepoke doors
 #define ServoOpen      10 //position at which Servo is open

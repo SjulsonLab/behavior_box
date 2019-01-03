@@ -55,18 +55,17 @@
 #include "toInclude/greenStandardFunctions_v7.cpp"
 
 // state definitions
-#define standby       		1  // standby - the inactive state
-#define readyToGo     		2  // plays white noise, waits for init poke
-//#define phase1_prepoke      3  // for phase 1 only, like readyToGo but without 
-#define punishDelay   		3  // timeout period after animal makes mistake
-#define preCue        		4  // time delay between white noise and cue
+#define standby         		1  // standby - the inactive state
+#define readyToGo       		2  // plays white noise, waits for init poke
+#define punishDelay     		3  // timeout period after animal makes mistake
+#define preCue          		4  // time delay between white noise and cue
 #define slot1               5  // first cue slot
 #define slot2               6  // second cue slot
 #define slot3               7  // third cue slot
-#define postCue       		8  // additional time delay
-#define goToPokes     		9  // nosepokes open, animal can approach and collect reward
-#define letTheAnimalDrink  10 // waiting for animal to collect reward
-#define calibration        11 // state for calibrating the sound and light cue levels
+#define postCue         		8  // additional time delay
+#define goToPokes       		9  // nosepokes open, animal can approach and collect reward
+#define letTheAnimalDrink  10  // waiting for animal to collect reward
+#define calibration        11  // state for calibrating the sound and light cue levels
 /*
 
 phases 1 and 2 are different in v6, but the rest are the same as in v5
@@ -312,8 +311,17 @@ void loop() {
       }
 
 
-      // if mouse init-pokes, switch state to PRE-CUE
-      if (initPoke == 1) {
+      // switch state to PRE-CUE if 1) the mouse init pokes, or 2) any poke is activated during phase 1
+
+      if (initPoke == 1) { // init poke activated
+        tempInit = 1;
+      }
+      if ((trainingPhase==1) && ((leftPoke == 1) || (rightPoke == 1))) {  // either right or left poke activated in phase 1
+        tempInit = 1;
+      }
+
+      if (tempInit == 1) {
+        tempInit = 0;
 
         // if trainingPhase == 0, the arduino wasn't set up properly
         if (trainingPhase == 0) {
@@ -330,9 +338,6 @@ void loop() {
         switchTo(preCue);
       }
 
-      // wotan: insert left and right poke detection here for phase 1
-
-      
       // if mouse pokes the wrong poke in phase 5, go to punishDelay
       if (trainingPhase >= 5) {
         if (leftPoke==1 || rightPoke==1) {
@@ -655,14 +660,7 @@ void loop() {
           serLogNum("rightReward_nL", RrewardSize_nL);
           uncollectedRightRewardYN = 1;
         }
-       
-        if (trainingPhase==1) {
-          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
-          switchTo(letTheAnimalDrink);
-        }
-        else {
-          switchTo(goToPokes);  
-        }
+        switchTo(goToPokes);  
       }
 
       delayMicroseconds(pauseLengthMicros); 
@@ -708,19 +706,6 @@ void loop() {
         uncollectedInitRewardYN = 1; // not relevant unless you're pre-rewarding the init port
       }
 
-
-/*    // commenting this out - no reward for init poke in phase 1
-      // in phase 1, animal is rewarded for init poke
-      if (trainingPhase==1) {
-        if (initPoke==1) {
-          serLogNum("initReward_nL", IrewardSize_nL);
-          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
-          deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
-          switchTo(letTheAnimalDrink);
-        }
-      }  */
-
-
       // if left poke occurs
       if (leftPoke==1) {
 
@@ -731,13 +716,8 @@ void loop() {
             serLogNum("leftReward_nL", LrewardSize_nL);
           }
           serLog("leftRewardCollected");
-          if (trainingPhase==1) {
-            switchTo(preCue);
-          }
-          else {
-            serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
-            switchTo(letTheAnimalDrink);
-          }
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
+          switchTo(letTheAnimalDrink);
         }
         
         // if nosepoke is an error
@@ -758,13 +738,8 @@ void loop() {
             serLogNum("rightReward_nL", RrewardSize_nL);
           }
           serLog("rightRewardCollected");
-          if (trainingPhase==1) {
-            switchTo(preCue);
-          }
-          else {
-            serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
-            switchTo(letTheAnimalDrink);
-          }
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
+          switchTo(letTheAnimalDrink);
         }
 
         //if nosepoke is an error
