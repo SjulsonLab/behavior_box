@@ -26,7 +26,7 @@ mouse_info = pysistence.make_dict({'mouseName': 'jaxmale08',
 # Information for this session (the user should edit this each session)
 session_info                              = collections.OrderedDict()
 session_info['mouseName']                 = mouse_info['mouseName']
-session_info['trainingPhase']             = 3
+session_info['trainingPhase']             = 4
 session_info['date']                      = datetime.datetime.now().strftime("%Y%m%d")
 session_info['time']                      = datetime.datetime.now().strftime('%H%M%S')
 session_info['basename']                  = mouse_info['mouseName'] + '_' + session_info['date'] + '_' + session_info['time']
@@ -36,8 +36,10 @@ resetTimeYN                               = 1      # whether or not to restart a
 
 box_utils.set_COM_port(session_info)                # looking up the COM port in the list in box_utils.py
 
-# this applies only for phase 3, where the goal is to get it down to 4000 ms
-phase3_go_to_pokes_length                 = 60 * 1000 
+# parameters for training in stages 3-4
+phase3_go_to_pokes_length                      = 60 * 1000  # goal is to reduce to 4000 ms
+session_info['phase4_num_rewards_to_advance']  = 10
+session_info['phase4_fake_rewards']            = 0
 
 # other parameters
 session_info['maxSessionLength_min']      = 60     # in minutes
@@ -79,7 +81,7 @@ session_info['syringeSize_mL']         = 5
 session_info['readyToGoLength']        = 1000*30
 session_info['punishDelayLength']      = 1000*6
 session_info['goToPokesLength']        = 1000*60
-session_info['rewardCollectionLength'] = 1000*5
+session_info['rewardCollectionLength'] = 1 #000*5
 
 # cue lengths, etc. - for phases 4 and 5, they are changed below
 session_info['preCueLength']           = [0]
@@ -130,6 +132,9 @@ session_info['slot3_aud'] = []
 session_info['slot1Length'] = []
 session_info['slot2Length'] = []
 session_info['slot3Length'] = []
+
+if session_info['trainingPhase'] == 5:
+    box_utils.append_cue_slot_durations(session_info, 0)
 
 # # figure out the COM port
 # basedir  = 'C:\\Users\\lukes\\Desktop\\temp'
@@ -188,12 +193,17 @@ try:
         # for stages 1-2, this should be [1 3]. For stage 3 and higher, it should be [1:6]
         # i.e. no free choice until stage 3
         box_utils.append_random_LR(session_info)
-        # set reward codes for the first trial
+        # set reward codes for this trial
         box_utils.append_reward_code(session_info)
-        # set cue/slot cotes for the first trial
+        # set cue/slot identity codes for this trial
         box_utils.append_cue_codes(session_info, mouse_info)
-        # fix: append new reward size here if it's going to 
 
+        if session_info['trainingPhase'] == 4:
+            # set cue/slot duration cotes for this trial
+            box_utils.append_cue_slot_durations(session_info, total_rewards)
+
+
+        # fix: append new reward size here if it's going to 
 
 
         # send session_info to arduino
@@ -203,9 +213,6 @@ try:
         logfile = open(session_info['basename'] + '.txt', 'a+')
 
         # start the trial
-        #arduino.write(bytes('trainingPhase;1', 'utf-8'))
-        # flush buffer
-        # arduino.flushInput()
         arduino.write(bytes('startTrialYN;1', 'utf-8'))
 
 
@@ -222,7 +229,6 @@ try:
                 print(Astr)
 
             logfile.write(Astr + '\n')
-
 
           else:
             time.sleep(0.050)

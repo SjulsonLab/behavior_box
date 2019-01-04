@@ -11,6 +11,7 @@ todo for python box client
 [X] stage 3 go to pokes option
 [X] function to pick left vs. right trials
 [ ] changing reward sizes
+[X] changing cue intervals
 [X] detect rewards 
 [X] interface to end the session 
 

@@ -365,3 +365,122 @@ def save_mat_file(filename, dict_to_save, struct_name):
 #             exit = 0
 #         return exit
 #             
+
+
+
+def append_cue_slot_durations(session_info, total_rewards):
+    import colorama
+    from colorama import Fore, Style
+
+    if session_info['trainingPhase'] == 4:
+        R = session_info['phase4_num_rewards_to_advance']
+        if (total_rewards + session_info['phase4_fake_rewards']) < R:
+            # no extra delays
+            session_info['preCueLength'].append(0)
+            session_info['postCueLength'].append(0)
+            session_info['interOnsetInterval'].append(0)    
+        elif (total_rewards + session_info['phase4_fake_rewards']) >1*R and (total_rewards + session_info['phase4_fake_rewards']) <= 2*R:
+            # add precue and postcue 25
+            session_info['preCueLength'].append(25)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(0)    
+        elif (total_rewards + session_info['phase4_fake_rewards']) >2*R and (total_rewards + session_info['phase4_fake_rewards']) <= 3*R:
+            # precue = 35
+            session_info['preCueLength'].append(35)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(0)    
+        elif (total_rewards + session_info['phase4_fake_rewards']) >3*R and (total_rewards + session_info['phase4_fake_rewards']) <= 4*R:
+            # precue = 45
+            session_info['preCueLength'].append(45)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(0)    
+        elif (total_rewards + session_info['phase4_fake_rewards']) >4*R and (total_rewards + session_info['phase4_fake_rewards']) <= 5*R:
+            # precue = 55
+            session_info['preCueLength'].append(55)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(0)    
+        elif (total_rewards + session_info['phase4_fake_rewards']) >5*R and (total_rewards + session_info['phase4_fake_rewards']) <= 6*R:
+            # precue = 65
+            session_info['preCueLength'].append(65)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(0)    
+        elif (total_rewards + session_info['phase4_fake_rewards']) >6*R and (total_rewards + session_info['phase4_fake_rewards']) <= 7*R:
+            # precue = 75
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(0)    
+        elif (total_rewards + session_info['phase4_fake_rewards']) >7*R and (total_rewards + session_info['phase4_fake_rewards']) <= 8*R:
+            # IOI = 15
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(15)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >8*R and (total_rewards + session_info['phase4_fake_rewards']) <= 9*R:
+            # IOI = 25
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(25)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >9*R and (total_rewards + session_info['phase4_fake_rewards']) <= 10*R:
+            # IOI = 35
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(35)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >10*R and (total_rewards + session_info['phase4_fake_rewards']) <= 11*R:
+            # IOI = 45
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(45)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >11*R and (total_rewards + session_info['phase4_fake_rewards']) <= 12*R:
+            # IOI = 55
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(55)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >12*R and (total_rewards + session_info['phase4_fake_rewards']) <= 13*R:
+            # IOI = 65
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(65)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >13*R and (total_rewards + session_info['phase4_fake_rewards']) <= 14*R:
+            # IOI = 75
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(75)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >14*R and (total_rewards + session_info['phase4_fake_rewards']) <= 15*R:
+            # IOI = 85
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(85)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >15*R and (total_rewards + session_info['phase4_fake_rewards']) <= 16*R:
+            # IOI = 95
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(95)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >16*R and (total_rewards + session_info['phase4_fake_rewards']) <= 17*R:
+            # IOI = 105
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(105)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >17*R and (total_rewards + session_info['phase4_fake_rewards']) <= 18*R:
+            # IOI = 115
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(115)
+        elif (total_rewards + session_info['phase4_fake_rewards']) >18*R:
+            # IOI = 125
+            session_info['preCueLength'].append(75)
+            session_info['postCueLength'].append(25)
+            session_info['interOnsetInterval'].append(125)
+
+        
+        # display status for phase 4
+        print(Fore.MAGENTA + Style.BRIGHT + 'Animal has ' + str(total_rewards) + ' real rewards and ' + str(session_info['phase4_fake_rewards']) + ' fake ones. precue = ' + \
+        str(session_info['preCueLength'][-1]) + ', postcue = ' + str(session_info['postCueLength'][-1]) + \
+        ', IOI = ' + str(session_info['interOnsetInterval'][-1]) + Style.RESET_ALL)
+        
+    elif session_info['trainingPhase'] == 5:
+        session_info['preCueLength'].append(75)
+        session_info['postCueLength'].append(25)
+        session_info['interOnsetInterval'].append(125)
+    else:
+        raise Exception('session_info.trainingPhase needs to be 4 or 5 to use this function')
+
+
