@@ -346,6 +346,9 @@ def stop_dialog(session_info):
     #root.update()
     #return root
 
+def save_mat_file(filename, dict_to_save, struct_name):
+    import scipy.io 
+    scipy.io.savemat(filename, {struct_name: dict_to_save})
 
 
 # def check_keyboard(keyqueue):

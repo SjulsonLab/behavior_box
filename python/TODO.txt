@@ -1,11 +1,12 @@
 todo for python box client
 
-[ ] implement center nosepoke in phase 1
-[ ] save dicts as mat files
+[X] implement center nosepoke in phase 1
+[X] save dicts as mat files
 
 [X] make directory
 [X] write logfile
 [X] insert date, time, etc. in session_info
+[ ] put in error checking if python attempts to pass a float
 
 [X] stage 3 go to pokes option
 [X] function to pick left vs. right trials

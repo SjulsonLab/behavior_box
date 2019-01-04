@@ -14,6 +14,7 @@ import traceback
 import colorama
 from colorama import Fore, Style
 
+
 # defining immutable mouse dict (once defined for a mouse, this should never change)
 mouse_info = pysistence.make_dict({'mouseName': 'jaxmale08',
                  'requiredVersion': 7,
@@ -253,7 +254,9 @@ try:
     # stop camera
     box_utils.send_dict_to_arduino({'cameraRecordingYN': 0}, arduino)
 
-    # fix: save dicts to disk
+    # save dicts to disk
+    box_utils.save_mat_file('mouse_info.mat', mouse_info, 'mouse_info')
+    box_utils.save_mat_file('session_info.mat', session_info, 'session_info')
 
     # close arduino
     time.sleep(1)
@@ -278,6 +281,10 @@ except (KeyboardInterrupt, SystemExit):
     if not arduino.closed:
         arduino.close()
         del arduino
+    # save dicts to disk
+    box_utils.save_mat_file('mouse_info.mat', mouse_info, 'mouse_info')
+    box_utils.save_mat_file('session_info.mat', session_info, 'session_info')
+
 
 # error handling
 except Exception as ex:
@@ -302,5 +309,8 @@ except Exception as ex:
     print("Exception type : %s " % ex_type.__name__)
     print("Exception message : %s" %ex_value)
     print("Stack trace : %s" %stack_trace)
+    # save dicts to disk
+    box_utils.save_mat_file('mouse_info.mat', mouse_info, 'mouse_info')
+    box_utils.save_mat_file('session_info.mat', session_info, 'session_info')
 
 
