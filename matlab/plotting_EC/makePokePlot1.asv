@@ -62,28 +62,20 @@ if exist('figures', 'dir') ~= 7 %it's identifying the folder when it doesn't exi
 	mkdir('figures');
 end
 cd('figures');
-close all
 f1 = PokePlot(sessionStr,trialStarts,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,1);
 print([basename '_pokeplot1.png'], '-dpng');
 
 close(f1);
+
 
 disp(['Finished pokeplot1 for ', basename]);
 end
 
 
 
-
-
-
-
 function [f1] = PokePlot(sessionStr,trialStarts,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,flagDS)
 close all
 histvec = 0:2:trialStarts(end)+120;
-dsFactor = 100;
-if flagDS %added by EFO
-   histvec = downsample(histvec,dsFactor);
-end
 
 % histvec = 0:100:trialStarts(end)+120; %EFO: testing/ it looks weird
 norm = 'count';
@@ -111,13 +103,13 @@ Lhist = histc(Lpokes, histvec);
 if isempty(Lhist)
 	Lhist = zeros(size(histvec));
 end
-% if flagDS 
-%    Lhist = downsample(Lhist,dsFactor);
-%    histvec1 = downsample(histvec,dsFactor);
-% else
-%    histvec1 = histvec;
-% end
-h1 = plot(histvec, Lhist, 'b'); hold on
+if flagDS 
+   Lhist = downsample(Lhist,50);
+   histvec1 = downsample(histvec,50);
+else
+   histvec1 = hist;
+end
+h1 = plot(histvec1, Lhist, 'b'); hold on
 h1.Color(4) = 0.5; % setting alpha (transparency)
 
 % plot R pokes
@@ -126,11 +118,11 @@ if isempty(Rhist)
    Rhist = zeros(size(histvec));
 end
 
-% if flagDS 
-%    Rhist = downsample(Rhist,dsFactor);
-% end
+if flagDS 
+   Rhist = downsample(Rhist,50);
+end
 
-h2 = plot(histvec, Rhist, 'r');
+h2 = plot(histvec1, Rhist, 'r');
 h2.Color(4) = 0.5; 
 
 % plot I pokes
@@ -138,10 +130,10 @@ Ihist = histc(Ipokes, histvec);
 if isempty(Ihist)
 	Ihist = zeros(size(histvec));
 end
-% if flagDS 
-%    Ihist = downsample(Ihist,dsFactor);
-% end
-h3 = plot(histvec, Ihist, 'g');
+if flagDS 
+   Ihist = downsample(Ihist,50);
+end
+h3 = plot(histvec1, Ihist, 'g');
 % x1 = xlabel('Time (seconds)');
 
 t1 = title([basename ', trainingPhase ' num2str(sessionStr.trainingPhase)]);
@@ -152,10 +144,10 @@ a(1).XLim = a(1).XLim; % so limits don't change when overlaying the trial bounda
 a(1).YLim = a(1).YLim;
 
 % plot trial background
-% if flagDS 
-%    Tshade = downsample(Tshade,dsFactor);
-% end
-b1 = area(histvec, Tshade);
+if flagDS 
+   Tshade = downsample(Tshade,50);
+end
+b1 = area(histvec1, Tshade);
 b1.EdgeAlpha = 0;
 b1.FaceAlpha = 0.1;
 b1.FaceColor = 'k';
@@ -173,10 +165,10 @@ LrewardHist = histc(Lrewards, histvec);
 if isempty(LrewardHist)
 	LrewardHist = zeros(size(histvec));
 end
-% if flagDS 
-%    LrewardHist = downsample(LrewardHist,dsFactor);
-% end
-h5 = plot(histvec, LrewardHist, 'b'); hold on
+if flagDS 
+   LrewardHist = downsample(LrewardHist,50);
+end
+h5 = plot(histvec1, LrewardHist, 'b'); hold on
 h5.Color(4) = 0.5;
 % h5 = area(histvec, LrewardHist);
 a(2).YLim = [-0.2 1.2];
@@ -185,10 +177,10 @@ RrewardHist = histc(Rrewards, histvec);
 if isempty(RrewardHist)
 	RrewardHist = zeros(size(histvec));
 end
-% if flagDS 
-%    RrewardHist = downsample(RrewardHist,dsFactor);
-% end
-h6 = plot(histvec, RrewardHist, 'r');
+if flagDS 
+   RrewardHist = downsample(RrewardHist,50);
+end
+h6 = plot(histvec1, RrewardHist, 'r');
 h6.Color(4) = 0.5;
 
 
@@ -210,10 +202,10 @@ legend('L rewards', 'R rewards');
 a(3) = subplot(3,1,3);
 
 Thist = histc(trialStarts, histvec);
-% if flagDS 
-%    Thist = downsample(Thist,dsFactor);
-% end
-h4 = plot(histvec, cumsum(Thist), 'k'); hold on
+if flagDS 
+   Thist = downsample(Thist,50);
+end
+h4 = plot(histvec1, cumsum(Thist), 'k'); hold on
 % plot rewards
 % LrewardHist = histc(Lrewards, histvec);
 h5 = plot(histvec, cumsum(LrewardHist), 'b');
