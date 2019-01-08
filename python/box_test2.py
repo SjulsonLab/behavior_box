@@ -26,7 +26,7 @@ mouse_info = pysistence.make_dict({'mouseName': 'jaxmale08',
 # Information for this session (the user should edit this each session)
 session_info                              = collections.OrderedDict()
 session_info['mouseName']                 = mouse_info['mouseName']
-session_info['trainingPhase']             = 4
+session_info['trainingPhase']             = 1
 session_info['date']                      = datetime.datetime.now().strftime("%Y%m%d")
 session_info['time']                      = datetime.datetime.now().strftime('%H%M%S')
 session_info['basename']                  = mouse_info['mouseName'] + '_' + session_info['date'] + '_' + session_info['time']
@@ -239,7 +239,7 @@ try:
         nTrial += 1
 
         # evaluate whether or not to exit the loop
-        if time.time() - start_time > session_info['maxSessionLength_min']:
+        if time.time() - start_time > session_info['maxSessionLength_min']*60:
             print('Session reached maximum duration. Exiting.')
             exit_loop = True
         elif nTrial > session_info['maxTrials']:
