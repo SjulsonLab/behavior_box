@@ -10,6 +10,8 @@ function makePokePlot1(basedir, startdir)
 % to the current directory.
 %
 % Luke Sjulson, 2018-12-20
+%
+% update by Eliezyer de Oliveira, on 2019-01-08
 
 
 
@@ -58,9 +60,20 @@ f1 = PokePlot(sessionStr,trialStarts,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrew
 savefig(f1, [basename '_pokeplot1.fig'], 'compact');
 
 cd(startdir);
-if exist('figures', 'dir') ~= 7 %it's identifying the folder when it doesn't exist
-	mkdir('figures');
+% %% the code below is not working to me, idk why, so I made an old style
+% %% one
+% if exist('figures', 'dir') ~= 7 %it's identifying the folder when it doesn't exist
+% 	mkdir('figures');
+% end
+auxDir = dir;
+aux = find([auxDir.isdir]);
+
+flagdir = 1;
+for i = aux
+    if strcmp(auxDir(i).name,'figures');flagdir = 0;end
 end
+if flagdir;mkdir('figures');end
+
 cd('figures');
 close all
 f1 = PokePlot(sessionStr,trialStarts,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,1);
