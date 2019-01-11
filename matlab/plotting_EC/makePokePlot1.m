@@ -80,6 +80,7 @@ f1 = PokePlot(sessionStr,trialStarts,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrew
 print([basename '_pokeplot1.png'], '-dpng');
 
 close(f1);
+cd ..
 
 disp(['Finished pokeplot1 for ', basename]);
 end
