@@ -39,7 +39,6 @@ for idx = idxDir
         cd(animalDir(idx).name)
         %processing and collecting data
         try
-            load ./mouseStr.mat
             load ./sessionStr.mat
         catch
             warning(['Unable to find .mat files in ' basedir]);
@@ -116,7 +115,7 @@ end
 yyaxis right
 area(x,trainingPhase,'facecolor','k','edgealpha',0,'facealpha',0.1);
 ylabel('training phase')
-legend('L rewards','R rewards','Total rewards','Total trials','Training phase','location','southeast')
+legend('L rewards','R rewards','Total rewards','Trials start','Training phase','location','southeast')
 xticks(1:length(Lpokes))
 yticks([0 unique([ses(:).trainingPhase])])
 set(gca,'fontsize',12)
