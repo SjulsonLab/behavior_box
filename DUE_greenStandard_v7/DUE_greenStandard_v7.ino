@@ -4,6 +4,11 @@
 
 /*
 
+  v7 - by Luke Sjulson, 2018-12-31. Making changes to work with python version
+  of client. Will modify to match phase 1
+  of the Jaramillo and Zador protocol better (center poke will trigger reward 
+  release at side ports)	
+
   v6 - by Luke Sjulson, 2018-11-15. Now correctly follows modified version of the 
   Jaramillo and Zador protocol. Center poke is never rewarded.
 
@@ -36,8 +41,8 @@
 
 */
 
-// tell matlab version 6 (changing this so it matches the version in the filename)
-#define VERSION     6
+// tell matlab/python version 7 (changing this so it matches the version in the filename)
+#define VERSION     7
 
 // include dependencies
 #include <Arduino.h>
@@ -47,20 +52,20 @@
 #include "libraries/Timer-master/Timer.cpp" // https://playground.arduino.cc/Code/Timer
 //#include <string>
 #include <avr/pgmspace.h> // might be required to store waveforms on flash instead of RAM
-#include "toInclude/greenStandardFunctions_v6.cpp"
+#include "toInclude/greenStandardFunctions_v7.cpp"
 
 // state definitions
-#define standby       		1  // standby - the inactive state
-#define readyToGo     		2  // plays white noise, waits for init poke
-#define punishDelay   		3  // timeout period after animal makes mistake
-#define preCue        		4  // time delay between white noise and cue
-#define slot1             5  // first cue slot
-#define slot2             6  // second cue slot
-#define slot3             7  // third cue slot
-#define postCue       		8  // additional time delay
-#define goToPokes     		9  // nosepokes open, animal can approach and collect reward
-#define letTheAnimalDrink 10 // waiting for animal to collect reward
-#define calibration       11 // state for calibrating the sound and light cue levels
+#define standby         		1  // standby - the inactive state
+#define readyToGo       		2  // plays white noise, waits for init poke
+#define punishDelay     		3  // timeout period after animal makes mistake
+#define preCue          		4  // time delay between white noise and cue
+#define slot1               5  // first cue slot
+#define slot2               6  // second cue slot
+#define slot3               7  // third cue slot
+#define postCue         		8  // additional time delay
+#define goToPokes       		9  // nosepokes open, animal can approach and collect reward
+#define letTheAnimalDrink  10  // waiting for animal to collect reward
+#define calibration        11  // state for calibrating the sound and light cue levels
 /*
 
 phases 1 and 2 are different in v6, but the rest are the same as in v5
@@ -185,7 +190,7 @@ void loop() {
 
   if (micros() - lastCheckTimeMicros >= slowDTmicros) {
     // we don't want to check too often, so we only check every "slowDTmicros" period.
-   // micros() returns number of microseconds since the Arduino board began running the current program.(unsigned long)
+    // micros() returns number of microseconds since the Arduino board began running the current program.(unsigned long)
     checkDoors();   // update door state as per matlab instruction
     checkRewards(); // update reward state as per matlab instruction
     checkPokes();   // check nosepokes
@@ -243,23 +248,22 @@ void loop() {
         serLog("TrialAvailable");
         serLogNum("TrainingPhase", trainingPhase);
         serLogNum("requiredPokeHoldLength_ms", preCueLength + slot1Length + slot2Length + slot3Length + postCueLength);
+        serLogNum("goToPokesLength", goToPokesLength);
         serLogNum("trialLRtype", trialLRtype);
         serLogNum("trialAVtype", trialAVtype);
         serLogNum("Lsize_nL", LrewardSize_nL);
-        serLogNum("Isize_nL", IrewardSize_nL);
+        //serLogNum("Isize_nL", IrewardSize_nL);
         serLogNum("Rsize_nL", RrewardSize_nL);
 
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
         trialAvailTime = millis(); // assign time in ms when trial becomes available/when you're switching to readyToGo state.
 
+
         if (trainingPhase>1) {
           digitalWrite(whiteNoiseTTL, HIGH); // tell the intan you're going to the readyToGo state/you're about to start the white noise
-          switchTo(readyToGo);
         }
-        else if (trainingPhase==1) {
-          switchTo(goToPokes);
-        }
+        switchTo(readyToGo);
 
       }
 
@@ -272,8 +276,9 @@ void loop() {
         setLEDlevel(cueLED4pin, 1023);
 
         switchTo(calibration);
+        serLog("during calibration, LEDs are active with maximum intensity");
         serLog("voltage drop across cue LED resistor should be 10 mV");
-        serLog("sound volume at center of chamber (with doors open) should be 80 dB");
+        serLog("sound volume at center of chamber (with doors open) should be calibrated in dB");
         serLog("Volume can be between 0-255");
         serLog("whichSound: 1 -> lowCue, 2 -> highCue, 3 -> buzzer, 4 -> white noise");
 
@@ -293,7 +298,9 @@ void loop() {
 
     case readyToGo:
 
-      playWhiteNoise();
+	  if (trainingPhase >= 2) {   
+        playWhiteNoise();
+      }
       
       // if timeout, switch state to punishDelay
       if ((millis() - tempTime) > readyToGoLength) { // if timeThisStateBegan_ms happened readyToGoLength_ms ago without a nosepoke, the mouse missed the trial.
@@ -305,8 +312,20 @@ void loop() {
       }
 
 
-      // if mouse init-pokes, switch state to PRE-CUE
-      if (initPoke == 1) {
+      // switch state to PRE-CUE if 1) the mouse init pokes, or 2) any poke is activated during phase 1
+
+      if (initPoke == 1) { // init poke activated
+        tempInit = 1;
+      }
+      if (trainingPhase == 1 && leftPoke == 1 && LrewardCode > 0) {
+        tempInit = 1;
+      }
+      if (trainingPhase == 1 && rightPoke == 1 && RrewardCode > 0) {
+        tempInit = 1;
+      }
+
+      if (tempInit == 1) {
+        tempInit = 0;
 
         // if trainingPhase == 0, the arduino wasn't set up properly
         if (trainingPhase == 0) {
@@ -317,25 +336,10 @@ void loop() {
         nosePokeInitTime = millis(); // record time when mouse begins the init poke specifically. used to make sure mouse holds long enough.
         digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
 
-       
-/*        if (trainingPhase==2) { // go to letTheAnimalDrink
-          serLogNum("TrialStarted_ms", millis() - trialAvailTime);
-          if (IrewardCode != 2) {
-            serLog("Error_init_reward_code_is_wrong");
-            switchTo(standby);
-          }
-          else {
-            giveRewards(2);
-            switchTo(letTheAnimalDrink);
-          }
-        }   */
-
-        if (trainingPhase >= 2) { // for other training phases, go to preCue 
-          serLogNum("TrialStarted_ms", millis() - trialAvailTime);
-          sndCounter = 0;
-          giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) 
-          switchTo(preCue);
-        }
+        serLogNum("TrialStarted_ms", millis() - trialAvailTime);
+        sndCounter = 0;
+        giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) 
+        switchTo(preCue);
       }
 
       // if mouse pokes the wrong poke in phase 5, go to punishDelay
@@ -660,14 +664,7 @@ void loop() {
           serLogNum("rightReward_nL", RrewardSize_nL);
           uncollectedRightRewardYN = 1;
         }
-       
-        if (trainingPhase==1) {
-          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
-          switchTo(letTheAnimalDrink);
-        }
-        else {
-          switchTo(goToPokes);  
-        }
+        switchTo(goToPokes);  
       }
 
       delayMicroseconds(pauseLengthMicros); 
@@ -713,19 +710,6 @@ void loop() {
         uncollectedInitRewardYN = 1; // not relevant unless you're pre-rewarding the init port
       }
 
-
-/*    // commenting this out - no reward for init poke in phase 1
-      // in phase 1, animal is rewarded for init poke
-      if (trainingPhase==1) {
-        if (initPoke==1) {
-          serLogNum("initReward_nL", IrewardSize_nL);
-          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
-          deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
-          switchTo(letTheAnimalDrink);
-        }
-      }  */
-
-
       // if left poke occurs
       if (leftPoke==1) {
 
@@ -736,13 +720,8 @@ void loop() {
             serLogNum("leftReward_nL", LrewardSize_nL);
           }
           serLog("leftRewardCollected");
-          if (trainingPhase==1) {
-            switchTo(preCue);
-          }
-          else {
-            serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
-            switchTo(letTheAnimalDrink);
-          }
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
+          switchTo(letTheAnimalDrink);
         }
         
         // if nosepoke is an error
@@ -763,13 +742,8 @@ void loop() {
             serLogNum("rightReward_nL", RrewardSize_nL);
           }
           serLog("rightRewardCollected");
-          if (trainingPhase==1) {
-            switchTo(preCue);
-          }
-          else {
-            serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
-            switchTo(letTheAnimalDrink);
-          }
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
+          switchTo(letTheAnimalDrink);
         }
 
         //if nosepoke is an error

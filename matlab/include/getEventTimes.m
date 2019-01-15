@@ -23,6 +23,9 @@ while ~feof(fid)
 		idx = idx + 1;
 	end
 end
+if ~(exist('T','var') == 1);
+    T = [];
+end
 fclose(fid);
 
 

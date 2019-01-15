@@ -147,6 +147,8 @@ int extraPokeLast6      = 0;
 int extraPokeReading6   = 0;
 int extraPokeDetected6  = 0;
 
+int tempInit            = 0; // temporary variable to simplify code
+
 
 // servos to control nosepoke doors
 #define ServoOpen      10 //position at which Servo is open
@@ -212,7 +214,7 @@ long cameraRecordingYN   = 0;   // 1 to start recording, 0 to pause
     4 - reward only upon successful nosepoke
 */
 
-long IrewardCode            = 1; // determines if/when reward is given
+long IrewardCode            = 0; // determines if/when reward is given
 long LrewardCode            = 0; 
 long RrewardCode            = 0;
 long extra4rewardCode       = 0;

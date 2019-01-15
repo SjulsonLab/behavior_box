@@ -68,11 +68,13 @@ cd(startdir);
 auxDir = dir;
 aux = find([auxDir.isdir]);
 
-flagdir = 1;
-for i = aux
-    if strcmp(auxDir(i).name,'figures');flagdir = 0;end
+
+if sum(aux)<3
+    mkdir('figures')
+
+    
 end
-if flagdir;mkdir('figures');end
+
 
 cd('figures');
 close all
@@ -80,7 +82,6 @@ f1 = PokePlot(sessionStr,trialStarts,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrew
 print([basename '_pokeplot1.png'], '-dpng');
 
 close(f1);
-cd ..
 
 disp(['Finished pokeplot1 for ', basename]);
 end

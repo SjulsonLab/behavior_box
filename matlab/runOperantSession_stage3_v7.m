@@ -1,4 +1,4 @@
-% code for training phase 3, using arduino code v6
+% code for training phase 3, using arduino code v7
 % Luke Sjulson, 2018-10-18
 
 % ////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ close all
 
 %% parameters for the mouse struct - these should never change
 m.mouseName            = 'jaxmale08';  % should not change
-m.requiredVersion      = 6;  % version of arduino DUE software required
+m.requiredVersion      = 7;  % version of arduino DUE software required
 
 % setting which cues are used for this animal - must be consistent for a given animal
 % slot1_vis and slot2_vis codes

@@ -1,4 +1,4 @@
-% code for training phases 4-5, using arduino code v6
+% code for training phases 4-5, using arduino code v7
 % Luke Sjulson, 2018-11-20
 
 % ////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ close all
 
 %% parameters for the mouse struct - these should never change
 m.mouseName            = 'jaxmale08';  % should not change
-m.requiredVersion      = 6;  % version of arduino DUE software required
+m.requiredVersion      = 7;  % version of arduino DUE software required
 
 % setting which cues are used for this animal - must be consistent for a given animal
 % slot1_vis and slot2_vis codes
@@ -64,7 +64,7 @@ m.rightAudCue        = 0;
 
 %% parameters to set for today's session
 sessionStr.mouseName     = m.mouseName;
-sessionStr.trainingPhase = 4;
+sessionStr.trainingPhase = 5;
 
 % for phase 4 only - see other parameters below in loop
 sessionStr.fakeRewards   = 0;          % used for training in phase 4
@@ -199,7 +199,7 @@ while exitNowYN == 0 && exitAfterTrialYN == 0
 		sessionStr = setCueLengthsPhase4(sessionStr, nTrial, totalRewards);
 		sessionStr = makeCues_v5(sessionStr, m, nTrial);
 	elseif sessionStr.trainingPhase==5
-		sessionStr = setCueLengthsPhase4(sessionStr, nTrial, Inf); % for phase 5, use the same as the very end of phase 4
+		sessionStr = setCueLengthsPhase4(sessionStr, nTrial, totalRewards); % for phase 5, use the same as the very end of phase 4
 		sessionStr = makeCues_v5(sessionStr, m, nTrial);
     end
 	
