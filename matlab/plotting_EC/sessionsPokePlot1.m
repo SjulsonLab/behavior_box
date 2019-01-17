@@ -11,16 +11,8 @@ function sessionsPokePlot1(basedir)
 % Eliezyer F. de Oliveira, 2019-01-14
 %
 
-
-% % for testing
-% clear all
-% close all
-% basedir = 'D1R102Male600_181205_145056';
-% basedir = 'D1R96Male246_181203_154542';
-% startdir = 'C:\Users\lukes\Desktop\temp';
-% nargin = 2;
-% visibleON = 1;
-
+%TODO:
+% [] CHANGE TRIALS START TO TRIALS INITIATED IN PHASE 2
 
 %% start of function
 if nargin<1
