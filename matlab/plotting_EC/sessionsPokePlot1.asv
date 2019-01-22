@@ -46,7 +46,7 @@ for idx = idxDir
         ses(s).Lrewards = getEventTimes('leftReward_nL', [fname '.txt']);
         ses(s).Rrewards = getEventTimes('rightReward_nL', [fname '.txt']);
         ses(s).trialStarts = getEventTimes('TrialAvailable', [fname '.txt']);
-        ses(s).trialInitiated = getEventTimes('TrialStarted_ms', [fname '.txt']);
+        ses(s).trialInitiated = getEventTimes('TrialStarted_ns', [fname '.txt']);
         ses(s).trainingPhase = sessionStr.trainingPhase;
 
         cd(basedir)
@@ -56,15 +56,13 @@ end
 
 
 %% preparing plot
-trainingPhase = [ses(:).trainingPhase];
+
 Lpokes = cellfun(@length,{ses(:).Lpokes});
 Rpokes = cellfun(@length,{ses(:).Rpokes});
 Ipokes = cellfun(@length,{ses(:).Ipokes});
 Lrewards = cellfun(@length,{ses(:).Lrewards});
 Rrewards = cellfun(@length,{ses(:).Rrewards});
 trialStarts = cellfun(@length,{ses(:).trialStarts});
-trialInitiated = cellfun(@length,{ses(:).trialInitiated});
-trialInitiated(trainingPhase==1) = nan;
 
 %first subplot is number of pokes per session, shaded area is the training
 %phase
@@ -80,7 +78,7 @@ title(basename,'fontsize',16)
 plot(Lpokes,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
 plot(Rpokes,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
 plot(Ipokes,'-dg','linewidth',2,'markerfacecolor',[0 1 0],'markersize',3)
-legend('L pokes','R pokes','I pokes','location','northwest')
+legend('L pokes','R pokes','I pokes','location','southeast')
 xlabel('Sessions')
 ylabel('# of pokes')
 set(gca,'fontsize',12)
@@ -91,13 +89,13 @@ plot(Lrewards,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
 plot(Rrewards,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
 plot(Lrewards+Rrewards,'-dg','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
 plot(trialStarts,'-dk','linewidth',2,'markerfacecolor',[0 0 0],'markersize',3)
-plot(trialInitiated,'-dm','linewidth',2)
 xlabel('Sessions')
 ylabel('# of rewards')
 
 
 %preparing training phase plot
 
+trainingPhase = [ses(:).trainingPhase];
 x = 1:length(trainingPhase);
 auxShade = find(diff(trainingPhase))+1;
 
@@ -110,7 +108,7 @@ end
 yyaxis right
 area(x,trainingPhase,'facecolor','k','edgealpha',0,'facealpha',0.1);
 ylabel('training phase')
-legend('L rewards','R rewards','Total rewards','Trials start','Trials init','Training phase','location','northwest')
+legend('L rewards','R rewards','Total rewards','Trials start','Training phase','location','southeast')
 xticks(1:length(Lpokes))
 yticks([0 unique([ses(:).trainingPhase])])
 set(gca,'fontsize',12)
