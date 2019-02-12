@@ -77,7 +77,7 @@ title(basename,'fontsize',16)
 plot(Lpokes,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
 plot(Rpokes,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
 plot(Ipokes,'-dg','linewidth',2,'markerfacecolor',[0 1 0],'markersize',3)
-legend('L pokes','R pokes','I pokes','location','southeast')
+legend('L pokes','R pokes','I pokes','location','northwest')
 xlabel('Sessions')
 ylabel('# of pokes')
 set(gca,'fontsize',12)
@@ -107,7 +107,7 @@ end
 yyaxis right
 area(x,trainingPhase,'facecolor','k','edgealpha',0,'facealpha',0.1);
 ylabel('training phase')
-legend('L rewards','R rewards','Total rewards','Trials start','Training phase','location','southeast')
+legend('L rewards','R rewards','Total rewards','Trials start','Training phase','location','northwest')
 xticks(1:length(Lpokes))
 yticks([0 unique([ses(:).trainingPhase])])
 set(gca,'fontsize',12)
