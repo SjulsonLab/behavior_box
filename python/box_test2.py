@@ -72,7 +72,7 @@ session_info['laserOnCode']            = [0]
 # reward parameters for first trial
 session_info['LrewardSize_nL']         = [2500] # the starting value, which will be updated over time
 session_info['RrewardSize_nL']         = [2500]
-session_info['IrewardSize_nL']         = [2500]
+session_info['IrewardSize_nL']         = [500]
 session_info['rewardSizeMax_nL']       = [3000]
 session_info['rewardSizeMin_nL']       = [500]
 session_info['rewardSizeDelta_nL']     = [500] # the number of nanoliters to adjust reward size by 
