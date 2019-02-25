@@ -1,5 +1,5 @@
-names = {'D1R96F624','D1R96F625','D1R102F596','D1R102M592'};
-todaysdate = ['190204'];
+names = {'D1R96F625','D1R102F596','D1R102M592','ADR50F687','ADR50F695','D1R96F626'};
+todaysdate = ['20190221'];
 basedir = cd;
 
 for idx = 1:length(names)
@@ -11,6 +11,6 @@ for idx = 1:length(names)
         end
     end
         
-%     makePokePlot1([basedir filesep names{idx} filesep folderOI])
-    sessionsPokePlot1([basedir filesep names{idx}])
+    makePokePlot1([basedir filesep names{idx} filesep folderOI])
+%     sessionsPokePlot1([basedir filesep names{idx}])
 end

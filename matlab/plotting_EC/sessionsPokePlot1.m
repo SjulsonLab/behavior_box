@@ -31,7 +31,7 @@ for idx = idxDir
         cd(animalDir(idx).name)
         %processing and collecting data
         try
-            load ./sessionStr.mat
+            load ./session_info.mat
         catch
             warning(['Unable to find .mat files in ' basedir]);
             return

@@ -25,6 +25,10 @@ def set_COM_port(session_info):
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'C:\\Users\\Elie\\Documents\GitHub\\testBehavData'
         session_info['COM_port'] = 'COM6'
+    elif session_info['computer_name'].lower() == 'fenrir'.lower() \
+        and session_info['box_number'] == 2:
+        session_info['basedir'] = 'C:\\Users\\Elie\\Documents\GitHub\\testBehavData'
+        session_info['COM_port'] = 'COM7'
     else: 
         raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
 
