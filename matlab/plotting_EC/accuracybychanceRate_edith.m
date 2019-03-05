@@ -44,22 +44,28 @@ for i = 1:length(trialStarts2) %remove trials that weren't finished
 %     end
     
 end
-%calculating accuracy not by chance (randomization) 
+%calculating accuracy by chance (permutation) 
 temp = firstPoke(1,:) - firstPoke(2,:);
 trueAccuracy = length(find( (temp) == 0  ))/length(trialStarts2);
-for i = 1:10000
-    aux = randperm(length(firstPoke(2,:))); 
+for i = 1:10000 
+    aux = randperm(length(firstPoke(2,:)));
     temp = firstPoke(1,aux) - firstPoke(2,:);
     null_distribution(i) = length(find( (temp) == 0  ))/length(trialStarts2);
+    %S= std (firstPoke(1,:)), (firstPoke(2,:))
+%     stderror = std(firstPoke(2,:))/sqrt(length(firstPoke(2,:)));
+%     null_distribution(i) = [mean(firstPoke(1,:)) - mean(firstPoke(2,:))]/stderror;
 end
+hist(null_distribution)
+hist(null_distribution,100)
+[auxND,x] = hist(null_distribution,100);
+auxND = auxND./sum(auxND);
+f = fit(x',auxND','gauss1');
+y = cumsum(auxND);
+tempPV = find(y>=0.95);
+p5=x(tempPV(1));
+trueAccuracy>=p5
 
-plot(null_distribution)_ 
-pval=sum(null_distribution>=0.1)/10000
-    if pval >=0.05 
-        disp("fail to reject null hypothesis.")
-    else 
-         disp("reject null hypothesis.")
-    end 
+
 Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
 Rpokes = getEventTimes('rightPokeEntry', [basename '.txt']);
 Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
