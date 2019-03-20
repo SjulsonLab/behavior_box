@@ -9,22 +9,15 @@ function sessionsPokePlot1(basedir)
 % basedir is the name of the directory of the session to plot.
 %
 % Eliezyer F. de Oliveira, 2019-01-14
+% Edited by Edith, 2019-03-19
 %
 
-
-% % for testing
-% clear all
-% close all
-% basedir = 'D1R102Male600_181205_145056';
-% basedir = 'D1R96Male246_181203_154542';
-% startdir = 'C:\Users\lukes\Desktop\temp';
-% nargin = 2;
-% visibleON = 1;
-
+%TODO:
+% [] CHANGE TRIALS START TO TRIALS INITIATED IN PHASE 2
 
 %% start of function
 if nargin<1
-    basedir = cd;
+    basedir = pwd;
 end
 
 cd(basedir);
@@ -38,14 +31,24 @@ for idx = idxDir
     if (strfind(animalDir(idx).name,basename))
         cd(animalDir(idx).name)
         %processing and collecting data
-        try
-            load ./sessionStr.mat
-        catch
-            warning(['Unable to find .mat files in ' basedir]);
-            return
-        end
+%         try
+            if isfile('sessionStr.mat')
+                load ./sessionStr.mat
+                session_info = sessionStr;
+                flag = true;
+            elseif isfile('session_info.mat')
+                load ./session_info.mat
+                flag = true;
+            else
+                flag = false;
+            end
+%         catch
+%             warning(['Unable to find .mat files in ' basedir]);
+%             return
+%         end
         
         % extract times of nosepoke entries
+        if flag
         s = s+1;
         [~,fname] = fileparts(cd);
         ses(s).Lpokes = getEventTimes('leftPokeEntry', [fname '.txt']);
@@ -54,10 +57,12 @@ for idx = idxDir
         ses(s).Lrewards = getEventTimes('leftReward_nL', [fname '.txt']);
         ses(s).Rrewards = getEventTimes('rightReward_nL', [fname '.txt']);
         ses(s).trialStarts = getEventTimes('TrialAvailable', [fname '.txt']);
-        ses(s).trainingPhase = sessionStr.trainingPhase;
-
-        cd(basedir)
-        
+        ses(s).trainingPhase = session_info.trainingPhase;
+        ses(s).weight = session_info.weight;
+        ses(s).IrewardSize_nL = session_info.IrewardSize_nL;
+        ses(s).date = session_info.date;
+        end
+      cd(basedir) 
     end
 end
 
@@ -70,34 +75,80 @@ Ipokes = cellfun(@length,{ses(:).Ipokes});
 Lrewards = cellfun(@length,{ses(:).Lrewards});
 Rrewards = cellfun(@length,{ses(:).Rrewards});
 trialStarts = cellfun(@length,{ses(:).trialStarts});
+weight = [ses(:).weight];
+IrewardSize_nL = [ses(:).IrewardSize_nL];
+cellofDates = {ses(:).date};
+days = cellfun(@str2num,cellofDates);
+
+for i =1:length(cellofDates) 
+ yyyy(i) = str2num(cellofDates{i}(1:4)); 
+ mm(i) = str2num(cellofDates{i}(5:6)); 
+ dd(i) = str2num(cellofDates{i}(7:8)); 
+end
+
+% transfer dates into days of year 
+auxd = datetime(yyyy,mm,dd); 
+doy = day(auxd,'dayofyear');
+for i = 1:length(doy)
+    doy2{i,1} = num2str(doy(i)-doy(1));
+end
+auxTicks = doy2;
 
 %first subplot is number of pokes per session, shaded area is the training
 %phase
 %second subplot is number of rewards per side per session, shaded area is
 %the trainingphase
 
-f1 = figure;
+f1= figure;
 f1.InnerPosition = [291 256 1959 942]; % these just set the window size so it's bigger for the PNG
 f1.OuterPosition = [283 248 1975 1035];
 
-subplot(2,1,1);hold on
+d1 = idxDir
+d2 = doy-doy(1)
+[commonFrames,ia,ib] = intersect(d1, d2);
+
+
+subplot(3,1,1);hold on
 title(basename,'fontsize',16)
-plot(Lpokes,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
-plot(Rpokes,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
-plot(Ipokes,'-dg','linewidth',2,'markerfacecolor',[0 1 0],'markersize',3)
-legend('L pokes','R pokes','I pokes','location','southeast')
+plot(doy-doy(1),Lpokes,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',5)
+plot(doy-doy(1),Rpokes,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',5)
+plot(doy-doy(1),Ipokes,'-dg','linewidth',2,'markerfacecolor',[0 1 0],'markersize',5)
+legend('L pokes','R pokes','I pokes','location','northwest')
+xticks(doy-doy(1)) %we have to insert this every subplot
+%xticklabels(auxTicks,'xticklabelmode','manual'); %this we have to remove from every subplot
 xlabel('Sessions')
 ylabel('# of pokes')
 set(gca,'fontsize',12)
-xticks(1:length(Lpokes))
+% xticks(1:length(Lpokes))
 
-subplot(2,1,2);hold on
-plot(Lrewards,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
-plot(Rrewards,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
-plot(Lrewards+Rrewards,'-dg','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
-plot(trialStarts,'-dk','linewidth',2,'markerfacecolor',[0 0 0],'markersize',3)
+
+
+subplot(3,1,2);hold on
+plot(doy-doy(1),Lrewards,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
+plot(doy-doy(1),Rrewards,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
+plot(doy-doy(1),Lrewards+Rrewards,'-dg','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
+plot(doy-doy(1),trialStarts,'-dk','linewidth',2,'markerfacecolor',[0 0 0],'markersize',3)
+xticks(doy-doy(1))
 xlabel('Sessions')
 ylabel('# of rewards')
+
+subplot(3,1,3);hold on
+plot(doy-doy(1),weight,'linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
+xticks(doy-doy(1))
+%xticklabels(auxTicks);
+% plot(date,'linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
+xlabel('Sessions');
+ylabel('weights');
+
+
+subplot(3,1,3);hold on
+yyaxis right
+%xticklabels(auxTicks);
+plot(doy-doy(1),IrewardSize_nL,'linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
+% plot(date,'linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
+xticks(doy-doy(1))
+xlabel('Sessions')
+ylabel('Init reward size')
 
 
 %preparing training phase plot
@@ -111,13 +162,15 @@ for i = 1:length(auxShade)
     trainingPhase = [trainingPhase(1:auxShade(i)-1) trainingPhase(auxShade(i)-1) trainingPhase(auxShade(i):end)];
 end
 
-
+subplot(3,1,2)
 yyaxis right
 area(x,trainingPhase,'facecolor','k','edgealpha',0,'facealpha',0.1);
 ylabel('training phase')
-legend('L rewards','R rewards','Total rewards','Trials start','Training phase','location','southeast')
-xticks(1:length(Lpokes))
-yticks([0 unique([ses(:).trainingPhase])])
+legend('L rewards','R rewards','Total rewards','Trials start','Training phase','location','northwest')
+xticks(doy-doy(1))
+% xticks(1:length(Lpokes))
+%xticklabels(auxTicks);
+% yticks([0 unique([ses(:).trainingPhase])])
 set(gca,'fontsize',12)
 
 %% saving plot to disk
