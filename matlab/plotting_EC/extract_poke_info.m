@@ -23,8 +23,8 @@ cd(basedir);
 L.Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
 L.Rpokes = getEventTimes('rightPokeEntry', [basename '.txt']);
 L.Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
-L.Lreward_pokes = getEventTimes('leftRewardCollected', [basename '.txt']);
-L.Rreward_pokes = getEventTimes('rightRewardCollected', [basename '.txt']);
+[L.Lreward_pokes, ~, L.Lreward_poke_trialnum] = getEventTimes('leftRewardCollected', [basename '.txt']);
+[L.Rreward_pokes, ~, L.Rreward_poke_trialnum] = getEventTimes('rightRewardCollected', [basename '.txt']);
 % extract times of trial starts
 L.trial_avails = getEventTimes('TrialAvailable', [basename '.txt']);
 [L.trial_starts, ~, L.trial_start_nums] = getEventTimes('TrialStarted', [basename '.txt']);
