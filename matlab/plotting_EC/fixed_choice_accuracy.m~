@@ -1,17 +1,27 @@
-clear all
+function fixed_choice_accuracy(basedir,startdir)
 
-[~,basename] = fileparts(cd)
+if nargin<2
+	startdir = pwd;
+    basedir = pwd;
+end
 
+cd(startdir);
+cd(basedir);
+
+[~,basename] = fileparts(pwd);
+
+% extract times of nosepoke entries
 Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
 Rpokes = getEventTimes('rightPokeEntry', [basename '.txt']);
 Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
 Lrewards = getEventTimes('leftRewardCollected', [basename '.txt']);
 Rrewards = getEventTimes('rightRewardCollected', [basename '.txt']);
-
+% extract times of trial starts
 trial_avail = getEventTimes('TrialAvailable', [basename '.txt']);
 trialStarts = getEventTimes('TrialStarted', [basename '.txt']);
 miss_Before_Start = getEventTimes('TrialMissedBeforeInit_ms', [basename '.txt']);
 missAfterStart = getEventTimes('TrialMissedAfterInit_ms', [basename '.txt']);
+
 
 %latency to init 
 trial_add_up_with_cat = zeros(2,length(trialStarts)+length(miss_Before_Start));
@@ -23,6 +33,10 @@ trial_add_up_with_cat = trial_add_up_with_cat(:,I);
 trial_start_info_in_trial_avail = find(trial_add_up_with_cat(1,:)==1);
 latency_to_init_poke = trial_add_up_with_cat(2,trial_start_info_in_trial_avail)-trial_avail(trial_start_info_in_trial_avail);
 hist(latency_to_init_poke/1000)
+
+total_init = cat(2,latency_to_init_poke,miss_Before_Start); 
+hist(total_init/1000) 
+
 
 %latency to sides after init 
 %zeros mean left rewards, ones mean right rewards, twos mean missed after
@@ -47,7 +61,7 @@ auxIntPk = auxIntPk(:,I);
 trialStarts2 = trialStarts(auxDur);
 LRreward2 = LRreward(:,auxDur);
 
-%calculating accuracy
+%calculating fixed choice accuracy
 for i = 1:length(trialStarts2) %remove trials that weren't finished
     temp = Restrict(auxIntPk(2,:),[trialStarts2(i)',LRreward2(2,i)']);
 %     if ~isempty(temp)
@@ -61,9 +75,8 @@ for i = 1:length(trialStarts2) %remove trials that weren't finished
     
 end
 
-%calculating accuracy by chance (permutation) 
 temp = firstPoke(1,:) - firstPoke(2,:);
-trueAccuracy = length(find( (temp) == 0  ))/length(trialStarts2);
+observed_accuracy = length(find( (temp) == 0  ))/length(trialStarts2);
 for i = 1:10000 
     aux = randperm(length(firstPoke(2,:)));
     temp = firstPoke(1,aux) - firstPoke(2,:);
@@ -76,15 +89,14 @@ hist(null_distribution)
 hist(null_distribution,100)
 [auxND,x] = hist(null_distribution,100);
 auxND = auxND./sum(auxND);
-f = fit(x',auxND','gauss1');
+%f = fit(x',auxND','gauss1');
 y = cumsum(auxND);
 tempPV = find(y>=0.95);
 p5=x(tempPV(1));
-trueAccuracy>=p5
-
+observed_accuracy>=p5
+observed_accuracy
 expected_accuracy = median(null_distribution)
-trueAccuracy
-pval = sum(null_distribution >= trueAccuracy) ./ length(null_distribution)
+pval = sum(null_distribution >= observed_accuracy) ./ length(null_distribution)
 
 
 % for i = 1:length(trialStarts)
@@ -128,6 +140,6 @@ subplot(2,2,3);
 [N,X]=hist((firstPoke(3,:)-trialStarts2)/1000,[0:2:60]);bar(X,N,'facecolor','k')
 xlabel('time')
 title('Time to first NP after init')
-
+end
 
 

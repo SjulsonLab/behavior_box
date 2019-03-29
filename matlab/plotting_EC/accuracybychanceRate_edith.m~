@@ -8,30 +8,15 @@ Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
 Lrewards = getEventTimes('leftRewardCollected', [basename '.txt']);
 Rrewards = getEventTimes('rightRewardCollected', [basename '.txt']);
 
-trial_avail = getEventTimes('TrialAvailable', [basename '.txt']);
+
 trialStarts = getEventTimes('TrialStarted', [basename '.txt']);
-miss_Before_Start = getEventTimes('TrialMissedBeforeInit_ms', [basename '.txt']);
 missAfterStart = getEventTimes('TrialMissedAfterInit_ms', [basename '.txt']);
-
-%latency to init 
-trial_add_up_with_cat = zeros(2,length(trialStarts)+length(miss_Before_Start));
-trial_add_up_with_cat(1,:) = cat(2,zeros(size(miss_Before_Start)),ones(size(trialStarts)));
-trial_add_up_with_cat(2,:) = cat(2,miss_Before_Start,trialStarts);
-[~,I] = sort(trial_add_up_with_cat(2,:));
-trial_add_up_with_cat = trial_add_up_with_cat(:,I);
-
-trial_start_info_in_trial_avail = find(trial_add_up_with_cat(1,:)==1);
-latency_to_init_poke = trial_add_up_with_cat(2,trial_start_info_in_trial_avail)-trial_avail(trial_start_info_in_trial_avail);
-hist(latency_to_init_poke/1000)
-
-%latency to sides after init 
-%zeros mean left rewards, ones mean right rewards, twos mean missed after
-%start
 
 LRreward = zeros(2,length(Lrewards)+length(Rrewards)+length(missAfterStart));
 LRreward(2,:) = cat(2,Lrewards,Rrewards,missAfterStart);
 LRreward(1,:) = cat(2,zeros(size(Lrewards)),ones(size(Rrewards)),ones(size(missAfterStart))*2);
-
+%zeros mean left rewards, ones mean right rewards, twos mean missed after
+%start
 [~,I] = sort(LRreward(2,:));
 
 LRreward = LRreward(:,I);
@@ -60,7 +45,6 @@ for i = 1:length(trialStarts2) %remove trials that weren't finished
 %     end
     
 end
-
 %calculating accuracy by chance (permutation) 
 temp = firstPoke(1,:) - firstPoke(2,:);
 trueAccuracy = length(find( (temp) == 0  ))/length(trialStarts2);

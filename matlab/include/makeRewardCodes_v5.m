@@ -42,7 +42,8 @@ if sessionStr.trainingPhase == 1 || sessionStr.trainingPhase == 2
 else
 	Rnum = 4;
 end
-	
+
+
 
 for idx = 1:length(trialNums)
 	nTrial = trialNums(idx);
@@ -55,7 +56,12 @@ for idx = 1:length(trialNums)
 	% if right reward will be given
 	if any(sessionStr.trialLRtype(nTrial) == [3 4 5 6])
 		sessionStr.RrewardCode(nTrial) = Rnum;
-	end
+    end
+    
+    if sessionStr.trainingPhase == 2 % reward in init port %% added by EFO on 12/02
+        Rinit = 1;
+        sessionStr.IrewardCode(nTrial) = Rinit;
+    end
 	
 	% for punishment
 	if any(sessionStr.trialLRtype(nTrial) == [1 2])

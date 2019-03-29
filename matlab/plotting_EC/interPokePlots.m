@@ -1,5 +1,5 @@
-clear all
-
+%interpoke plots
+%TO DO, all initiated plot until time out
 [~,basename] = fileparts(cd)
 
 Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
@@ -8,30 +8,15 @@ Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
 Lrewards = getEventTimes('leftRewardCollected', [basename '.txt']);
 Rrewards = getEventTimes('rightRewardCollected', [basename '.txt']);
 
-trial_avail = getEventTimes('TrialAvailable', [basename '.txt']);
+
 trialStarts = getEventTimes('TrialStarted', [basename '.txt']);
-miss_Before_Start = getEventTimes('TrialMissedBeforeInit_ms', [basename '.txt']);
 missAfterStart = getEventTimes('TrialMissedAfterInit_ms', [basename '.txt']);
-
-%latency to init 
-trial_add_up_with_cat = zeros(2,length(trialStarts)+length(miss_Before_Start));
-trial_add_up_with_cat(1,:) = cat(2,zeros(size(miss_Before_Start)),ones(size(trialStarts)));
-trial_add_up_with_cat(2,:) = cat(2,miss_Before_Start,trialStarts);
-[~,I] = sort(trial_add_up_with_cat(2,:));
-trial_add_up_with_cat = trial_add_up_with_cat(:,I);
-
-trial_start_info_in_trial_avail = find(trial_add_up_with_cat(1,:)==1);
-latency_to_init_poke = trial_add_up_with_cat(2,trial_start_info_in_trial_avail)-trial_avail(trial_start_info_in_trial_avail);
-hist(latency_to_init_poke/1000)
-
-%latency to sides after init 
-%zeros mean left rewards, ones mean right rewards, twos mean missed after
-%start
 
 LRreward = zeros(2,length(Lrewards)+length(Rrewards)+length(missAfterStart));
 LRreward(2,:) = cat(2,Lrewards,Rrewards,missAfterStart);
 LRreward(1,:) = cat(2,zeros(size(Lrewards)),ones(size(Rrewards)),ones(size(missAfterStart))*2);
-
+%zeros mean left rewards, ones mean right rewards, twos mean missed after
+%start
 [~,I] = sort(LRreward(2,:));
 
 LRreward = LRreward(:,I);
@@ -46,7 +31,6 @@ auxIntPk = auxIntPk(:,I);
 
 trialStarts2 = trialStarts(auxDur);
 LRreward2 = LRreward(:,auxDur);
-
 %calculating accuracy
 for i = 1:length(trialStarts2) %remove trials that weren't finished
     temp = Restrict(auxIntPk(2,:),[trialStarts2(i)',LRreward2(2,i)']);
@@ -60,31 +44,6 @@ for i = 1:length(trialStarts2) %remove trials that weren't finished
 %     end
     
 end
-
-%calculating accuracy by chance (permutation) 
-temp = firstPoke(1,:) - firstPoke(2,:);
-trueAccuracy = length(find( (temp) == 0  ))/length(trialStarts2);
-for i = 1:10000 
-    aux = randperm(length(firstPoke(2,:)));
-    temp = firstPoke(1,aux) - firstPoke(2,:);
-    null_distribution(i) = length(find( (temp) == 0  ))/length(trialStarts2);
-    %S= std (firstPoke(1,:)), (firstPoke(2,:))
-%     stderror = std(firstPoke(2,:))/sqrt(length(firstPoke(2,:)));
-%     null_distribution(i) = [mean(firstPoke(1,:)) - mean(firstPoke(2,:))]/stderror;
-end
-hist(null_distribution)
-hist(null_distribution,100)
-[auxND,x] = hist(null_distribution,100);
-auxND = auxND./sum(auxND);
-f = fit(x',auxND','gauss1');
-y = cumsum(auxND);
-tempPV = find(y>=0.95);
-p5=x(tempPV(1));
-trueAccuracy>=p5
-
-expected_accuracy = median(null_distribution)
-trueAccuracy
-pval = sum(null_distribution >= trueAccuracy) ./ length(null_distribution)
 
 
 % for i = 1:length(trialStarts)
@@ -128,6 +87,42 @@ subplot(2,2,3);
 [N,X]=hist((firstPoke(3,:)-trialStarts2)/1000,[0:2:60]);bar(X,N,'facecolor','k')
 xlabel('time')
 title('Time to first NP after init')
-
-
-
+%% plot
+% figure;
+% hold on
+% for i = 1:length(trialStarts)
+%     if ~isempty(interPoke(i).auxL)
+%         plot(interPoke(i).auxL-trialStarts(i),i,'sb')
+%     end
+% end
+% 
+% for i = 1:length(trialStarts)
+%     if ~isempty(interPoke(i).auxR)
+%         plot(interPoke(i).auxR-trialStarts(i),i,'sr')
+%     end
+% end
+% 
+% for i = 1:length(trialStarts)
+%     if ~isempty(interPoke(i).auxI)
+%         plot(interPoke(i).auxI-trialStarts(i),i,'sg')
+%     end
+% end
+% 
+% auxLe = find(LRreward(1,:)==0);
+% auxRe = find(LRreward(1,:)==1);
+% 
+% for i = auxLe
+%    plot(LRreward(2,i)-trialStarts(i),i,'pb','markerfacecolor','b','markersize',10)
+% end
+% 
+% for i = auxRe
+%    plot(LRreward(2,i)-trialStarts(i),i,'pr','markerfacecolor','r','markersize',10)
+% end
+% 
+% for i = auxLe
+%    plot([0 LRreward(2,i)-trialStarts(i)],[i i],'--b')
+% end
+% 
+% for i = auxRe
+%    plot([0 LRreward(2,i)-trialStarts(i)],[i i],'--r')
+% end
