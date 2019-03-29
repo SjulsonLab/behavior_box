@@ -1,5 +1,3 @@
-% script to generate all of the poke plots for a few test sessions
-
 clear all
 close all
 tic
@@ -13,8 +11,8 @@ startdir = pwd;
 
 parfor idx = 1:length(k)
 	if k(idx).isdir==1 % only for directories
-		makePokePlot1(k(idx).name, startdir);
-        %fixed_choice_accuracy(k(idx).name, startdir);
+		%makePokePlot1(k(idx).name, startdir);
+        fixed_choice_accuracy(k(idx).name, startdir);
 	end
 end
 

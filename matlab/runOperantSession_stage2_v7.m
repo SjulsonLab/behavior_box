@@ -78,7 +78,7 @@ sessionStr.maxRewards                = 200; % program also terminates if maxRewa
 sessionStr.interTrialInterval_mean   = 0;  % number of seconds between trials
 sessionStr.interTrialInterval_SD     = 0; % standard deviation of seconds between trials
 
-sessionStr.IrewardSize_nL = 5000; 
+sessionStr.IrewardSize_nL = 2500; 
 sessionStr.punishForErrorPokeYN      = 0; % 0 = no, 1 = yes for stage 5 only
 sessionStr.cueWithdrawalPunishYN     = 0; % only 1 in phase 4-5
 
@@ -95,9 +95,9 @@ sessionStr.trialAVtype  = 3 * allTrials; % 1 = auditory only, 2 = visual only, 3
 sessionStr.trialAVtype_info = '1 = auditory only, 2 = visual only, 3 = both aud + vis';
 
 % just the starting values - they will be updated later
-sessionStr.LrewardSize_nL      = 5000; % the starting value, which will be updated over time
-sessionStr.RrewardSize_nL      = 5000;
-sessionStr.rewardSizeMax_nL    = 8000;
+sessionStr.LrewardSize_nL      = 2500; % the starting value, which will be updated over time
+sessionStr.RrewardSize_nL      = 2500;
+sessionStr.rewardSizeMax_nL    = 3000;
 sessionStr.rewardSizeMin_nL    = 2000;
 sessionStr.rewardSizeDelta_nL  = 500; % the number of nanoliters to adjust reward size by to prevent 
 sessionStr = makeRewardCodes_v5(sessionStr, 1:length(allTrials)); % adding reward codes to the struct

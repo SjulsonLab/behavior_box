@@ -27,6 +27,9 @@ elseif strfind(hostname, 'DESKTOP-RE9G846')
     m.basedir = 'C:\Users\lab\Desktop\temp';
     %m.serialPort = 'COM6';
     m.serialPort = 'COM11';
+elseif strfind(hostname, 'fenrir')
+    m.basedir = 'E:\testBehData';
+    m.serialPort = 'COM6';
 
 else
 	error('This computer is not on the list. Edit setSerialPort.m to add it.');
