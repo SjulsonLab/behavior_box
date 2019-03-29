@@ -27,7 +27,7 @@ L.Lreward_pokes = getEventTimes('leftRewardCollected', [basename '.txt']);
 L.Rreward_pokes = getEventTimes('rightRewardCollected', [basename '.txt']);
 % extract times of trial starts
 L.trial_avails = getEventTimes('TrialAvailable', [basename '.txt']);
-L.trial_starts = getEventTimes('TrialStarted', [basename '.txt']);
+[L.trial_starts, ~, L.trial_start_nums] = getEventTimes('TrialStarted', [basename '.txt']);
 
 %% extract latencies for each init poke that resulted in a trial start
 L.trial_start_latencies = zeros(size(L.trial_starts));
@@ -70,19 +70,24 @@ right_incorrect = L.Rpokes;
 left_correct = [];
 right_correct = [];
 
-for idx = 1:length(L.trial_avails)
-	tempstart = L.trial_avails(idx);
+for idx = 1:length(L.trial_starts)
+	ntrial = L.trial_start_nums(idx);
+% 	if idx==14
+% 		warning('warning');
+% 	end
+	tempstart = L.trial_starts(idx);
 	tempvec = all_stops - tempstart;
-	tempvec(tempvec<0) = Inf;
+	tempvec(tempvec<=0) = Inf;
+% 	tempstop = min(tempvec);
 	[~, i] = min(tempvec);
 	tempstop = all_stops(i);
 	
-	if any(L.trialLR_types(idx) == [1 2 5 6]) % left pokes are correct
+	if any(L.trialLR_types(ntrial) == [1 2 5 6]) % left pokes are correct
 		left_correct = [left_correct, left_incorrect(left_incorrect >= tempstart & left_incorrect <= tempstop)];
 		left_incorrect = left_incorrect(left_incorrect < tempstart | left_incorrect > tempstop);
 	end
 	
-	if any(L.trialLR_types(idx) == [3 4 5 6]) % right pokes are correct
+	if any(L.trialLR_types(ntrial) == [3 4 5 6]) % right pokes are correct
 		right_correct = [right_correct, right_incorrect(right_incorrect >= tempstart & right_incorrect <= tempstop)];
 		right_incorrect = right_incorrect(right_incorrect < tempstart | right_incorrect > tempstop);
 	end

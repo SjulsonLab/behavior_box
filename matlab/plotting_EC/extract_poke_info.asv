@@ -1,19 +1,20 @@
 % function L = extract_poke_info(basedir, basename)
 
 % This function returns a struct "L", which contains the times of each 
-% nosepoke, whether each poke was correct or not, etc.
-%
+% nosepoke, whether each poke was correct or not, etc. It contains that 
+% info for left, right, and init pokes. 
 % 
+% Luke Sjulson, 2019-03-29
 
 
 
-% function L = extract_poke_info(basedir, basename)
+function L = extract_poke_info(basedir, basename)
 
 
-% % for testing
-clear all
-basename = 'ADR45M591_20190328_152930';
-basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930';
+% % % for testing
+% clear all
+% basename = 'ADR45M591_20190328_152930';
+% basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930';
 
 
 cd(basedir);
@@ -26,7 +27,7 @@ L.Lreward_pokes = getEventTimes('leftRewardCollected', [basename '.txt']);
 L.Rreward_pokes = getEventTimes('rightRewardCollected', [basename '.txt']);
 % extract times of trial starts
 L.trial_avails = getEventTimes('TrialAvailable', [basename '.txt']);
-L.trial_starts = getEventTimes('TrialStarted', [basename '.txt']);
+[L.trial_starts, ~, nTrial_starts] = getEventTimes('TrialStarted', [basename '.txt']);
 
 %% extract latencies for each init poke that resulted in a trial start
 L.trial_start_latencies = zeros(size(L.trial_starts));
@@ -69,10 +70,14 @@ right_incorrect = L.Rpokes;
 left_correct = [];
 right_correct = [];
 
-for idx = 1:length(L.trial_avails)
-	tempstart = L.trial_avails(idx);
+for idx = 1:length(L.trial_starts)
+	if idx==14
+		warning('warning');
+	end
+	tempstart = L.trial_starts(idx);
 	tempvec = all_stops - tempstart;
-	tempvec(tempvec<0) = Inf;
+	tempvec(tempvec<=0) = Inf;
+% 	tempstop = min(tempvec);
 	[~, i] = min(tempvec);
 	tempstop = all_stops(i);
 	
@@ -94,25 +99,19 @@ L.Rpokes_correct = sort(right_correct);
 L.Rpokes_incorrect = sort(right_incorrect);
 
 %% figure out which init pokes actually initiated a trial
-init_incorrect = L.Ipokes;
-init_correct = [];
+L.Ipokes_incorrect = L.Ipokes;
+L.Ipokes_correct = [];
 
 
 for idx = 1:length(L.trial_starts)
 	tempstart = L.trial_starts(idx) - 20;  % if it's within 20 ms before trial start, it's ok
 	tempstop  = L.trial_starts(idx) + 500; % if it's within 500 ms of trial start, it's ok
-	correct_idxs = init_incorrect(init_incorrect >= tempstart & init_incorrect <= tempstop);
-	init_correct = [init_correct, init_incorrect(correct_idxs)];
-	init_incorrect = 
-	
-	
-	init_correct = [init_correct, init_incorrect(L.trial_starts(idx) - init_incorrect > 20)];  % if it's less than 20 ms before trial start, it's correct
-	init_correct = [init_correct, init_incorrect(
-	init_incorrect = init_incorrect(init_incorrect - L.trial_starts(idx) > 20); % if 
+	correct_bool = L.Ipokes_incorrect >= tempstart & L.Ipokes_incorrect <= tempstop;
+	L.Ipokes_correct = [L.Ipokes_correct, L.Ipokes_incorrect(correct_bool)];
+	L.Ipokes_incorrect = L.Ipokes_incorrect(~correct_bool);
 	
 end
 
-L.init_incorrect = 
 
 
 
