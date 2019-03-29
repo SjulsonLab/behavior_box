@@ -1,15 +1,20 @@
+% function L = extract_poke_info(basedir, basename)
+
+% This function returns a struct "L", which contains the times of each 
+% nosepoke, whether each poke was correct or not, etc. It contains that 
+% info for left, right, and init pokes. 
+% 
+% Luke Sjulson, 2019-03-29
 
 
 
+function L = extract_poke_info(basedir, basename)
 
 
-% function L = extract_poke_latencies(basedir, basename)
-
-
-% % for testing
-clear all
-basename = 'ADR45M591_20190328_152930';
-basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930';
+% % % for testing
+% clear all
+% basename = 'ADR45M591_20190328_152930';
+% basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930';
 
 
 cd(basedir);
@@ -88,4 +93,21 @@ L.Lpokes_correct = sort(left_correct);
 L.Lpokes_incorrect = sort(left_incorrect);
 L.Rpokes_correct = sort(right_correct);
 L.Rpokes_incorrect = sort(right_incorrect);
+
+%% figure out which init pokes actually initiated a trial
+L.Ipokes_incorrect = L.Ipokes;
+L.Ipokes_correct = [];
+
+
+for idx = 1:length(L.trial_starts)
+	tempstart = L.trial_starts(idx) - 20;  % if it's within 20 ms before trial start, it's ok
+	tempstop  = L.trial_starts(idx) + 500; % if it's within 500 ms of trial start, it's ok
+	correct_bool = L.Ipokes_incorrect >= tempstart & L.Ipokes_incorrect <= tempstop;
+	L.Ipokes_correct = [L.Ipokes_correct, L.Ipokes_incorrect(correct_bool)];
+	L.Ipokes_incorrect = L.Ipokes_incorrect(~correct_bool);
+	
+end
+
+
+
 

@@ -21,7 +21,7 @@ while ~feof(fid)
 	filetemp = fgetl(fid);
 	if contains(filetemp, textString, 'IgnoreCase', true)
 		times(idx) = str2num(filetemp(1:find(filetemp==';', 1)));
-		numbers(idx) = str2num(filetemp(find(filetemp==';', 3)+1:end));
+		numbers(idx) = str2num(filetemp(find(filetemp==';', 1, 'last')+1:end));
 		idx = idx + 1;
 	end
 end

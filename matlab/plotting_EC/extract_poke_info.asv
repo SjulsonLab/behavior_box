@@ -1,9 +1,13 @@
+% function L = extract_poke_info(basedir, basename)
+
+% This function returns a struct "L", which contains the times of each 
+% nosepoke, whether each poke was correct or not, etc.
+%
+% 
 
 
 
-
-
-% function L = extract_poke_latencies(basedir, basename)
+% function L = extract_poke_info(basedir, basename)
 
 
 % % for testing
@@ -88,4 +92,27 @@ L.Lpokes_correct = sort(left_correct);
 L.Lpokes_incorrect = sort(left_incorrect);
 L.Rpokes_correct = sort(right_correct);
 L.Rpokes_incorrect = sort(right_incorrect);
+
+%% figure out which init pokes actually initiated a trial
+init_incorrect = L.Ipokes;
+init_correct = [];
+
+
+for idx = 1:length(L.trial_starts)
+	tempstart = L.trial_starts(idx) - 20;  % if it's within 20 ms before trial start, it's ok
+	tempstop  = L.trial_starts(idx) + 500; % if it's within 500 ms of trial start, it's ok
+	correct_idxs = init_incorrect(init_incorrect >= tempstart & init_incorrect <= tempstop);
+	init_correct = [init_correct, init_incorrect(correct_idxs)];
+	init_incorrect = 
+	
+	
+	init_correct = [init_correct, init_incorrect(L.trial_starts(idx) - init_incorrect > 20)];  % if it's less than 20 ms before trial start, it's correct
+	init_correct = [init_correct, init_incorrect(
+	init_incorrect = init_incorrect(init_incorrect - L.trial_starts(idx) > 20); % if 
+	
+end
+
+L.init_incorrect = 
+
+
 

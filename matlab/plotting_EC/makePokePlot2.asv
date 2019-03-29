@@ -47,22 +47,28 @@ catch
 	return
 end
 
-% extract times of nosepoke entries
-Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
-Rpokes = getEventTimes('rightPokeEntry', [basename '.txt']);
-Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
-Lrewards = getEventTimes('leftReward_nL', [basename '.txt']);
-Rrewards = getEventTimes('rightReward_nL', [basename '.txt']);
-trialAvailable = getEventTimes('TrialAvailable', [basename '.txt']);
-if session_info.trainingPhase > 1
-	trialStart = getEventTimes('TrialStarted', [basename '.txt']);
-end
-% disp('Done with loading file')%added by EFO
-% toc%added by EFO
+
+% extract info about nosepokes
+pokes = extract_poke_info(basedir, basename);
 
 
-% loop over trials, figure out which pokes were correct vs incorrect
-
+% 
+% % extract times of nosepoke entries
+% Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
+% Rpokes = getEventTimes('rightPokeEntry', [basename '.txt']);
+% Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
+% Lrewards = getEventTimes('leftReward_nL', [basename '.txt']);
+% Rrewards = getEventTimes('rightReward_nL', [basename '.txt']);
+% trialAvailable = getEventTimes('TrialAvailable', [basename '.txt']);
+% if session_info.trainingPhase > 1
+% 	trialStart = getEventTimes('TrialStarted', [basename '.txt']);
+% end
+% % disp('Done with loading file')%added by EFO
+% % toc%added by EFO
+% 
+% 
+% % loop over trials, figure out which pokes were correct vs incorrect
+% 
 
 
 
@@ -76,51 +82,57 @@ end
 
 %% plotting and saving plot to disk
 
+% % if session_info.trainingPhase > 1
+% %     f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,0,trialStart);
+% % else
+% %     f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,0);
+% % end
+% % savefig(f1, [basename '_pokeplot1.fig'], 'compact');
+% 
+% cd(startdir);
+% % %% the code below is not working to me, idk why, so I made an old style
+% % %% one
+% % if exist('figures', 'dir') ~= 7 %it's identifying the folder when it doesn't exist
+% % 	mkdir('figures');
+% % end
+% auxDir = dir;
+% aux = find([auxDir.isdir]);
+% 
+% flagdir = 1;
+% for i = aux
+% 	if strcmp(auxDir(i).name,'figures');flagdir = 0;end
+% end
+% if flagdir;mkdir('figures');end
+% 
+% cd('figures');
+% close all
+% 
 % if session_info.trainingPhase > 1
-%     f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,0,trialStart);
+% 	f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,1,trialStart, basedir);
 % else
-%     f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,0);
+% 	f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,1);
 % end
-% savefig(f1, [basename '_pokeplot1.fig'], 'compact');
+% print([basename '_pokeplot1.png'], '-dpng');
+% 
+% close(f1);
+% cd ..
+% 
+% disp(['Finished pokeplot1 for ', basename]);
+% 
+% 
+% 
+% 
+% 
+% 
+% function [f1] = PokePlot(sessionStr,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,flagDS,trialStart, basedir)
 
-cd(startdir);
-% %% the code below is not working to me, idk why, so I made an old style
-% %% one
-% if exist('figures', 'dir') ~= 7 %it's identifying the folder when it doesn't exist
-% 	mkdir('figures');
-% end
-auxDir = dir;
-aux = find([auxDir.isdir]);
 
-flagdir = 1;
-for i = aux
-	if strcmp(auxDir(i).name,'figures');flagdir = 0;end
-end
-if flagdir;mkdir('figures');end
-
-cd('figures');
+%% making the plot
 close all
+histbin = 2; % in ms
+histvec = (0:histbin:trialAvailable(end)+120);
+hist_scale = 60000 ./ histbin;
 
-if session_info.trainingPhase > 1
-	f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,1,trialStart);
-else
-	f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,1);
-end
-print([basename '_pokeplot1.png'], '-dpng');
-
-close(f1);
-cd ..
-
-disp(['Finished pokeplot1 for ', basename]);
-
-
-
-
-
-
-function [f1] = PokePlot(sessionStr,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,flagDS,trialStart)
-close all
-histvec = (0:2:trialAvailable(end)+120);
 dsFactor = 100;
 if flagDS %added by EFO
 	histvec = downsample(histvec,dsFactor);
@@ -144,11 +156,23 @@ Tshade = cumsum(Thist);
 Tshade(mod(Tshade, 2)==1) = 9999;
 Tshade(mod(Tshade, 2)==0) = 0;
 
+% loading poke info
+pokes = extract_poke_info(pwd, basename);
+
 %% first subplot
 a(1) = subplot(3,4,1:3);
 
-% plot L pokes
-Lhist = histc(Lpokes, histvec);
+% plot pokes, both correct and incorrect
+Lhist_correct = histc(pokes.Lpokes_correct, histvec);
+Lhist_incorrect = histc(pokes.Lpokes_incorrect, histvec);
+Rhist_correct = histc(pokes.Rpokes_correct, histvec);
+Rhist_incorrect = histc(pokes.Rpokes_incorrect, histvec);
+Ihist_correct = histc(pokes.Ipokes_correct, histvec);
+Ihist_incorrect = histc(pokes.Ipokes_incorrect, histvec);
+
+
+
+
 if isempty(Lhist)
 	Lhist = zeros(size(histvec));
 end
@@ -158,7 +182,7 @@ end
 % else
 %    histvec1 = histvec;
 % end
-h1 = plot(histvec, Lhist, 'b'); hold on
+h1 = plot(histvec/hist_scale, Lhist, 'b'); hold on
 h1.Color(4) = 0.5; % setting alpha (transparency)
 
 % plot R pokes
@@ -171,7 +195,7 @@ end
 %    Rhist = downsample(Rhist,dsFactor);
 % end
 
-h2 = plot(histvec, Rhist, 'r');
+h2 = plot(histvec/hist_scale, Rhist, 'r');
 h2.Color(4) = 0.5;
 
 % plot I pokes
@@ -182,7 +206,7 @@ end
 % if flagDS
 %    Ihist = downsample(Ihist,dsFactor);
 % end
-h3 = plot(histvec, Ihist, 'g');
+h3 = plot(histvec/hist_scale, Ihist, 'g');
 h3.Color(4) = 0.5;
 
 % x1 = xlabel('Time (seconds)');
@@ -198,52 +222,106 @@ a(1).YLim = a(1).YLim;
 % if flagDS
 %    Tshade = downsample(Tshade,dsFactor);
 % end
-b1 = area(histvec, Tshade);
+b1 = area(histvec/hist_scale, Tshade);
 b1.EdgeAlpha = 0;
 b1.FaceAlpha = 0.1;
 b1.FaceColor = 'k';
 
 legend('L pokes', 'R pokes', 'I pokes');
 
+% %% second subplot - rewards
+% 
+% % plot trial starts
+% a(2) = subplot(3,1,2);
+% 
+% % h4 = bar(histvec/hist_scale, Thist*2, 'k'); hold on % used to plot trial boundaries this way
+% % plot rewards
+% LrewardHist = histc(Lrewards, histvec);
+% if isempty(LrewardHist)
+% 	LrewardHist = zeros(size(histvec));
+% end
+% % if flagDS
+% %    LrewardHist = downsample(LrewardHist,dsFactor);
+% % end
+% h5 = plot(histvec/hist_scale, LrewardHist, 'b'); hold on
+% h5.Color(4) = 0.5;
+% % h5 = area(histvec/hist_scale, LrewardHist);
+% a(2).YLim = [-0.2 1.2];
+% 
+% RrewardHist = histc(Rrewards, histvec);
+% if isempty(RrewardHist)
+% 	RrewardHist = zeros(size(histvec));
+% end
+% % if flagDS
+% %    RrewardHist = downsample(RrewardHist,dsFactor);
+% % end
+% h6 = plot(histvec/hist_scale, RrewardHist, 'r');
+% h6.Color(4) = 0.5;
+% 
+% 
+% a(2).XTickLabel = [];
+% a(2).YTick = [];
+% % x1 = xlabel('Time (seconds)');
+% 
+% % plot trial background
+% b1 = area(histvec/hist_scale, Tshade);
+% b1.EdgeAlpha = 0;
+% b1.FaceAlpha = 0.1;
+% b1.FaceColor = 'k';
+% % legend('Trial Starts', 'L rewards', 'R rewards');
+% legend('L rewards', 'R rewards');
 
-%% third subplot
+
+%% second subplot
+
+% reward histograms
+LrewardHist = histc(Lrewards, histvec);
+if isempty(LrewardHist)
+	LrewardHist = zeros(size(histvec));
+end
+RrewardHist = histc(Rrewards, histvec);
+if isempty(RrewardHist)
+	RrewardHist = zeros(size(histvec));
+end
+
+
 % plot trial starts
-a(3) = subplot(3,4,5:7);
+a(2) = subplot(3,4,5:7);
 Thist = histc(trialAvailable, histvec);
 % if flagDS
 %    Thist = downsample(Thist,dsFactor);
 % end
-h4 = plot(histvec, cumsum(Thist), 'k'); hold on
+h4 = plot(histvec/hist_scale, cumsum(Thist), 'k'); hold on
 
 
 % plot rewards
 % LrewardHist = histc(Lrewards, histvec);
 
-h5 = plot(histvec, cumsum(LrewardHist), 'b');
+h5 = plot(histvec/hist_scale, cumsum(LrewardHist), 'b');
 h5.Color(4) = 0.5;
 
 % RrewardHist = histc(Rrewards, histvec);
-h6 = plot(histvec, cumsum(RrewardHist), 'r');
+h6 = plot(histvec/hist_scale, cumsum(RrewardHist), 'r');
 h6.Color(4) = 0.5;
 
 
-h7 = plot(histvec, cumsum(LrewardHist(:) + RrewardHist(:)), 'g');
+h7 = plot(histvec/hist_scale, cumsum(LrewardHist(:) + RrewardHist(:)), 'g');
 
 %plot trial start if variable is available
 if exist('trialStart','var')
 	Tstart = histc(trialStart, histvec);
-	h8 = plot(histvec, cumsum(Tstart),'color',[0.5 0.5 0.5]);
+	h8 = plot(histvec/hist_scale, cumsum(Tstart),'color',[0.5 0.5 0.5]);
 end
 
-x1 = xlabel('Milisecs');
+x1 = xlabel('Minutes');
 y1 = ylabel('Number of trials/rewards');
 
-a(3).XLim = a(3).XLim; % so limits don't change when overlaying the trial boundaries
-a(3).YLim = a(3).YLim;
+a(2).XLim = a(2).XLim; % so limits don't change when overlaying the trial boundaries
+a(2).YLim = a(2).YLim;
 
 
 % plot trial background
-b1 = area(histvec, Tshade);
+b1 = area(histvec/hist_scale, Tshade);
 b1.EdgeAlpha = 0;
 b1.FaceAlpha = 0.1;
 b1.FaceColor = 'k';
