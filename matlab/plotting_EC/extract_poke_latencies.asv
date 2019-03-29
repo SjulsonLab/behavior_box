@@ -1,0 +1,53 @@
+
+
+
+
+
+function L = extract_poke_latencies(basedir, basename)
+
+
+% % for testing
+% basename = 'ADR45M591_20190328_152930';
+
+
+cd(basedir);
+
+% extract times of nosepoke entries
+Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
+Rpokes = getEventTimes('rightPokeEntry', [basename '.txt']);
+Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
+Lrewards = getEventTimes('leftRewardCollected', [basename '.txt']);
+Rrewards = getEventTimes('rightRewardCollected', [basename '.txt']);
+% extract times of trial starts
+L.trial_avails = getEventTimes('TrialAvailable', [basename '.txt']);
+L.trial_starts = getEventTimes('TrialStarted', [basename '.txt']);
+miss_Before_Start = getEventTimes('TrialMissedBeforeInit_ms', [basename '.txt']);
+missAfterStart = getEventTimes('TrialMissedAfterInit_ms', [basename '.txt']);
+
+
+
+% extract latencies for each init poke that resulted in a trial start
+L.trial_start_latencies = zeros(size(L.trial_starts));
+for idx = 1:length(L.trial_starts)
+	tempvec = L.trial_starts(idx) - L.trial_avails;
+	tempvec(tempvec<0) = Inf;
+	L.trial_start_latencies(idx) = min(tempvec); % finding the closest trial_avail that preceded the trial start
+end
+
+% extract latencies for each left and right reward collection
+L.Lrewards_latencies = zeros(size(Lrewards));
+for idx = 1:length(L.Lrewards_latencies)
+	tempvec = Lrewards(idx) - L.trial_starts;
+	tempvec(tempvec<0) = Inf;
+	L.Lrewards_latencies(idx) = min(tempvec); % finding the closest trial_start that preceded the L reward collection
+end
+
+Rrewards_latencies = zeros(size(Rrewards));
+for idx = 1:length(Rrewards_latencies)
+	tempvec = Rrewards(idx) - L.trial_starts;
+	tempvec(tempvec<0) = Inf;
+	Rrewards_latencies(idx) = min(tempvec); % finding the closest trial_start that preceded the L reward collection
+end
+
+L.L.trial_starts = L.trial_starts;
+L.L.trial_start_latencies = L.trial_start_latencies;

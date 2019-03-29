@@ -1,4 +1,4 @@
-function poke_latency(basedir,startdir)  
+function init_latency(basedir,startdir)  
 
 if nargin<2
 	startdir = pwd;

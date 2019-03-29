@@ -1,13 +1,12 @@
-function [times, numbers] = getEventTimes(textString, fname)
+function times = getEventTimes(textString, fname)
 
-% function [times, numbers] = getEventTimes(textString, fname)
+% function T = getEventTimes(textString, fname)
 %
 % This function searches for textString in the logfile called fname.
 % It then returns the first column (which is the timestamp for
-% behavior box log files) under times and the last column under numbers.
+% behavior box log files). 
 %
 % Luke Sjulson, 2018-12-20
-% updated 2019-03-29 to include numbers
 
 
 % %% testing
@@ -21,18 +20,13 @@ while ~feof(fid)
 	filetemp = fgetl(fid);
 	if contains(filetemp, textString, 'IgnoreCase', true)
 		times(idx) = str2num(filetemp(1:find(filetemp==';', 1)));
-		numbers(idx) = str2num(filetemp(find(filetemp==';', 3)+1:end));
+		
 		idx = idx + 1;
 	end
 end
-if ~(exist('times','var') == 1)
+if ~(exist('T','var') == 1)
     times = [];
 end
-if ~(exist('numbers','var') == 1)
-    numbers = [];
-end
-
-
 fclose(fid);
 
 
