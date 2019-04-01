@@ -1,0 +1,121 @@
+function poke_accuracy(basedir,startdir)  
+
+if nargin<2
+	startdir = pwd;
+    basedir = pwd;
+end
+
+cd(startdir);
+cd(basedir);
+
+[~,basename] = fileparts(pwd);
+
+%extract poke info
+L.Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
+L.Rpokes = getEventTimes('rightPokeEntry', [basename '.txt']);
+L.Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
+[L.Lreward_pokes, ~, L.Lreward_poke_trialnum] = getEventTimes('leftRewardCollected', [basename '.txt']);
+[L.Rreward_pokes, ~, L.Rreward_poke_trialnum] = getEventTimes('rightRewardCollected', [basename '.txt']);
+% extract times of trial starts
+L.trial_avails = getEventTimes('TrialAvailable', [basename '.txt']);
+[L.trial_starts, ~, L.trial_start_nums] = getEventTimes('TrialStarted', [basename '.txt']);
+[~, L.trialLR_types] = getEventTimes('trialLRtype', [basename '.txt']);
+miss_before_start = getEventTimes('TrialMissedBeforeInit_ms', [basename '.txt']);
+miss_after_start = getEventTimes('TrialMissedAfterInit_ms', [basename '.txt']);
+standby     = getEventTimes('Standby', [basename '.txt']);
+
+
+%Accuracy for both sides
+
+L.LRreward = zeros(2,length(L.Lreward_pokes)+length(L.Rreward_pokes)+length(miss_after_start));
+L.LRreward(2,:) = cat(2,L.Lreward_pokes,L.Rreward_pokes,miss_after_start); %time
+L.LRreward(1,:) = cat(2,zeros(size(L.Lreward_poke_trialnum)),ones(size(L.Rreward_poke_trialnum)),ones(size(miss_after_start ))*2); % 0 and 1
+
+[~,I] = sort(L.LRreward(2,:));  %time in sequence 
+
+L.LRreward= L.LRreward(:,I);  %array to be in sequence 
+
+L.auxDur = find(L.LRreward(1,:)==0 | L.LRreward(1,:)==1); %both sides duration 
+L.trialDur = L.LRreward(2,L.auxDur) - L.trial_starts(L.auxDur); 
+
+
+L.auxIntPk(1,:) = cat(2,zeros(size(L.Lpokes)),ones(size(L.Rpokes))); %0 and 1
+L.auxIntPk(2,:) = cat(2,L.Lpokes,L.Rpokes); %time
+[~,I] = sort(L.auxIntPk(2,:));
+L.auxIntPk = L.auxIntPk(:,I);
+
+L.trial_starts2 = L.trial_starts(L.auxDur); %trial start time to both sides reward duration 
+L.LRreward2 = L.LRreward(:,L.auxDur); %trial start time and 1/0 for sides 
+
+
+
+for i = 1:length(L.trial_starts2) %remove trials that weren't finished
+    L.temp = Restrict(L.auxIntPk(2,:),[L.trial_starts2(i)',L.LRreward2(2,i)']);   
+%     if ~isempty(temp)
+        L.temp2 = find(L.auxIntPk(2,:)==L.temp(1));
+        L.firstPoke(1,i) = L.auxIntPk(1,L.temp2); %which trial the animal poked
+        L.firstPoke(2,i) = L.LRreward2(1,i); %which it was supposed to be
+        L.firstPoke(3,i) = L.auxIntPk(2,L.temp2);
+%     else
+        
+%     end
+    
+end
+observed_accuracy = length(find( (L.temp) == 0  ))/length(L.trial_starts2);
+for i = 1:10000 
+    L.aux = randperm(length(L.firstPoke(2,:)));
+    L.temp = L.firstPoke(1,L.aux) - L.firstPoke(2,:);
+    null_distribution(i) = length(find( (L.temp) == 0  ))/length(L.trial_starts2);
+end
+
+hist(null_distribution,100)
+[auxND,x] = hist(null_distribution,100);
+auxND = auxND./sum(auxND);
+%f = fit(x',auxND','gauss1');
+y = cumsum(auxND);
+tempPV = find(y>=0.95);
+p5=x(tempPV(1));
+observed_accuracy>=p5
+observed_accuracy
+expected_accuracy = median(null_distribution)
+pval = sum(null_distribution >= observed_accuracy) ./ length(null_distribution)
+
+
+%% extra_poke_info figure out which pokes are correct vs. incorrect
+%right accuracy 
+
+L.LRreward = zeros(2,length(L.Lreward_poke_trialnum)+length(L.Rreward_poke_trialnum)+length(miss_after_start));
+L.LRreward(2,:) = cat(2,L.Lreward_pokes,L.Rreward_pokes,miss_after_start); %time
+L.LRreward(1,:) = cat(2,zeros(size(L.Lreward_poke_trialnum)),ones(size(L.Rreward_poke_trialnum)),ones(size(miss_after_start ))*2); % 0 and 1
+
+[~,I] = sort(L.LRreward(2,:));  %time in sequence 
+
+L.LRreward= L.LRreward(:,I);  %array to be in sequence 
+
+L.auxDur_R = find(L.LRreward(1,:)==1); %right duration 
+L.trialDur = L.LRreward(2,L.auxDur_R ) - L.trial_starts(L.auxDur_R ); %right duration 
+
+L.auxIntPk(1,:) = cat(2,zeros(size(L.Lpokes)),ones(size(L.Rpokes))); %0 and 1
+L.auxIntPk(2,:) = cat(2,L.Lpokes,L.Rpokes); %time
+[~,I] = sort(L.auxIntPk(2,:));
+L.auxIntPk = L.auxIntPk(:,I);
+
+L.trial_starts2_R = L.trial_starts(L.auxDur_R); %trial start time to right reward duration 
+L.LRreward2_R = L.LRreward(:,L.auxDur_R); %trial start time and 1/0 for sides %11 units 
+
+
+
+for i = int16(1:length(L.trial_starts2_R)) %remove trials that weren't finished
+    L.temp_R = Restrict(L.auxIntPk(2,:),[L.trial_starts2_R(i)',L.LRreward2_R(2,i)']);   %LRpoke time (561) % right start time (11) %getting reward time (11)
+%     if ~isempty(temp)
+        L.temp2_R = find(L.auxIntPk(2,:)==L.temp_R(1));
+        L.right_firstPoke(1,i) = L.auxIntPk(1,L.temp2_R); %which trial the animal poked
+        L.right_firstPoke(2,i) = L.LRreward2_R(1,i); %which it was supposed to be
+        L.right_RfirstPoke(3,i) = L.auxIntPk(2,L.temp2_R);
+%     else
+        
+%     end
+    
+end
+observed_right_accuracy = length(find( (L.temp_R) == 0  ))/length(L.trial_starts2_R);
+

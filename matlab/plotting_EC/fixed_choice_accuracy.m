@@ -91,10 +91,6 @@ for i = 1:10000
 %     stderror = std(firstPoke(2,:))/sqrt(length(firstPoke(2,:)));
 %     null_distribution(i) = [mean(firstPoke(1,:)) - mean(firstPoke(2,:))]/stderror;
 end
-hist(null_distribution)
-
-
-
 
 hist(null_distribution,100)
 [auxND,x] = hist(null_distribution,100);

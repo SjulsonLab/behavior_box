@@ -17,7 +17,7 @@ function L = extract_poke_info(basedir, basename)
  %basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930';
  %basedir = pwd; 
  
-%cd(basedir);
+cd(basedir);
 [~,basename] = fileparts(pwd);
 
 

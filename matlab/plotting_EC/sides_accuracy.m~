@@ -1,0 +1,141 @@
+function sides_accuracy(basedir,startdir)  
+
+if nargin<2
+	startdir = pwd;
+    basedir = pwd;
+end
+
+cd(startdir);
+cd(basedir);
+
+[~,basename] = fileparts(pwd);
+
+%extract poke info
+L.Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
+L.Rpokes = getEventTimes('rightPokeEntry', [basename '.txt']);
+L.Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
+[L.Lreward_pokes, ~, L.Lreward_poke_trialnum] = getEventTimes('leftRewardCollected', [basename '.txt']);
+[L.Rreward_pokes, ~, L.Rreward_poke_trialnum] = getEventTimes('rightRewardCollected', [basename '.txt']);
+% extract times of trial starts
+L.trial_avails = getEventTimes('TrialAvailable', [basename '.txt']);
+[L.trial_starts, ~, L.trial_start_nums] = getEventTimes('TrialStarted', [basename '.txt']);
+[~, L.trialLR_types] = getEventTimes('trialLRtype', [basename '.txt']);
+miss_before_start = getEventTimes('TrialMissedBeforeInit_ms', [basename '.txt']);
+miss_after_start = getEventTimes('TrialMissedAfterInit_ms', [basename '.txt']);
+standby     = getEventTimes('Standby', [basename '.txt']);
+
+
+%Accuracy for both sides
+
+L.LRreward = zeros(2,length(L.Lreward_poke_trialnum)+length(L.Rreward_poke_trialnum)+length(miss_after_start));
+L.LRreward(2,:) = cat(2,L.Lreward_pokes,L.Rreward_pokes,miss_after_start); %time
+L.LRreward(1,:) = cat(2,zeros(size(L.Lreward_poke_trialnum)),ones(size(L.Rreward_poke_trialnum)),ones(size(miss_after_start ))*2); % 0 and 1
+
+[~,I] = sort(L.LRreward(2,:));  %time in sequence 
+
+L.LRreward= L.LRreward(:,I);  %array to be in sequence 
+
+L.auxDur = find(L.LRreward(1,:)==0 | L.LRreward(1,:)==1); %both sides duration 
+L.trialDur = L.LRreward(2,L.auxDur) - L.trial_starts(L.auxDur); 
+
+
+L.auxIntPk(1,:) = cat(2,zeros(size(L.Lpokes)),ones(size(L.Rpokes))); %0 and 1
+L.auxIntPk(2,:) = cat(2,L.Lpokes,L.Rpokes); %time
+[~,I] = sort(L.auxIntPk(2,:));
+L.auxIntPk = L.auxIntPk(:,I);
+
+L.trial_starts2 = L.trial_starts(L.auxDur); %trial start time to both sides reward duration 
+L.LRreward2 = L.LRreward(:,L.auxDur); %trial start time and 1/0 for sides 
+
+
+
+for i = 1:length(L.trial_starts2) %remove trials that weren't finished
+    L.temp = Restrict(L.auxIntPk(2,:),[L.trial_starts2(i)',L.LRreward2(2,i)']);
+%     if ~isempty(temp)
+        L.temp2 = find(L.auxIntPk(2,:)==L.temp(1));
+        L.firstPoke(1,i) = L.auxIntPk(1,L.temp2); %which trial the animal poked
+        L.firstPoke(2,i) = L.LRreward2(1,i); %which it was supposed to be
+        L.firstPoke(3,i) = L.auxIntPk(2,L.temp2);
+%     else
+        
+%     end
+    
+end
+observed_accuracy = length(find( (L.temp) == 0  ))/length(L.trial_starts2);
+for i = 1:10000 
+    L.aux = randperm(length(L.firstPoke(2,:)));
+    L.temp = L.firstPoke(1,L.aux) - L.firstPoke(2,:);
+    null_distribution(i) = length(find( (L.temp) == 0  ))/length(L.trial_starts2);
+end
+
+hist(null_distribution,100)
+[auxND,x] = hist(null_distribution,100);
+auxND = auxND./sum(auxND);
+%f = fit(x',auxND','gauss1');
+y = cumsum(auxND);
+tempPV = find(y>=0.95);
+p5=x(tempPV(1));
+observed_accuracy>=p5
+observed_accuracy
+expected_accuracy = median(null_distribution)
+pval = sum(null_distribution >= observed_accuracy) ./ length(null_distribution)
+
+
+%calculating accuracy to right
+
+
+
+
+
+aux_R_Dur = find(LRreward(1,:)==1);
+trial_R_Dur = LRreward(2,aux_R_Dur) - trialStarts(aux_R_Dur);
+
+auxIntPk(1,:) = cat(2,zeros(size(Lpokes)),ones(size(Rpokes)));
+auxIntPk(2,:) = cat(2,Lpokes,Rpokes);
+[~,I] = sort(auxIntPk(2,:));
+auxIntPk = auxIntPk(:,I);
+
+trialStarts3 = trialStarts(aux_R_Dur);  %trialstarts when right reward collected 
+R_LRreward = LRreward(:,aux_R_Dur);   
+
+for i = 1:length(trialStarts3) %remove trials that weren't finished
+    R_temp = Restrict(auxIntPk(2,:),[trialStarts3(i)',R_LRreward(2,i)']);
+    R_temp2 = find(auxIntPk(2,:)==R_temp(1));
+    R_firstPoke(1,i)= auxIntPk(1,R_temp2);%right_actual_poke
+    R_firstPoke(2,i)= R_LRreward(1,i); %right_supposed_to_poke
+    R_firstPoke(3,i)= auxIntPk(2,R_temp2); 
+end 
+
+
+R_temp = R_firstPoke(1,:) - R_firstPoke(2,:);
+R_observed_accuracy = length(find( (R_temp) == 0  ))/length(trialStarts_and_collect_right);
+for i = 1:10000 
+    R_aux = randperm(length(R_firstPoke(2,:)));
+    R_temp = R_firstPoke(1,R_aux) - R_firstPoke(2,:);
+    R_null_distribution(i) = length(find( (R_temp) == 0  ))/length(trialStarts_and_collect_right);
+end
+
+hist(R_null_distribution,100)
+[R_auxND,R_x] = hist(R_null_distribution,100);
+R_auxND = R_auxND./sum(R_auxND);
+%f = fit(x',auxND','gauss1');
+y = cumsum(R_auxND);
+R_tempPV = find(y>=0.95);
+p5=R_x(R_tempPV(1));
+R_observed_accuracy>=p5
+R_observed_accuracy
+R_expected_accuracy = median(R_null_distribution)
+R_pval = sum(R_null_distribution >= R_observed_accuracy) ./ length(R_null_distribution)
+
+
+
+
+
+
+
+
+
+
+
+
+
