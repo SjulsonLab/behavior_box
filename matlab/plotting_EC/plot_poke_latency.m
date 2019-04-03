@@ -8,15 +8,15 @@ end
 %cd(startdir);
 cd(basedir);
 
-[~,basename] = fileparts(pwd);
+%[~,basename] = fileparts(pwd);
 
 %extract poke info
 
-L = extract_poke_info(basedir, basename);
+L = extract_poke_info(basedir);
 
 
 %median_poke_latency 
-figure;
+
 Init_latency=median((L.trial_start_latencies)/1000);%bar(Init_latency,'facecolor','b');hold on;
 Left_poke_latency=median((L.Lreward_pokes_latencies)/1000);%bar(Left_poke_latency,'facecolor','k');hold on;  
 right_poke_latency=median((L.Rreward_pokes_latencies)/1000);%bar(right_poke_latency,'facecolor','r')  

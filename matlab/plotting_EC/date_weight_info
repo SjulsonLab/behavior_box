@@ -1,0 +1,44 @@
+function extract date_weight_info(basedir)
+
+if nargin<1
+    basedir = pwd;
+end
+
+cd(basedir);
+[~, basename] = fileparts(basedir);
+animalDir = dir;
+
+idxDir = find([animalDir.isdir]);
+
+s = 0;
+for idx = idxDir
+    if (strfind(animalDir(idx).name,basename))
+        cd(animalDir(idx).name)
+        %processing and collecting data
+%         try
+            if isfile('sessionStr.mat')
+                load ./sessionStr.mat
+                session_info = sessionStr;
+                flag = true;
+            elseif isfile('session_info.mat')
+                load ./session_info.mat
+                flag = true;
+            else
+                flag = false;
+            end
+%         catch
+%             warning(['Unable to find .mat files in ' basedir]);
+%             return
+%         end
+        
+        % extract times of nosepoke entries
+        if flag
+        s = s+1;
+        
+        ses(s).weight = session_info.weight;
+        ses(s).IrewardSize_nL = session_info.IrewardSize_nL;
+        ses(s).date = session_info.date;
+        end
+      cd(basedir) 
+    end
+end

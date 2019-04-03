@@ -1,4 +1,6 @@
-function sessionsPokePlot1(basedir)
+%% extract all info 
+
+function sessionsPokePlot1_practice(basedir)
 
 % function sessionsPokePlot1(basedir, startdir)
 %
@@ -30,54 +32,29 @@ s = 0;
 for idx = idxDir
     if (strfind(animalDir(idx).name,basename))
         cd(animalDir(idx).name)
-        %processing and collecting data
-%         try
-            if isfile('sessionStr.mat')
-                load ./sessionStr.mat
-                session_info = sessionStr;
-                flag = true;
-            elseif isfile('session_info.mat')
-                load ./session_info.mat
-                flag = true;
-            else
-                flag = false;
-            end
-%         catch
-%             warning(['Unable to find .mat files in ' basedir]);
-%             return
-%         end
-        
-        % extract times of nosepoke entries
-        if flag
+        %if flag
         s = s+1;
-        [~,fname] = fileparts(cd);
-        ses(s).Lpokes = getEventTimes('leftPokeEntry', [fname '.txt']);
-        ses(s).Rpokes = getEventTimes('rightPokeEntry', [fname '.txt']);
-        ses(s).Ipokes = getEventTimes('initPokeEntry', [fname '.txt']);
-        ses(s).Lrewards = getEventTimes('leftReward_nL', [fname '.txt']);
-        ses(s).Rrewards = getEventTimes('rightReward_nL', [fname '.txt']);
-        ses(s).trialStarts = getEventTimes('TrialAvailable', [fname '.txt']);
-        ses(s).trainingPhase = session_info.trainingPhase;
-        ses(s).weight = session_info.weight;
-        ses(s).IrewardSize_nL = session_info.IrewardSize_nL;
-        ses(s).date = session_info.date;
-        end
-      cd(basedir) 
+        L(s) = extract_poke_info(cd);
+        D(s) = date_weight_info(cd);
+        %[~,fname] = fileparts(cd);
+        
     end
+      cd(basedir) 
 end
+
 
 
 %% preparing plot
 
-Lpokes = cellfun(@length,{ses(:).Lpokes});
-Rpokes = cellfun(@length,{ses(:).Rpokes});
-Ipokes = cellfun(@length,{ses(:).Ipokes});
-Lrewards = cellfun(@length,{ses(:).Lrewards});
-Rrewards = cellfun(@length,{ses(:).Rrewards});
-trialStarts = cellfun(@length,{ses(:).trialStarts});
-weight = [ses(:).weight];
-IrewardSize_nL = [ses(:).IrewardSize_nL];
-cellofDates = {ses(:).date};
+Lpokes = cellfun(@length,{L(:).Lpokes});
+Rpokes = cellfun(@length,{L(:).Rpokes});
+Ipokes = cellfun(@length,{L(:).Ipokes});
+Lrewards = cellfun(@length,{L(:).Lpokes_correct});
+Rrewards = cellfun(@length,{L(:).Rpokes_correct});
+trialStarts = cellfun(@length,{L(:).trial_starts});
+weight = [D(:).weight];
+IrewardSize_nL = [D(:).IrewardSize_nL];
+cellofDates = {D(:).date};
 days = cellfun(@str2num,cellofDates);
 
 for i =1:length(cellofDates) 
@@ -94,10 +71,7 @@ for i = 1:length(doy)
 end
 auxTicks = doy2;
 
-%first subplot is number of pokes per session, shaded area is the training
-%phase
-%second subplot is number of rewards per side per session, shaded area is
-%the trainingphase
+%first plot- correct reward
 
 f1= figure;
 f1.InnerPosition = [291 256 1959 942]; % these just set the window size so it's bigger for the PNG
@@ -108,7 +82,6 @@ d2 = doy-doy(1)
 [commonFrames,ia,ib] = intersect(d1, d2);
 
 
-%first plot
 subplot(3,1,1);hold on
 plot(doy-doy(1),Lrewards,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
 plot(doy-doy(1),Rrewards,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
@@ -117,6 +90,7 @@ plot(doy-doy(1),trialStarts,'-dk','linewidth',2,'markerfacecolor',[0 0 0],'marke
 xticks(doy-doy(1))
 xlabel('Sessions')
 ylabel('# of rewards')
+
 
 %preparing training phase plot
 
@@ -142,9 +116,10 @@ set(gca,'fontsize',12)
 
 
 %second plot
-
-
-
+% for idx = 1:length(L)
+%     latencies{idx} = [L(idx).Lreward_pokes_latencies L(idx).Rreward_pokes_latencies]/1000;
+% end
+boxplot([1:5],latencies')
 
 
 
