@@ -8,7 +8,7 @@
 
 
 
-function L = extract_poke_info(basedir, basename)
+function L = extract_poke_info(basedir)
 
 
 % % % for testing
@@ -17,7 +17,7 @@ function L = extract_poke_info(basedir, basename)
  %basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930';
  %basedir = pwd; 
  
-%cd(basedir);
+cd(basedir);
 [~,basename] = fileparts(pwd);
 
 
@@ -30,6 +30,7 @@ L.Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
 % extract times of trial starts
 L.trial_avails = getEventTimes('TrialAvailable', [basename '.txt']);
 [L.trial_starts, ~, L.trial_start_nums] = getEventTimes('TrialStarted', [basename '.txt']);
+L.trial_stops = [];
 
 %% extract latencies for each init poke that resulted in a trial start
 L.trial_start_latencies = zeros(size(L.trial_starts));
@@ -74,15 +75,12 @@ right_correct = [];
 
 for idx = 1:length(L.trial_starts)
 	ntrial = L.trial_start_nums(idx);
-% 	if idx==14
-% 		warning('warning');
-% 	end
 	tempstart = L.trial_starts(idx);
 	tempvec = all_stops - tempstart;
 	tempvec(tempvec<=0) = Inf;
-% 	tempstop = min(tempvec);
 	[~, i] = min(tempvec);
 	tempstop = all_stops(i);
+	L.trial_stops(idx) = tempstop;
 	
 	if any(L.trialLR_types(ntrial) == [1 2 5 6]) % left pokes are correct
 		left_correct = [left_correct, left_incorrect(left_incorrect >= tempstart & left_incorrect <= tempstop)];
