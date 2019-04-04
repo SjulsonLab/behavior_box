@@ -1,5 +1,9 @@
-names = {'D1R96F625','D1R102F596','D1R102M592','ADR50F687','ADR50F695','D1R96F626'};
-todaysdate = ['20190221'];
+
+function dailyRun(basedir)
+
+names = {'D1R104M738','D1R104M737','ADR50F695'};
+todaysdate = ['20190321'];
+
 basedir = cd;
 
 for idx = 1:length(names)
@@ -12,5 +16,8 @@ for idx = 1:length(names)
     end
         
     makePokePlot1([basedir filesep names{idx} filesep folderOI])
-%     sessionsPokePlot1([basedir filesep names{idx}])
+
+    fixed_choice_accuracy([basedir filesep names{idx} filesep folderOI])
+    %sessionsPokePlot1([basedir filesep names{idx}])
 end
+

@@ -29,6 +29,7 @@ function makePokePlot1(basedir, startdir)
 % tic %added by EFO to track time spent on each period
 if nargin<2
 	startdir = pwd;
+    basedir = pwd;
 end
 
 cd(startdir);
@@ -36,8 +37,10 @@ cd(basedir);
 [~, basename] = fileparts(pwd);
 
 try
-	load ./mouse_info.mat%load ./mouseStr.mat
-	load ./session_info.mat%load ./sessionStr.mat
+
+	load ./mouse_info.mat %load ./mouseStr.mat
+	load ./session_info.mat %load ./sessionStr.mat
+
 catch
 	warning(['Unable to find .mat files in ' basedir]);
 	return
@@ -104,7 +107,9 @@ end
 
 function [f1] = PokePlot(sessionStr,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,flagDS,trialStart)
 close all
-histvec = 0:2:trialAvailable(end)+120;
+
+histvec = (0:2:trialAvailable(end)+120);
+
 dsFactor = 100;
 if flagDS %added by EFO
    histvec = downsample(histvec,dsFactor);
@@ -167,6 +172,8 @@ end
 %    Ihist = downsample(Ihist,dsFactor);
 % end
 h3 = plot(histvec, Ihist, 'g');
+h3.Color(4) = 0.5; 
+
 % x1 = xlabel('Time (seconds)');
 
 t1 = title([basename ', trainingPhase ' num2str(sessionStr.trainingPhase)]);
@@ -243,6 +250,7 @@ h4 = plot(histvec, cumsum(Thist), 'k'); hold on
 
 % plot rewards
 % LrewardHist = histc(Lrewards, histvec);
+
 h5 = plot(histvec, cumsum(LrewardHist), 'b');
 h5.Color(4) = 0.5;
 
@@ -259,7 +267,7 @@ if exist('trialStart','var')
     h8 = plot(histvec, cumsum(Tstart),'color',[0.5 0.5 0.5]);
 end
 
-x1 = xlabel('Time (seconds)');
+x1 = xlabel('Milisecs');
 y1 = ylabel('Number of trials/rewards');
 
 a(3).XLim = a(3).XLim; % so limits don't change when overlaying the trial boundaries

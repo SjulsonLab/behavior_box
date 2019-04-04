@@ -5,15 +5,17 @@ close all
 tic
 
 % these need to be changed
-cd('C:\Users\lukes\Desktop\temp');
-k = dir('D1R*');
-
+%cd('/home/edith/lab@sjulsonlab.org/lab-shared/lab_projects/rewardPrediction/behavior/D1R104M735');
+k = dir('ADR*');
+%k = dir('D1R*');
 
 startdir = pwd;
 
 parfor idx = 1:length(k)
 	if k(idx).isdir==1 % only for directories
-		makePokePlot1(k(idx).name, startdir);
+		extract_poke_info(k(idx).name, startdir);
+        %makePokePlot1(k(idx).name, startdir);
+        %fixed_choice_accuracy(k(idx).name, startdir);
 	end
 end
 

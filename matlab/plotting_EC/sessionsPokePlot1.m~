@@ -31,7 +31,6 @@ for idx = idxDir
     if (strfind(animalDir(idx).name,basename))
         cd(animalDir(idx).name)
         %processing and collecting data
-
 %         try
             if isfile('sessionStr.mat')
                 load ./sessionStr.mat
@@ -47,7 +46,6 @@ for idx = idxDir
 %             warning(['Unable to find .mat files in ' basedir]);
 %             return
 %         end
-
         
         % extract times of nosepoke entries
         if flag
@@ -111,6 +109,21 @@ d2 = doy-doy(1)
 
 
 subplot(3,1,1);hold on
+title(basename,'fontsize',16)
+plot(doy-doy(1),Lpokes,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',5)
+plot(doy-doy(1),Rpokes,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',5)
+plot(doy-doy(1),Ipokes,'-dg','linewidth',2,'markerfacecolor',[0 1 0],'markersize',5)
+legend('L pokes','R pokes','I pokes','location','northwest')
+xticks(doy-doy(1)) %we have to insert this every subplot
+%xticklabels(auxTicks,'xticklabelmode','manual'); %this we have to remove from every subplot
+xlabel('Sessions')
+ylabel('# of pokes')
+set(gca,'fontsize',12)
+% xticks(1:length(Lpokes))
+
+
+
+subplot(3,1,2);hold on
 plot(doy-doy(1),Lrewards,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
 plot(doy-doy(1),Rrewards,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
 plot(doy-doy(1),Lrewards+Rrewards,'-dg','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
@@ -118,23 +131,6 @@ plot(doy-doy(1),trialStarts,'-dk','linewidth',2,'markerfacecolor',[0 0 0],'marke
 xticks(doy-doy(1))
 xlabel('Sessions')
 ylabel('# of rewards')
-
-
-subplot(3,1,2);hold on
-title(basename,'fontsize',16)
-
-plot(doy-doy(1),Lpokes,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',5)
-plot(doy-doy(1),Rpokes,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',5)
-plot(doy-doy(1),Ipokes,'-dg','linewidth',2,'markerfacecolor',[0 1 0],'markersize',5)
-legend('L pokes','R pokes','I pokes','location','northwest')
-xticks(doy-doy(1)) %we have to insert this every subplot
-%xticklabels(auxTicks,'xticklabelmode','manual'); %this we have to remove from every subplot
-
-xlabel('Sessions')
-ylabel('# of pokes')
-set(gca,'fontsize',12)
-% xticks(1:length(Lpokes))
-
 
 %subplot(3,1,3);hold on
 %plot(doy-doy(1),weight,'linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
@@ -163,7 +159,7 @@ xxx(end)-xxx(1) %total length of x-axis %25
 %[xxx(end)-xxx(1)]-length(trainingPhase) %additional days not covered with shades %3
 
 trainingPhase = [ses(:).trainingPhase];
-x = doy-doy(1); % 1:length(trainingPhase);%starting from a minus# so the shades would cover from the first day  
+x = 1-([xxx(end)-xxx(1)]-length(trainingPhase)):length(trainingPhase); %starting from a minus# so the shades would cover from the first day  
 auxShade = find(diff(trainingPhase))+1;
 
 for i = 1:length(auxShade)
@@ -171,17 +167,15 @@ for i = 1:length(auxShade)
     trainingPhase = [trainingPhase(1:auxShade(i)-1) trainingPhase(auxShade(i)-1) trainingPhase(auxShade(i):end)];
 end
 
-subplot(3,1,1)
+subplot(3,1,2)
 yyaxis right
-area(x,trainingPhase,'facecolor','k','edgealpha',0,'facealpha',0.1);
+area(x+([xxx(end)-xxx(1)]-length(trainingPhase)),trainingPhase,'facecolor','k','edgealpha',0,'facealpha',0.1);
 ylabel('training phase')
 legend('L rewards','R rewards','Total rewards','Trials start','Training phase','location','northwest')
-
 xticks(doy-doy(1))
 % xticks(1:length(Lpokes))
 %xticklabels(auxTicks);
 % yticks([0 unique([ses(:).trainingPhase])])
-
 set(gca,'fontsize',12)
 
 %% saving plot to disk
