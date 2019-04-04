@@ -36,6 +36,7 @@ for idx = idxDir
         s = s+1;
         L(s) = extract_poke_info(cd);
         D(s) = date_weight_info(cd);
+        acc(s) = calc_accuracy_LS(cd); 
         %[~,fname] = fileparts(cd);
         
     end
@@ -49,7 +50,10 @@ end
 Lpokes = cellfun(@length,{L(:).Lpokes});
 Rpokes = cellfun(@length,{L(:).Rpokes});
 Ipokes = cellfun(@length,{L(:).Ipokes});
-Lrewards = cellfun(@length,{L(:).Lpokes_correct});
+Lrewards = cellfun(@
+
+
+length,{L(:).Lpokes_correct});
 Rrewards = cellfun(@length,{L(:).Rpokes_correct});
 trialStarts = cellfun(@length,{L(:).trial_starts});
 weight = [D(:).weight];
@@ -94,7 +98,7 @@ ylabel('# of rewards')
 
 %preparing training phase plot
 
-trainingPhase = [ses(:).trainingPhase];
+trainingPhase = [D(:).trainingPhase];
 x = doy-doy(1); % 1:length(trainingPhase);%starting from a minus# so the shades would cover from the first day  
 auxShade = find(diff(trainingPhase))+1;
 
@@ -125,9 +129,15 @@ boxplot([1:5],latencies')
 
 
 
-%third plot
+%third plot- % accuracy 
 subplot(3,1,3);hold on
-
+plot(doy-doy(1),acc.all,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
+plot(doy-doy(1),acc.left,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
+plot(doy-doy(1),acc.right,'-dg','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
+xticks(doy-doy(1))
+legend('All','left','right')
+xlabel('Sessions')
+ylabel('% accuracy')
 
 
 
