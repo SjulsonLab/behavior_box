@@ -16,7 +16,7 @@ from colorama import Fore, Style
 
 
 # defining immutable mouse dict (once defined for a mouse, this should never change)
-mouse_info = pysistence.make_dict({'mouseName': 'jaxmale08',
+mouse_info = pysistence.make_dict({'mouseName': 'testingProtocol',
                  'requiredVersion': 7,
                  'leftVisCue': 0,
                  'rightVisCue': 3,
@@ -26,7 +26,7 @@ mouse_info = pysistence.make_dict({'mouseName': 'jaxmale08',
 # Information for this session (the user should edit this each session)
 session_info                              = collections.OrderedDict()
 session_info['mouseName']                 = mouse_info['mouseName']
-session_info['trainingPhase']             = 1
+session_info['trainingPhase']             = 2
 session_info['date']                      = datetime.datetime.now().strftime("%Y%m%d")
 session_info['time']                      = datetime.datetime.now().strftime('%H%M%S')
 session_info['basename']                  = mouse_info['mouseName'] + '_' + session_info['date'] + '_' + session_info['time']
@@ -55,10 +55,11 @@ session_info['nTrial']                    = []     # just leave this blank
 
 
 # initializing trial L/R parameters, will set them later
-session_info['trialLRtype']               = [] # (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL).
+session_info['trialLRtype']               = [1,3] # (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL).
 session_info['trialLRtype_info']          = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)'
 session_info['LrewardCode']               = [] # will be set automatically later
 session_info['RrewardCode']               = []
+session_info['IrewardCode']               = []
 
 # this is planning for the future, when we will likely want two auditory
 # stimuli and two visual stimuli. For now, just leave it as all 3's
@@ -69,10 +70,11 @@ session_info['trialAVtype_info']          = '1 = auditory only, 2 = visual only,
 session_info['laserOnCode']            = [0]
 
 # reward parameters for first trial
-session_info['LrewardSize_nL']         = [5000] # the starting value, which will be updated over time
-session_info['RrewardSize_nL']         = [5000]
-session_info['rewardSizeMax_nL']       = [8000]
-session_info['rewardSizeMin_nL']       = [2000]
+session_info['LrewardSize_nL']         = [2500] # the starting value, which will be updated over time
+session_info['RrewardSize_nL']         = [2500]
+session_info['IrewardSize_nL']         = [500]
+session_info['rewardSizeMax_nL']       = [3000]
+session_info['rewardSizeMin_nL']       = [500]
 session_info['rewardSizeDelta_nL']     = [500] # the number of nanoliters to adjust reward size by 
 session_info['deliveryDuration_ms']    = 1000
 session_info['syringeSize_mL']         = 5

@@ -23,8 +23,12 @@ def set_COM_port(session_info):
         session_info['COM_port'] = 'COM11'
     elif session_info['computer_name'].lower() == 'fenrir'.lower() \
         and session_info['box_number'] == 1:
-        session_info['basedir'] = 'C:\\Users\\Elie\\Documents\\GITrepo\\testBehavData'
+        session_info['basedir'] = 'C:\\Users\\Elie\\Documents\GitHub\\testBehavData'
         session_info['COM_port'] = 'COM6'
+    elif session_info['computer_name'].lower() == 'fenrir'.lower() \
+        and session_info['box_number'] == 2:
+        session_info['basedir'] = 'C:\\Users\\Elie\\Documents\GitHub\\testBehavData'
+        session_info['COM_port'] = 'COM7'
     else: 
         raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
 
@@ -305,6 +309,9 @@ def append_reward_code(session_info):
     else:
         session_info['RrewardCode'].append(wrong_poke_code)
 
+    if session_info['trainingPhase'] in [2]:
+        Rinit = 1
+        session_info['IrewardCode'].append(Rinit)
 
 def append_random_LR(session_info):
     import random
