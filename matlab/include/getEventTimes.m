@@ -11,8 +11,8 @@ function [times, numbers, nTrial] = getEventTimes(textString, fname)
 
 
 % %% testing
-% fname = 'D1R96Male246_181203_154542.txt';
-% textString = 'leftReward';
+ %fname = 'D1R104M738_20190408_111125.txt';
+ %textString = 'leftRewardCollected';
 
 
 fid = fopen(fname, 'rt');
@@ -27,6 +27,11 @@ while ~feof(fid)
 		idx = idx + 1;
 	end
 end
+
+if ~(exist('nTrial','var') == 1)
+    nTrial = [];
+end
+
 if ~(exist('times','var') == 1)
     times = [];
 end
@@ -36,6 +41,9 @@ end
 
 
 fclose(fid);
+
+
+
 
 
 % % old code, works on some windows machines but not others

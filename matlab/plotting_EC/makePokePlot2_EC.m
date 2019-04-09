@@ -276,7 +276,7 @@ if exist('trialStart','var')
 	Tstart = histc(trialStart, histvec);
 	h8 = plot(histvec/hist_scale, cumsum(Tstart),'color',[0.5 0.5 0.5]);
 end
-
+n
 
 y1 = ylabel('Number of trials/rewards');
 
