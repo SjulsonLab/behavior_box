@@ -8,13 +8,17 @@ def set_COM_port(session_info):
     elif session_info['computer_name'].lower() == 'bumbrlik01'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM4'
+        session_info['COM_port'] = 'COM5'
     elif session_info['computer_name'].lower() == 'bumbrlik02'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM5'
+        session_info['COM_port'] = 'COM4'
     elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
         and session_info['box_number'] == 1:
+        session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
+        session_info['COM_port'] = 'COM12'
+    elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
+        and session_info['box_number'] == 2:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
         session_info['COM_port'] = 'COM6'
     elif session_info['computer_name'].lower() == 'DESKTOP-RE9G846'.lower() \
@@ -23,7 +27,7 @@ def set_COM_port(session_info):
         session_info['COM_port'] = 'COM11'
     elif session_info['computer_name'].lower() == 'fenrir'.lower() \
         and session_info['box_number'] == 1:
-        session_info['basedir'] = 'C:\\Users\\Elie\\Documents\\GITrepo\\testBehavData'
+        session_info['basedir'] = 'C:\\Users\\Elie\\Documents\GitHub\\testBehavData'
         session_info['COM_port'] = 'COM6'
     else: 
         raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
@@ -254,7 +258,7 @@ def set_box_defaults(arduino):
     # send box_params to arduino
     for i in box_params:
     #    print(bytes(i + ';' + str(box_params[i]) + '\n', 'utf-8'))
-        arduino.write(bytes(i + ';' + str(box_params[i]) + '\n', 'utf-8'))
+        arduino.write(bytes(i + ';' + str(box_params[i]) + '\n', encoding = 'utf-8'))
         time.sleep(0.010) # this is necessary to prevent buffer overrun
 
 
@@ -265,11 +269,11 @@ def send_dict_to_arduino(send_this, arduino):
     for i in send_this:
         if isinstance(send_this[i], int): # if it's an int, just send it
             # print(bytes(i + ';' + str(send_this[i]) + '\n', 'utf-8'))
-            arduino.write(bytes(i + ';' + str(send_this[i]) + '\n', 'utf-8'))
+            arduino.write(bytes(i + ';' + str(send_this[i]) + '\n', encoding = 'utf-8'))
         elif isinstance(send_this[i], list): # if it's a list, send the last entry
             try:
                 #print(bytes(i + ';' + str(send_this[i][-1]) + '\n', 'utf-8'))
-                arduino.write(bytes(i + ';' + str(send_this[i][-1]) + '\n', 'utf-8'))
+                arduino.write(bytes(i + ';' + str(send_this[i][-1]) + '\n', encoding = 'utf-8'))
             except:
                 warnings.warn('Warning: ' + i + ' did not load')
         elif isinstance(send_this[i], str): # if it's a string, do nothing
@@ -288,10 +292,10 @@ def append_reward_code(session_info):
     else: 
         wrong_poke_code = -1  # -1 means punishment for incorrect poke
         
-    if session_info['trainingPhase'] in [1, 2]:
-        Rnum = 3 # reward code of 3 for phases 1 or 2 - reward at end of cue delivery
-    else:
-        Rnum = 4
+#    if session_info['trainingPhase'] in [1, 2]:
+#        Rnum = 3 # reward code of 3 for phases 1 or 2 - reward at end of cue delivery
+#    else:
+    Rnum = 4
         
     # set code for Left poke
     if session_info['trialLRtype'][-1] in [1, 2, 5, 6]:
@@ -305,6 +309,11 @@ def append_reward_code(session_info):
     else:
         session_info['RrewardCode'].append(wrong_poke_code)
 
+    # set code for init poke
+    if session_info['trainingPhase'] in [2]:
+        session_info['IrewardCode'].append(2)
+    else:
+        session_info['IrewardCode'].append(0)
 
 def append_random_LR(session_info):
     import random
