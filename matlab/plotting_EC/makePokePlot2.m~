@@ -367,7 +367,7 @@ if isempty(Ihistvec)
 end
 
 if isempty(Ihist)
-	Ihist = zeros(size(Ihistvec));
+	Ihist = zeros(size(histvec));
 end
 
 Ihist(end) = Ihist(end) + Ntrials_avail - sum(Ihist);
@@ -379,15 +379,15 @@ Lhist = histc(pokes.Lreward_pokes_latencies, LRhistvec);
 Rhist = histc(pokes.Rreward_pokes_latencies, LRhistvec);
 
 if isempty(LRhistvec)
-	LRhistvec = zeros(size(LRhistvec));
+	LRhistvec = zeros(size(histvec));
 end
 
 if isempty(Lhist)
-	Lhist = zeros(size(LRhistvec));
+	Lhist = zeros(size(histvec));
 end
 
 if isempty(Rhist)
-	Rhist = zeros(size(LRhistvec));
+	Rhist = zeros(size(histvec));
 end
 
 Lhist(end) = Lhist(end) + N_left_trials_started - sum(Lhist);
