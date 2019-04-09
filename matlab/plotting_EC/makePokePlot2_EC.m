@@ -276,7 +276,7 @@ if exist('trialStart','var')
 	Tstart = histc(trialStart, histvec);
 	h8 = plot(histvec/hist_scale, cumsum(Tstart),'color',[0.5 0.5 0.5]);
 end
-n
+
 
 y1 = ylabel('Number of trials/rewards');
 
@@ -367,7 +367,7 @@ if isempty(Ihistvec)
 end
 
 if isempty(Ihist)
-	Ihist = zeros(size(Ihistvec));
+	Ihist = zeros(size(histvec));
 end
 
 Ihist(end) = Ihist(end) + Ntrials_avail - sum(Ihist);
@@ -383,11 +383,11 @@ if isempty(LRhistvec)
 end
 
 if isempty(Lhist)
-	Lhist = zeros(size(histvec));
+	Lhist = zeros(size(LRhistvec));
 end
 
 if isempty(Rhist)
-	Rhist = zeros(size(histvec));
+	Rhist = zeros(size(LRhistvec));
 end
 
 Lhist(end) = Lhist(end) + N_left_trials_started - sum(Lhist);
