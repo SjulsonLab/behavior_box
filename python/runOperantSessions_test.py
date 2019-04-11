@@ -16,7 +16,7 @@ from colorama import Fore, Style
 
 
 # defining immutable mouse dict (once defined for a mouse, this should never change)
-mouse_info = pysistence.make_dict({'mouseName': 'testingProtocol',
+mouse_info = pysistence.make_dict({'mouseName': 'test',
                  'requiredVersion': 7,
                  'leftVisCue': 0,
                  'rightVisCue': 3,
