@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # importing stuffimport timeimport datetime
 import time
 import datetime
@@ -32,7 +31,7 @@ session_info['weight']                    = 27.3
 session_info['date']                      = datetime.datetime.now().strftime("%Y%m%d")
 session_info['time']                      = datetime.datetime.now().strftime('%H%M%S')
 session_info['basename']                  = mouse_info['mouseName'] + '_' + session_info['date'] + '_' + session_info['time']
-session_info['box_number']                = 1      # put the number of the behavior box here
+session_info['box_number']                = 2      # put the number of the behavior box here
 session_info['computer_name']             = socket.gethostname()
 resetTimeYN                               = 1      # whether or not to restart arduino timer at beginning of session
 
@@ -165,7 +164,7 @@ time.sleep(1)  # required for connection to complete before transmitting
 
 # verify the arduino is running the correct version of the box code
 arduino.flushInput()
-arduino.write(bytes('checkVersion').encode('utf-8'))
+arduino.write(bytes('checkVersion',encoding = 'utf-8'))
 ver = int(arduino.readline())
 if ver != mouse_info['requiredVersion']:
     raise Exception('This requires the arduino to run version ' + str(mouse_info['requiredVersion']) + \
@@ -217,7 +216,7 @@ try:
         logfile = open(session_info['basename'] + '.txt', 'a+')
 
         # start the trial
-        arduino.write(bytes('startTrialYN;1').encode('utf-8'))
+        arduino.write(bytes('startTrialYN;1',encoding = 'utf-8'))
 
 
         # loop to log info from arduino while trial runs
@@ -324,7 +323,6 @@ except Exception as ex:
     box_utils.save_mat_file('session_info.mat', session_info, 'session_info')
 
 
-=======
 # importing stuff
 import time
 import datetime
@@ -490,7 +488,7 @@ time.sleep(1)  # required for connection to complete before transmitting
 
 # verify the arduino is running the correct version of the box code
 arduino.flushInput()
-arduino.write(bytes('checkVersion').encode('utf-8'))
+arduino.write(bytes('checkVersion',encoding = 'utf-8'))
 ver = int(arduino.readline())
 if ver != mouse_info['requiredVersion']:
     raise Exception('This requires the arduino to run version ' + str(mouse_info['requiredVersion']) + \
@@ -542,7 +540,7 @@ try:
         logfile = open(session_info['basename'] + '.txt', 'a+')
 
         # start the trial
-        arduino.write(bytes('startTrialYN;1').encode('utf-8'))
+        arduino.write(bytes('startTrialYN;1',encoding = 'utf-8'))
 
 
         # loop to log info from arduino while trial runs
@@ -647,6 +645,3 @@ except Exception as ex:
     # save dicts to disk
     box_utils.save_mat_file('mouse_info.mat', mouse_info, 'mouse_info')
     box_utils.save_mat_file('session_info.mat', session_info, 'session_info')
-
-
->>>>>>> 3a4d5dc391a62d9d200a6c2b46f1c572f354d955

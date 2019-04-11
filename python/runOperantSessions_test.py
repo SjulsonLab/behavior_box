@@ -164,7 +164,7 @@ time.sleep(1)  # required for connection to complete before transmitting
 
 # verify the arduino is running the correct version of the box code
 arduino.flushInput()
-arduino.write(bytes('checkVersion').encode('utf-8'))
+arduino.write(bytes('checkVersion',encoding = 'utf-8'))
 ver = int(arduino.readline())
 if ver != mouse_info['requiredVersion']:
     raise Exception('This requires the arduino to run version ' + str(mouse_info['requiredVersion']) + \
@@ -216,7 +216,7 @@ try:
         logfile = open(session_info['basename'] + '.txt', 'a+')
 
         # start the trial
-        arduino.write(bytes('startTrialYN;1').encode('utf-8'))
+        arduino.write(bytes('startTrialYN;1',encoding = 'utf-8'))
 
 
         # loop to log info from arduino while trial runs
