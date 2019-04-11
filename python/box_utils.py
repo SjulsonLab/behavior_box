@@ -94,7 +94,8 @@ def append_cue_codes(session_info, mouse_info):
     slot1_vis = 0
     slot1_aud = 0
     slot2_vis = 0
-    slot2_aud = 0
+    slot2_aud = 0 .gitignore
+python/box_utils.py 
     slot3_vis = 0
     slot3_aud = 0
     
@@ -271,6 +272,7 @@ def send_dict_to_arduino(send_this, arduino):
             try:
                 #print(bytes(i + ';' + str(send_this[i][-1]) + '\n', 'utf-8'))
                 arduino.write(bytes(i + ';' + str(send_this[i][-1]) + '\n').encode('utf-8'))
+
             except:
                 warnings.warn('Warning: ' + i + ' did not load')
         elif isinstance(send_this[i], str): # if it's a string, do nothing
