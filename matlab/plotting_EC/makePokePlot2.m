@@ -24,7 +24,7 @@ close all
 nargin = 1;
 visibleON = 1;
 
-cd('G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930');
+%cd('G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930');
 basedir = pwd;
 
 
@@ -49,7 +49,9 @@ end
 
 
 % extract info about nosepokes
-pokes = extract_poke_info(basedir, basename);
+%pokes = extract_poke_info(basedir,basename);
+pokes = extract_poke_info(basedir);
+
 
 
 % 
@@ -128,7 +130,7 @@ pokes = extract_poke_info(basedir, basename);
 
 
 %% extracting poke info from log file
-pokes = extract_poke_info(pwd, basename);
+%pokes = extract_poke_info(pwd, basename);
 
 
 
@@ -251,6 +253,9 @@ Thist = histc(pokes.trial_avails, histvec);
 h4 = plot(histvec/hist_scale, cumsum(Thist), 'k'); hold on
 
 Thist = histc(pokes.trial_starts, histvec);
+if isempty(Thist)
+	Thist = zeros(size(histvec));
+end
 h4 = plot(histvec/hist_scale, cumsum(Thist), 'Color', [0.5 0.5 0.5]);
 
 % plot rewards
@@ -356,6 +361,15 @@ binwidth = 0.1;
 Ntrials_avail = length(pokes.trial_avails);
 Ihistvec = 0:binwidth:max(pokes.trial_start_latencies);
 Ihist = histc(pokes.trial_start_latencies, Ihistvec);
+
+if isempty(Ihistvec)
+	Ihistvec = zeros(size(histvec));
+end
+
+if isempty(Ihist)
+	Ihist = zeros(size(histvec));
+end
+
 Ihist(end) = Ihist(end) + Ntrials_avail - sum(Ihist);
 
 N_left_trials_started = sum(pokes.trialLR_types==1 | pokes.trialLR_types==2);
@@ -364,9 +378,20 @@ LRhistvec = 0:binwidth:max([pokes.Lreward_pokes_latencies pokes.Rreward_pokes_la
 Lhist = histc(pokes.Lreward_pokes_latencies, LRhistvec);
 Rhist = histc(pokes.Rreward_pokes_latencies, LRhistvec);
 
+if isempty(LRhistvec)
+	LRhistvec = zeros(size(histvec));
+end
+
+if isempty(Lhist)
+	Lhist = zeros(size(LRhistvec));
+end
+
+if isempty(Rhist)
+	Rhist = zeros(size(LRhistvec));
+end
+
 Lhist(end) = Lhist(end) + N_left_trials_started - sum(Lhist);
 Rhist(end) = Rhist(end) + N_right_trials_started - sum(Rhist);
-
 
 % h1 = histogram(pokes.trial_start_latencies/1000, 'BinWidth', binwidth, 'Normalization', 'cdf', 'DisplayStyle', 'stairs', 'EdgeColor', 'g');
 h1 = plot(Ihistvec/1000, cumsum(Ihist)./sum(Ihist), 'g');

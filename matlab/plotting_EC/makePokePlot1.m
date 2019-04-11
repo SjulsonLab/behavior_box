@@ -37,8 +37,10 @@ cd(basedir);
 [~, basename] = fileparts(pwd);
 
 try
+
 	load ./mouse_info.mat %load ./mouseStr.mat
 	load ./session_info.mat %load ./sessionStr.mat
+
 catch
 	warning(['Unable to find .mat files in ' basedir]);
 	return
@@ -105,7 +107,9 @@ end
 
 function [f1] = PokePlot(sessionStr,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,flagDS,trialStart)
 close all
+
 histvec = (0:2:trialAvailable(end)+120);
+
 dsFactor = 100;
 if flagDS %added by EFO
    histvec = downsample(histvec,dsFactor);
@@ -236,6 +240,7 @@ legend('L rewards', 'R rewards');
 %% third subplot
 % plot trial starts
 a(3) = subplot(3,1,3);
+
 Thist = histc(trialAvailable, histvec);
 % if flagDS 
 %    Thist = downsample(Thist,dsFactor);
