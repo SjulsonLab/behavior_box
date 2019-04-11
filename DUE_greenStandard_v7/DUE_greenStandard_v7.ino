@@ -252,13 +252,20 @@ void loop() {
         serLogNum("trialLRtype", trialLRtype);
         serLogNum("trialAVtype", trialAVtype);
         serLogNum("Lsize_nL", LrewardSize_nL);
-        //serLogNum("Isize_nL", IrewardSize_nL);
+        serLogNum("Isize_nL", IrewardSize_nL);
         serLogNum("Rsize_nL", RrewardSize_nL);
 
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
         trialAvailTime = millis(); // assign time in ms when trial becomes available/when you're switching to readyToGo state.
-
+        
+        ///////////////
+        // pre-rewarding the trial available
+        if (IrewardCode == 1){
+          deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit); //give reward at init poke at ready signal (didn't work)
+          serLogNum("initReward_nL", IrewardSize_nL);
+        //giveRewards(1);
+        }
 
         if (trainingPhase>1) {
           digitalWrite(whiteNoiseTTL, HIGH); // tell the intan you're going to the readyToGo state/you're about to start the white noise

@@ -1,4 +1,4 @@
-% function makePokePlot2(basedir, startdir)
+ function sessionsPlot(basedir, startdir)
 
 % function makePokePlot2(basedir, startdir)
 %
@@ -16,22 +16,22 @@
 
 
 % for testing
-clear all
-close all
+% clear all
+% close all
 % basedir = 'D1R102Male600_181205_145056';
 % basedir = 'D1R96Male246_181203_154542';
 % startdir = 'C:\Users\lukes\Desktop\temp';
-nargin = 1;
+% nargin = 1;
 visibleON = 1;
 
 %cd('G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930');
 basedir = pwd;
-
+startdir = fileparts(pwd);
 
 %% start of function
 % tic %added by EFO to track time spent on each period
 if nargin<2
-	startdir = pwd;
+	startdir = fileparts(pwd);
 	basedir = pwd;
 end
 
@@ -83,42 +83,42 @@ pokes = extract_poke_info(basedir);
 
 
 %% plotting and saving plot to disk
-
-% % if session_info.trainingPhase > 1
-% %     f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,0,trialStart);
-% % else
-% %     f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,0);
-% % end
-% % savefig(f1, [basename '_pokeplot1.fig'], 'compact');
 % 
-% cd(startdir);
-% % %% the code below is not working to me, idk why, so I made an old style
+%  if session_info.trainingPhase > 1
+%      f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,0,trialStart);
+%  else
+%      f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,0);
+%  end
+%  savefig(f1, [basename '_pokeplot1.fig'], 'compact');
+%  
+%  cd(startdir);
+ %% the code below is not working to me, idk why, so I made an old style
 % % %% one
-% % if exist('figures', 'dir') ~= 7 %it's identifying the folder when it doesn't exist
-% % 	mkdir('figures');
-% % end
+% if exist('figures', 'dir') ~= 7 %it's identifying the folder when it doesn't exist
+% 	mkdir('figures');
+% end
 % auxDir = dir;
 % aux = find([auxDir.isdir]);
-% 
+ 
 % flagdir = 1;
 % for i = aux
 % 	if strcmp(auxDir(i).name,'figures');flagdir = 0;end
 % end
 % if flagdir;mkdir('figures');end
-% 
+ 
 % cd('figures');
 % close all
-% 
+ 
 % if session_info.trainingPhase > 1
 % 	f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,1,trialStart, basedir);
 % else
 % 	f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,1);
 % end
 % print([basename '_pokeplot1.png'], '-dpng');
-% 
+ 
 % close(f1);
 % cd ..
-% 
+ 
 % disp(['Finished pokeplot1 for ', basename]);
 % 
 % 
@@ -407,6 +407,10 @@ h1 = plot(LRhistvec/1000, cumsum(Rhist)./sum(Rhist), 'r');
 t2 = title('Right, Left poke latency');
 x1 = xlabel('Time (seconds)');
 
+
+cd([startdir filesep 'figures'])
+print(f1,'-dpng',[basename '_SessionPlot.png'])
+ end
 
 
 
