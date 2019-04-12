@@ -271,6 +271,7 @@ def send_dict_to_arduino(send_this, arduino):
             try:
                 #print(bytes(i + ';' + str(send_this[i][-1]) + '\n', 'utf-8'))
                 arduino.write(bytes(i + ';' + str(send_this[i][-1]) + '\n', encoding = 'utf-8'))
+
             except:
                 warnings.warn('Warning: ' + i + ' did not load')
         elif isinstance(send_this[i], str): # if it's a string, do nothing

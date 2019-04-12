@@ -295,8 +295,8 @@ end
 if flagdir;mkdir('figures');end
 
 cd('figures');
-savefig(f1, [basename '_sessions_plot1.fig'], 'compact');
-print([basename '_sessions_plot1.png'], '-dpng');
+savefig(f1, [basename '_training_plot1.fig'], 'compact');
+print([basename '_training_plot1.png'], '-dpng');
 
 close(f1);
 cd(basedir)

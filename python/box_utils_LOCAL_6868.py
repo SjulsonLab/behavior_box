@@ -16,11 +16,11 @@ def set_COM_port(session_info):
     elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM4'
+        session_info['COM_port'] = 'COM12'
     elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
         and session_info['box_number'] == 2:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM3'
+        session_info['COM_port'] = 'COM6'
     elif session_info['computer_name'].lower() == 'DESKTOP-RE9G846'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'C:\\Users\\lab\\Desktop\\temp'
@@ -31,6 +31,9 @@ def set_COM_port(session_info):
         session_info['COM_port'] = 'COM6'
     else: 
         raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
+
+
+
 
 def append_cue_codes(session_info, mouse_info):
 
@@ -255,7 +258,7 @@ def set_box_defaults(arduino):
     # send box_params to arduino
     for i in box_params:
     #    print(bytes(i + ';' + str(box_params[i]) + '\n', 'utf-8'))
-        arduino.write(bytes(i + ';' + str(box_params[i]) + '\n',encoding ='utf-8'))
+        arduino.write(bytes(i + ';' + str(box_params[i]) + '\n', encoding = 'utf-8'))
         time.sleep(0.010) # this is necessary to prevent buffer overrun
 
 
@@ -266,7 +269,7 @@ def send_dict_to_arduino(send_this, arduino):
     for i in send_this:
         if isinstance(send_this[i], int): # if it's an int, just send it
             # print(bytes(i + ';' + str(send_this[i]) + '\n', 'utf-8'))
-            arduino.write(bytes(i + ';' + str(send_this[i]) + '\n',encoding = 'utf-8'))
+            arduino.write(bytes(i + ';' + str(send_this[i]) + '\n', encoding = 'utf-8'))
         elif isinstance(send_this[i], list): # if it's a list, send the last entry
             try:
                 #print(bytes(i + ';' + str(send_this[i][-1]) + '\n', 'utf-8'))
