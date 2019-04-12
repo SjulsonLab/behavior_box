@@ -17,7 +17,7 @@ function L = extract_poke_info(basedir)
  %basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930';
  %basedir = pwd; 
  
-%cd(basedir);
+cd(basedir);
 [~,basename] = fileparts(pwd);
 
 
@@ -36,6 +36,7 @@ L.trial_stops = [];
 [~,L.Lreward_size] = getEventTimes('leftReward_nL', [basename '.txt']); %init poke reward size
 [~,L.Rreward_size] = getEventTimes('rightReward_nL', [basename '.txt']); %init poke reward size
 
+
 %% extract latencies for each init poke that resulted in a trial start
 L.trial_start_latencies = zeros(size(L.trial_starts));
 for idx = 1:length(L.trial_starts)
@@ -49,14 +50,14 @@ L.Lreward_pokes_latencies = zeros(size(L.Lreward_pokes));
 for idx = 1:length(L.Lreward_pokes_latencies)
 	tempvec = L.Lreward_pokes(idx) - L.trial_starts;
 	tempvec(tempvec<0) = Inf;
-	L.Lreward_pokes_latencies(idx) = min(tempvec); % finding the closest trial_start that preceded the L reward collection
+	L.Lreward_pokes_latencies(idx) = min(tempvec);% finding the closest trial_start that preceded the L reward collection
 end
 
 L.Rreward_pokes_latencies = zeros(size(L.Rreward_pokes));
 for idx = 1:length(L.Rreward_pokes_latencies)
 	tempvec = L.Rreward_pokes(idx) - L.trial_starts;
 	tempvec(tempvec<0) = Inf;
-	L.Rreward_pokes_latencies(idx) = min(tempvec); % finding the closest trial_start that preceded the L reward collection
+	L.Rreward_pokes_latencies(idx) = min(tempvec);% finding the closest trial_start that preceded the L reward collection
 end
 
 L.trial_starts = L.trial_starts;

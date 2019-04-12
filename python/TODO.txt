@@ -21,5 +21,4 @@ todo for python box client
 [ ] look in the serial device code and see if there's a way to check the output buffer and time based on that
 [ ] replace all camelCase?
 
-
 [ ] fix ctrl-c problem: https://stackoverflow.com/questions/15457786/ctrl-c-crashes-python-after-importing-scipy-stats
