@@ -31,6 +31,7 @@ for idx = idxDir
     if (strfind(animalDir(idx).name,basename))
         cd(animalDir(idx).name)
         %processing and collecting data
+
 %         try
             if isfile('sessionStr.mat')
                 load ./sessionStr.mat
@@ -46,6 +47,7 @@ for idx = idxDir
 %             warning(['Unable to find .mat files in ' basedir]);
 %             return
 %         end
+
         
         % extract times of nosepoke entries
         if flag
@@ -120,12 +122,14 @@ ylabel('# of rewards')
 
 subplot(3,1,2);hold on
 title(basename,'fontsize',16)
+
 plot(doy-doy(1),Lpokes,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',5)
 plot(doy-doy(1),Rpokes,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',5)
 plot(doy-doy(1),Ipokes,'-dg','linewidth',2,'markerfacecolor',[0 1 0],'markersize',5)
 legend('L pokes','R pokes','I pokes','location','northwest')
 xticks(doy-doy(1)) %we have to insert this every subplot
 %xticklabels(auxTicks,'xticklabelmode','manual'); %this we have to remove from every subplot
+
 xlabel('Sessions')
 ylabel('# of pokes')
 set(gca,'fontsize',12)
@@ -172,10 +176,12 @@ yyaxis right
 area(x,trainingPhase,'facecolor','k','edgealpha',0,'facealpha',0.1);
 ylabel('training phase')
 legend('L rewards','R rewards','Total rewards','Trials start','Training phase','location','northwest')
+
 xticks(doy-doy(1))
 % xticks(1:length(Lpokes))
 %xticklabels(auxTicks);
 % yticks([0 unique([ses(:).trainingPhase])])
+
 set(gca,'fontsize',12)
 
 %% saving plot to disk
