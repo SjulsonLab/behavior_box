@@ -27,8 +27,8 @@ def set_COM_port(session_info):
         session_info['COM_port'] = 'COM11'
     elif session_info['computer_name'].lower() == 'fenrir'.lower() \
         and session_info['box_number'] == 1:
-        session_info['basedir'] = 'C:\\Users\\Elie\\Documents\GitHub\\testBehavData'
-        session_info['COM_port'] = 'COM6'
+        session_info['basedir'] = '//media//elie//SSD//testBehData'
+        session_info['COM_port'] = '/dev/ttyACM0'
     else: 
         raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
 

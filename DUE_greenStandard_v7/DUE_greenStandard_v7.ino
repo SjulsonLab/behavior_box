@@ -80,6 +80,11 @@ phases 1 and 2 are different in v6, but the rest are the same as in v5
 ////////////////////////////////////////////////////////////////////////////
 
 
+phase 1xx (e.g.: 101,102) I'm saving for the head-fixed 2AFC [EFO]
+
+phase 201 is for trace appetitive conditioning in head-fixed [EFO]
+
+
 
 reward codes - they are independent of which poke is rewarded
  -1 - punish for incorrect nosepoke during goToPokes
@@ -358,6 +363,28 @@ void loop() {
           serLogNum("punishDelayLength_ms", punishDelayLength);
           switchTo(punishDelay);
         }
+      }
+      
+      if (trainingPhase == 201){
+       //digitalWrite(auditoryCueTTL, HIGH);
+       
+       if ITItime < (millis() - LastTrialTime)
+       playLowTone();
+       serLogNum("CS delivered");
+       toneTime = millis();
+       
+       /*
+       Following dudman work: Tone: 0.5s Trace: 1.5s, ITI: randomly permuted exponential distributions (mean of 10, 25 or 50)
+       I have to insert here a tone for CS, encode a trace of 1.5 s without using delay and reward delivery after that time
+       Check references for the time of each parameter.
+       */
+       if (millis() - toneTime) < 1.5*1000{ // 1.5 s of trace
+         deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
+         serLogNum("initReward_nL", IrewardSize_nL);
+         LastTrialTime = millis();
+         RandNum = random(0,100);
+         ITItime = (-log( (RandNum/100) )+9)*1000; //this is already in arduino time code
+       }
       }
 
 
