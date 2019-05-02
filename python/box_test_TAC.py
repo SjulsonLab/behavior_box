@@ -45,8 +45,8 @@ session_info['phase4_fake_rewards']            = 0
 
 # other parameters
 session_info['maxSessionLength_min']      = 60     # in minutes
-session_info['maxTrials']                 = 300   # program terminates when either maxSessionLength_min or maxTrials is reached
-session_info['maxRewards']                = 200    # program also terminates if maxRewards is reached
+session_info['maxTrials']                 = 100   # program terminates when either maxSessionLength_min or maxTrials is reached
+session_info['maxRewards']                = 100    # program also terminates if maxRewards is reached
 session_info['interTrialInterval_mean']   = 0      # number of extra seconds between trials
 session_info['interTrialInterval_SD']     = 0    # standard deviation of seconds between trials
 session_info['punishForErrorPokeYN']      = 0      # 0 = no, 1 = yes for stage 5 only

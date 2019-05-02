@@ -258,6 +258,7 @@ float RandNum = 0;
 int ITItime = 0;
 int toneTime = 0;
 int LastTrialTime = 0;
+bool flagITI = true;
 
 
 /*

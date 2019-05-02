@@ -29,6 +29,10 @@ def set_COM_port(session_info):
         and session_info['box_number'] == 1:
         session_info['basedir'] = '//media//elie//SSD//testBehData'
         session_info['COM_port'] = '/dev/ttyACM0'
+    elif session_info['computer_name'].lower() == 'DESKTOP-0K6KLC7'.lower() \
+        and session_info['box_number'] == 1:
+        session_info['basedir'] = 'C:\\Users\\fermi\\Data\\testBehavior'
+        session_info['COM_port'] = 'COM3'
     else: 
         raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
 
@@ -317,8 +321,8 @@ def append_random_LR(session_info):
 
     if session_info['trainingPhase'] in [1, 2]:
         options = [1, 3]
-    elif session_info['trainingPhase'] in [3, 4, 5, 6]:
-        options = [1, 2, 3, 4, 5, 6]
+    elif session_info['trainingPhase'] in [3, 4, 5, 6,201]:
+        options = [1, 2, 3, 4, 5, 6,201]
     else: 
         warnings.warn('Incorrect training phase')
         options = [1]
