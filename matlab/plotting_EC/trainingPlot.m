@@ -63,7 +63,7 @@ IrewardSize_nL = [D(:).IrewardSize_nL];
 for i = 1:length(L)
     intervals = [L(i).trial_starts; L(i).trial_stops];
     allpokes = [L(i).Lpokes L(i).Rpokes];
-    for it = 1:length(intervals)
+    for it = 1:size(intervals,2)
         temp = Restrict(allpokes,intervals(:,it)'); %getting the latency to first poke in the trial
         if ~isempty(temp)
             sidePoke(i).first_sidePoke_latenc(it) = temp(1);
@@ -128,6 +128,7 @@ area(x,trainingPhase,'facecolor','k','edgealpha',0,'facealpha',0.1);
 ylabel('training phase')
 legend('L rewards','R rewards','Total rewards','Trials start','Trials missed','Training phase','location','northwest')
 xticks(day_helper)
+xlim([day_helper(1) day_helper(end)])
 % xticks(1:length(Lpokes))
 %xticklabels(auxTicks);
 % yticks([0 unique([ses(:).trainingPhase])])
@@ -226,6 +227,7 @@ plot(day_helper,[acc.right_pval],'-d','color',dark_red,'linewidth',2,'markerface
 ylabel('p-value')
 ylim([0 0.10])
 xticks(day_helper)
+xlim([day_helper(1) day_helper(end)])
 legend('All','Left','Right','All _p_v_a_l_u_e','L _p_v_a_l_u_e','R _p_v_a_l_u_e','location','southwest')
 
 set(gca,'fontsize',12)
@@ -247,7 +249,13 @@ right_color = [117 176 255]/255;
 yyaxis left
 
 RewardSizes = {L.Ireward_size;L.Lreward_size;L.Rreward_size};
-reward_size = cellfun(@(x) sum(x,2),RewardSizes);
+aux_rewardSize = cellfun(@(x) sum(x,2),RewardSizes,'UniformOutput',false);
+temp = find(cellfun(@(x) isempty(x),aux_rewardSize));
+for i = 1:length(temp)
+    aux_rewardSize{temp(i)} = 0;
+end
+reward_size = cell2mat(aux_rewardSize);
+
 
 plot(day_helper,reward_size(1,:)/1000,'-d','color',[97 211 127]/255,'linewidth',2,'markerfacecolor',[97 211 127]/255,'markersize',8)
 plot(day_helper,reward_size(2,:)/1000,'-d','color',[97 204 211]/255,'linewidth',2,'markerfacecolor',[97 204 211]/255,'markersize',8)
@@ -259,6 +267,7 @@ plot(day_helper,[D.weight],'-d','color',left_color,'linewidth',2,'markerfacecolo
 legend('Init consump','Left consump','Right consump','Weight')
 ylabel('mouse weight (g)')
 xticks(day_helper)
+xlim([day_helper(1) day_helper(end)])
 xlabel('Sessions')
 set(gca,'fontsize',12)
 
@@ -270,16 +279,16 @@ subplot(5,1,5)
 title('session parameters')
 yyaxis left
 hold on
-plot(day_helper+(randn(1,5)/50),[D.initiation_time_limit],':dm','linewidth',2,'markerfacecolor','m')
-plot(day_helper+(randn(1,5)/50),[D.sidePoke_time_limit],':dc','linewidth',2,'markerfacecolor','c')
-plot(day_helper+(randn(1,5)/50),[D.punish_time],':d','color',[0.4660 0.6740 0.1880],'linewidth',2,'markerfacecolor',[0.4660 0.6740 0.1880])
+plot(day_helper+(randn(1,size(day_helper,2))/50),[D.initiation_time_limit],':dm','linewidth',2,'markerfacecolor','m')
+plot(day_helper+(randn(1,size(day_helper,2))/50),[D.sidePoke_time_limit],':dc','linewidth',2,'markerfacecolor','c')
+plot(day_helper+(randn(1,size(day_helper,2))/50),[D.punish_time],':d','color',[0.4660 0.6740 0.1880],'linewidth',2,'markerfacecolor',[0.4660 0.6740 0.1880])
 ylabel('time (s)')
 %plot time if initiated and etc
 yyaxis right
 hold on
-plot(day_helper+(randn(1,5)/50),[D.IrewardSize_nL],':dg','linewidth',2,'markerfacecolor','g')
-plot(day_helper+(randn(1,5)/50),[D.LrewardSize_nL],':db','linewidth',2,'markerfacecolor','b')
-plot(day_helper+(randn(1,5)/50),[D.RrewardSize_nL],':dr','linewidth',2,'markerfacecolor','r')
+plot(day_helper+(randn(1,size(day_helper,2))/50),[D.IrewardSize_nL],':dg','linewidth',2,'markerfacecolor','g')
+plot(day_helper+(randn(1,size(day_helper,2))/50),[D.LrewardSize_nL],':db','linewidth',2,'markerfacecolor','b')
+plot(day_helper+(randn(1,size(day_helper,2))/50),[D.RrewardSize_nL],':dr','linewidth',2,'markerfacecolor','r')
 ylabel('reward size (uL)')
 xlim([day_helper(1)-0.07 day_helper(end)+0.07])
 legend('init time limit','side poke time limit','punishment time','I reward size','L reward size','R reward size','location','best')

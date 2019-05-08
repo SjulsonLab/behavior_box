@@ -11,7 +11,9 @@ function acc = calc_accuracy_LS(pokes)
 % % for testing only
 % clear all
 % close all
-% basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591_20190331_172645';
+% basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591_20190326_155919';
+ basedir = pwd; 
+ pokes = extract_poke_info(basedir);
 % pokes.trialLR_types([1:3:20]) = 6; % just to make sure it handles free choice trials 
 
 %% start of actual function
@@ -80,9 +82,23 @@ for idx = 1:N
 end
 
 % calculate P-values
-all_pval   = sum(all_accuracy <= all_accuracy_null) ./ N;
-left_pval  = sum(left_accuracy <= left_accuracy_null) ./ N;
-right_pval = sum(right_accuracy <= right_accuracy_null) ./ N;
+if isnan(all_accuracy)
+    all_pval = 1;
+else
+    all_pval   = sum(all_accuracy <= all_accuracy_null) ./ N;
+end
+
+if isnan(left_accuracy)
+    left_pval = 1;
+else
+    left_pval  = sum(left_accuracy <= left_accuracy_null) ./ N;
+end
+
+if isnan(right_accuracy)
+    right_pval = 1;
+else
+    right_pval = sum(right_accuracy <= right_accuracy_null) ./ N;
+end
 
 %% copy everything into a struct (by doing this at the end, you control the order of fields)
 acc.all = all_accuracy;
