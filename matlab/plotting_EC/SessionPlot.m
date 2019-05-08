@@ -36,6 +36,32 @@ if nargin<2
 end
 
 cd(startdir);
+
+
+
+N = session_day_num(startdir); 
+
+    cellofDates = {N(:).date};
+    days = cellfun(@str2num,cellofDates);
+        
+    for i =1:length(cellofDates) 
+    yyyy(i) = str2num(cellofDates{i}(1:4)); 
+    mm(i) = str2num(cellofDates{i}(5:6)); 
+    dd(i) = str2num(cellofDates{i}(7:8)); 
+    end
+        
+% transfer dates into days of year 
+auxd = datetime(yyyy,mm,dd); 
+doy = day(auxd,'dayofyear');
+for i = 1:length(doy)
+    doy2{i,1} = num2str(doy(i)-doy(1));
+end
+auxTicks = doy2;
+
+
+sessionNum = doy(i) - doy(1);
+
+
 cd(basedir);
 [~, basename] = fileparts(pwd);
 
@@ -51,6 +77,10 @@ end
 % extract info about nosepokes
 %pokes = extract_poke_info(basedir,basename);
 pokes = extract_poke_info(basedir);
+
+
+
+
 
 
 
@@ -213,7 +243,8 @@ h2.Color(4) = 0.5;
 
 % x1 = xlabel('Time (seconds)');
 
-t1 = title([basename ', trainingPhase ' num2str(session_info.trainingPhase)]);
+
+t1 = title([basename ', trainingPhase ' num2str(session_info.trainingPhase) ', sessionNum ' num2str(sessionNum)]);
 t1.Interpreter = 'none';
 a(1).XTickLabel = [];
 ylabel('Nosepokes');
@@ -394,23 +425,50 @@ Lhist(end) = Lhist(end) + N_left_trials_started - sum(Lhist);
 Rhist(end) = Rhist(end) + N_right_trials_started - sum(Rhist);
 
 % h1 = histogram(pokes.trial_start_latencies/1000, 'BinWidth', binwidth, 'Normalization', 'cdf', 'DisplayStyle', 'stairs', 'EdgeColor', 'g');
-h1 = plot(Ihistvec/1000, cumsum(Ihist)./sum(Ihist), 'g');
-t1 = title('Init poke latency distr.');
-x1 = xlabel('Time (seconds)');
+h1 = plot(Ihistvec/1000, cumsum(Ihist)./sum(Ihist), 'g');hold on
+%t1 = title('Init poke latency distr.');
+%x1 = xlabel('Time (seconds)');
 
-s2 = subplot(3, 4, 8);
-h1 = plot(LRhistvec/1000, cumsum(Lhist)./sum(Lhist), 'b'); hold on
+%s2 = subplot(3, 4, 8);
+h1 = plot(LRhistvec/1000, cumsum(Lhist)./sum(Lhist), 'b'); 
 h1 = plot(LRhistvec/1000, cumsum(Rhist)./sum(Rhist), 'r');
 
 % h1 = histogram(pokes.Lreward_pokes_latencies/1000, 'BinWidth', binwidth, 'Normalization', 'cdf', 'DisplayStyle', 'stairs', 'EdgeColor', 'b'); hold on
 % h2 = histogram(pokes.Rreward_pokes_latencies/1000, 'BinWidth', binwidth, 'Normalization', 'cdf', 'DisplayStyle', 'stairs', 'EdgeColor', 'r');
-t2 = title('Right, Left poke latency');
+t2 = title('Init, Right and Left poke latency');
 x1 = xlabel('Time (seconds)');
 
+%% Fifth subplot 
+acc = calc_accuracy_LS(pokes); 
+
+s2 = subplot(3, 4, 8);
+x = {'all','left','right'}; 
+c = categorical(x); 
+y = [acc.all,acc.left,acc.right]; 
+bar(c,y); 
+t2 = title('All, Right and Left poke accuracy');
+y2 = ylabel('% correct');
+
+%% Sixth subplot 
+
+s3 = subplot(3, 4, 12); 
+x = {'all','left','right'}; 
+c = categorical(x); 
+y2 = [acc.all_pval,acc.left_pval,acc.right_pval]; 
+bar(c,y2); 
+t3 = title('All, Right and Left poke accuracy');
+y3 = ylabel('P value');
+
+
+%% Save to disk 
+
+cd(startdir);
+flagdir = 1;
+for i = length(dir)
+    if strcmp(startdir(i),'figures');flagdir = 0;end
+end
+if flagdir;mkdir('figures');end
 
 cd([startdir filesep 'figures'])
 print(f1,'-dpng',[basename '_SessionPlot.png'])
  end
-
-
-
