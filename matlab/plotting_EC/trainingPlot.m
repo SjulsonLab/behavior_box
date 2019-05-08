@@ -1,6 +1,6 @@
 %% extract all info
 
-function sessionsPokePlot1_practice(basedir)
+function trainingPlot(basedir)
 
 % function sessionsPokePlot1(basedir, startdir)
 %
@@ -35,7 +35,7 @@ for idx = idxDir
         %if flag
         s = s+1;
         L(s) = extract_poke_info(cd);
-        D(s) = date_weight_info(cd);
+        D(s) = extract_session_info(cd);
         
         pokes = extract_poke_info(cd);
         acc(s) = calc_accuracy_LS(pokes);
@@ -99,7 +99,7 @@ f1.OuterPosition = [283 248 1975 1035];
 day_helper = doy-doy(1);
 
 
-subplot(4,1,1);hold on
+subplot(5,1,1);hold on
 plot(day_helper,Lrewards,'-db','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
 plot(day_helper,Rrewards,'-dr','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
 plot(day_helper,Lrewards+Rrewards,'-dg','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
@@ -122,7 +122,7 @@ for i = 1:length(auxShade)
     trainingPhase = [trainingPhase(1:auxShade(i)-1) trainingPhase(auxShade(i)-1) trainingPhase(auxShade(i):end)];
 end
 
-subplot(4,1,1)
+subplot(5,1,1)
 yyaxis right
 area(x,trainingPhase,'facecolor','k','edgealpha',0,'facealpha',0.1);
 ylabel('training phase')
@@ -139,7 +139,7 @@ set(gca,'fontsize',12)
 
 
 %second plot - latency to poke on either left or right after initpoke
-subplot(4,1,2)
+subplot(5,1,2)
 latenciesL = [];
 id_LatencL = [];
 latenciesR = [];
@@ -211,7 +211,7 @@ set(gca,'fontsize',12)
 
 
 %third plot- % accuracy
-subplot(4,1,3);hold on
+subplot(5,1,3);hold on
 yyaxis left
 plot(day_helper,[acc.all],'-dg','linewidth',2,'markerfacecolor',[0 0 1],'markersize',3)
 plot(day_helper,[acc.left],'-db','linewidth',2,'markerfacecolor',[1 0 0],'markersize',3)
@@ -238,7 +238,7 @@ set(gca,'fontsize',12)
 
 
 %fourth plot - weight and water consumption
-subplot(4,1,4);hold on
+subplot(5,1,4);hold on
 
 left_color = [255 149 79]/255;
 right_color = [117 176 255]/255;
@@ -263,6 +263,27 @@ xlabel('Sessions')
 set(gca,'fontsize',12)
 
 
+% fifth subplot - parameter from the task: time limit to side poke, to init
+% poke, punishment time if not initiated, reward sizes and probability of
+% the init poke
+subplot(5,1,5)
+title('session parameters')
+yyaxis left
+hold on
+plot(day_helper+(randn(1,5)/50),[D.initiation_time_limit],':dm','linewidth',2,'markerfacecolor','m')
+plot(day_helper+(randn(1,5)/50),[D.sidePoke_time_limit],':dc','linewidth',2,'markerfacecolor','c')
+plot(day_helper+(randn(1,5)/50),[D.punish_time],':d','color',[0.4660 0.6740 0.1880],'linewidth',2,'markerfacecolor',[0.4660 0.6740 0.1880])
+ylabel('time (s)')
+%plot time if initiated and etc
+yyaxis right
+hold on
+plot(day_helper+(randn(1,5)/50),[D.IrewardSize_nL],':dg','linewidth',2,'markerfacecolor','g')
+plot(day_helper+(randn(1,5)/50),[D.LrewardSize_nL],':db','linewidth',2,'markerfacecolor','b')
+plot(day_helper+(randn(1,5)/50),[D.RrewardSize_nL],':dr','linewidth',2,'markerfacecolor','r')
+ylabel('reward size (uL)')
+xlim([day_helper(1)-0.07 day_helper(end)+0.07])
+legend('init time limit','side poke time limit','punishment time','I reward size','L reward size','R reward size','location','best')
+%plot reward sizes
 
 %% saving plot to disk
 
@@ -274,10 +295,10 @@ end
 if flagdir;mkdir('figures');end
 
 cd('figures');
-savefig(f1, [basename '_sessions_plot1.fig'], 'compact');
-print([basename '_sessions_plot1.png'], '-dpng');
+savefig(f1, [basename '_training_plot1.fig'], 'compact');
+print([basename '_training_plot1.png'], '-dpng');
 
 close(f1);
 cd(basedir)
 
-disp(['Finished session plot for ', basename]);
+disp(['Finished training plot for ', basename]);

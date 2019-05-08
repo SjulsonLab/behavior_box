@@ -16,19 +16,11 @@ def set_COM_port(session_info):
     elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-<<<<<<< HEAD
-        session_info['COM_port'] = 'COM12'
-    elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
-        and session_info['box_number'] == 2:
-        session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM6'
-=======
         session_info['COM_port'] = 'COM4'
     elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
         and session_info['box_number'] == 2:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
         session_info['COM_port'] = 'COM3'
->>>>>>> ec_modified
     elif session_info['computer_name'].lower() == 'DESKTOP-RE9G846'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'C:\\Users\\lab\\Desktop\\temp'
@@ -263,11 +255,7 @@ def set_box_defaults(arduino):
     # send box_params to arduino
     for i in box_params:
     #    print(bytes(i + ';' + str(box_params[i]) + '\n', 'utf-8'))
-<<<<<<< HEAD
-        arduino.write(bytes(i + ';' + str(box_params[i]) + '\n', encoding = 'utf-8'))
-=======
-        arduino.write(bytes(i + ';' + str(box_params[i]) + '\n').encode('utf-8'))
->>>>>>> ec_modified
+        arduino.write(bytes(i + ';' + str(box_params[i]) + '\n',encoding ='utf-8'))
         time.sleep(0.010) # this is necessary to prevent buffer overrun
 
 
@@ -278,19 +266,12 @@ def send_dict_to_arduino(send_this, arduino):
     for i in send_this:
         if isinstance(send_this[i], int): # if it's an int, just send it
             # print(bytes(i + ';' + str(send_this[i]) + '\n', 'utf-8'))
-<<<<<<< HEAD
-            arduino.write(bytes(i + ';' + str(send_this[i]) + '\n', encoding = 'utf-8'))
+            arduino.write(bytes(i + ';' + str(send_this[i]) + '\n',encoding = 'utf-8'))
         elif isinstance(send_this[i], list): # if it's a list, send the last entry
             try:
                 #print(bytes(i + ';' + str(send_this[i][-1]) + '\n', 'utf-8'))
                 arduino.write(bytes(i + ';' + str(send_this[i][-1]) + '\n', encoding = 'utf-8'))
-=======
-            arduino.write(bytes(i + ';' + str(send_this[i]) + '\n').encode('utf-8'))
-        elif isinstance(send_this[i], list): # if it's a list, send the last entry
-            try:
-                #print(bytes(i + ';' + str(send_this[i][-1]) + '\n', 'utf-8'))
-                arduino.write(bytes(i + ';' + str(send_this[i][-1]) + '\n').encode('utf-8'))
->>>>>>> ec_modified
+
             except:
                 warnings.warn('Warning: ' + i + ' did not load')
         elif isinstance(send_this[i], str): # if it's a string, do nothing

@@ -28,11 +28,10 @@ function makePokePlot1(basedir, startdir)
 %% start of function
 % tic %added by EFO to track time spent on each period
 if nargin<2
-	startdir = pwd;
+	startdir = fileparts(pwd);
     basedir = pwd;
 end
 
-cd(startdir);
 cd(basedir);
 [~, basename] = fileparts(pwd);
 

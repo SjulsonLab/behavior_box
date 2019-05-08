@@ -25,12 +25,16 @@ cd(basedir);
 L.Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
 L.Rpokes = getEventTimes('rightPokeEntry', [basename '.txt']);
 L.Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
-[L.Lreward_pokes, ~, L.Lreward_poke_trialnum] = getEventTimes('leftRewardCollected', [basename '.txt']);
+[L.Lreward_pokes, ~, L.Lreward_poke_trialnum] =   getEventTimes('leftRewardCollected', [basename '.txt']);
 [L.Rreward_pokes, ~, L.Rreward_poke_trialnum] = getEventTimes('rightRewardCollected', [basename '.txt']);
 % extract times of trial starts
 L.trial_avails = getEventTimes('TrialAvailable', [basename '.txt']);
 [L.trial_starts, ~, L.trial_start_nums] = getEventTimes('TrialStarted', [basename '.txt']);
 L.trial_stops = [];
+% extract reward size for each poke
+[~,L.Ireward_size] = getEventTimes('initReward_nL', [basename '.txt']); %init poke reward size
+[~,L.Lreward_size] = getEventTimes('leftReward_nL', [basename '.txt']); %init poke reward size
+[~,L.Rreward_size] = getEventTimes('rightReward_nL', [basename '.txt']); %init poke reward size
 
 
 %% extract latencies for each init poke that resulted in a trial start
