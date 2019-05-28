@@ -27,8 +27,12 @@ def set_COM_port(session_info):
         session_info['COM_port'] = 'COM11'
     elif session_info['computer_name'].lower() == 'fenrir'.lower() \
         and session_info['box_number'] == 1:
-        session_info['basedir'] = 'C:\\Users\\Elie\\Documents\GitHub\\testBehavData'
-        session_info['COM_port'] = 'COM6'
+        session_info['basedir'] = '//media//elie//SSD//testBehData'
+        session_info['COM_port'] = '/dev/ttyACM1'
+    elif session_info['computer_name'].lower() == 'DESKTOP-0K6KLC7'.lower() \
+        and session_info['box_number'] == 1:
+        session_info['basedir'] = 'C:\\Users\\fermi\\Data\\testBehavior'
+        session_info['COM_port'] = 'COM3'
     else: 
         raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
 
@@ -271,7 +275,6 @@ def send_dict_to_arduino(send_this, arduino):
             try:
                 #print(bytes(i + ';' + str(send_this[i][-1]) + '\n', 'utf-8'))
                 arduino.write(bytes(i + ';' + str(send_this[i][-1]) + '\n', encoding = 'utf-8'))
-
             except:
                 warnings.warn('Warning: ' + i + ' did not load')
         elif isinstance(send_this[i], str): # if it's a string, do nothing
@@ -318,8 +321,8 @@ def append_random_LR(session_info):
 
     if session_info['trainingPhase'] in [1, 2]:
         options = [1, 3]
-    elif session_info['trainingPhase'] in [3, 4, 5, 6]:
-        options = [1, 2, 3, 4, 5, 6]
+    elif session_info['trainingPhase'] in [3, 4, 5, 6,201]:
+        options = [1, 2, 3, 4, 5, 6,201]
     else: 
         warnings.warn('Incorrect training phase')
         options = [1]

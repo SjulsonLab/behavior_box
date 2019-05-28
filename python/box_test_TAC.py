@@ -1,4 +1,5 @@
-# importing stuffimport timeimport datetime
+### test for trace appetitive conditioning
+# importing stuffimport timeimport datetime 
 import time
 import datetime
 import os, sys
@@ -26,8 +27,7 @@ mouse_info = pysistence.make_dict({'mouseName': 'testingProtocol',
 # Information for this session (the user should edit this each session)
 session_info                              = collections.OrderedDict()
 session_info['mouseName']                 = mouse_info['mouseName']
-session_info['transitionPhases']          = 1 #variable to signal if it is transitioning phases or not (0 - no transition; 1 - transition)
-session_info['trainingPhase']             = 1
+session_info['trainingPhase']             = 201
 session_info['weight']                    = 27.3
 session_info['date']                      = datetime.datetime.now().strftime("%Y%m%d")
 session_info['time']                      = datetime.datetime.now().strftime('%H%M%S')
@@ -45,8 +45,8 @@ session_info['phase4_fake_rewards']            = 0
 
 # other parameters
 session_info['maxSessionLength_min']      = 60     # in minutes
-session_info['maxTrials']                 = 300   # program terminates when either maxSessionLength_min or maxTrials is reached
-session_info['maxRewards']                = 200    # program also terminates if maxRewards is reached
+session_info['maxTrials']                 = 100   # program terminates when either maxSessionLength_min or maxTrials is reached
+session_info['maxRewards']                = 100    # program also terminates if maxRewards is reached
 session_info['interTrialInterval_mean']   = 0      # number of extra seconds between trials
 session_info['interTrialInterval_SD']     = 0    # standard deviation of seconds between trials
 session_info['punishForErrorPokeYN']      = 0      # 0 = no, 1 = yes for stage 5 only
@@ -74,7 +74,7 @@ session_info['laserOnCode']            = [0]
 # reward parameters for first trial
 session_info['LrewardSize_nL']         = [2500] # the starting value, which will be updated over time
 session_info['RrewardSize_nL']         = [2500]
-session_info['IrewardSize_nL']         = [500]
+session_info['IrewardSize_nL']         = [2500]
 session_info['rewardSizeMax_nL']       = [3000]
 session_info['rewardSizeMin_nL']       = [500]
 session_info['rewardSizeDelta_nL']     = [500] # the number of nanoliters to adjust reward size by 
@@ -159,10 +159,8 @@ try:
 except:
     pass
 arduino = serial.Serial(session_info['COM_port'], connection_speed, timeout=10) # Establish the connection on a specific port
-
 if sys.platform == "win32": #the function below doesn't exist for linux. And it is working fine without it.
     arduino.set_buffer_size(rx_size=10000000, tx_size=10000000)
-
 time.sleep(1)  # required for connection to complete before transmitting
 # arduino.write(b'calibrationLength;1000\n')  # for testing
 
@@ -256,10 +254,6 @@ try:
             print('Maximum number of rewards reached. Exiting.')
             exit_loop = True
 
-        # evaluate number of rewards and see if it is a transition phase
-        if (session_info['transitionPhases'] == 1) & (total_rewards == 15):
-            session_info['trainingPhase'] += 1
-            session_info['transitionPhases'] = 0
         # optionally add random extra ITI
         time.sleep(random.gauss(session_info['interTrialInterval_mean'], session_info['interTrialInterval_SD']))
 

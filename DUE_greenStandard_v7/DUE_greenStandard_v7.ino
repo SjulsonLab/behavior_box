@@ -66,6 +66,8 @@
 #define goToPokes       		9  // nosepokes open, animal can approach and collect reward
 #define letTheAnimalDrink  10  // waiting for animal to collect reward
 #define calibration        11  // state for calibrating the sound and light cue levels
+#define CSdelivery         201 // state to deliver CS for the animal in Trace apettitive conditioning
+#define TracePeriod        202 // state for the trace period in TAC
 /*
 
 phases 1 and 2 are different in v6, but the rest are the same as in v5
@@ -78,6 +80,11 @@ phases 1 and 2 are different in v6, but the rest are the same as in v5
   PHASE 4. nosepoke hold through precue, then nosepoke hold through increased IOI (stimulus inter-onset interval)
   PHASE 5. correct choice: full task with punishment for incorrect choice
 ////////////////////////////////////////////////////////////////////////////
+
+
+phase 1xx (e.g.: 101,102) I'm saving for the head-fixed 2AFC [EFO]
+
+phase 201 is for trace appetitive conditioning in head-fixed [EFO]
 
 
 
@@ -305,7 +312,7 @@ void loop() {
 
     case readyToGo:
 
-	  if (trainingPhase >= 2) {   
+	  if (trainingPhase >= 2 & trainingPhase <= 99) {   
         playWhiteNoise();
       }
       
@@ -357,6 +364,17 @@ void loop() {
           sndCounter = 0;
           serLogNum("punishDelayLength_ms", punishDelayLength);
           switchTo(punishDelay);
+        }
+      }
+      
+      if (trainingPhase == 201){
+       //digitalWrite(auditoryCueTTL, HIGH);
+       
+       if (ITItime < (millis() - LastTrialTime) & flagITI){
+        flagITI = false;
+        serLogNum("CS_delivered",millis()-trialAvailTime);
+        toneTime = millis();
+        switchTo(CSdelivery);
         }
       }
 
@@ -771,7 +789,46 @@ void loop() {
       delayMicroseconds(pauseLengthMicros);
       break;
 
+    ////////////////////
+    //CS DELIVERY
+    //CS delivery for Trace apettitive conditioning
+    case CSdelivery:
+      
+       if (~flagITI & ( (millis() - toneTime) < 0.5*1000) ) {
+         playLowTone();
+       }
+       else if(~flagITI & ( (millis() - toneTime) > 0.5*1000) ){
+         switchTo(TracePeriod);
+       }
+       delayMicroseconds(pauseLengthMicros);
+       break;
+      
 
+    ////////////////////
+    //Trace Period
+    //
+    case TracePeriod:
+        /*
+       Following dudman work: Tone: 0.5s Trace: 1.5s, ITI: randomly permuted exponential distributions (mean of 10, 25 or 50)
+       I have to insert here a tone for CS, encode a trace of 1.5 s without using delay and reward delivery after that time
+       Check references for the time of each parameter.
+       */
+        if ( (millis() - toneTime) > 1.5*1000 ){ // 1.5 s of trace %after trace is over
+           deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
+           serLogNum("initReward_nL", IrewardSize_nL);
+           LastTrialTime = millis();
+           RandNum = random(0,100);
+           ITItime = (-log( (RandNum/100) )+9)*1000; //this is already in arduino time code
+           while (ITItime > 40*1000){ //here I have problems that the ITI gets huge
+             ITItime = (-log( (RandNum/100) )+9)*1000; //this is already in arduino time code
+           }
+           serLogNum("ITIperiod_ms",ITItime);
+           flagITI = true;
+           switchTo(letTheAnimalDrink);
+        }
+       delayMicroseconds(pauseLengthMicros);
+       break;
+       
     ////////////////////
     // LETTHEANIMALDRINK
     // delay while animal collects reward

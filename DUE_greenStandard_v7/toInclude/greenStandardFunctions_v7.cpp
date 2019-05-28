@@ -253,6 +253,13 @@ long syringeSize_mL          = 5;
 long trialLRtype       = 0;   
 long trialAVtype       = 0; 
 
+// variables for training animal for trace appetitive conditioning
+float RandNum = 0;
+int ITItime = 0;
+int toneTime = 0;
+int LastTrialTime = 0;
+bool flagITI = true;
+
 
 /*
 //***********************************************
