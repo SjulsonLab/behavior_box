@@ -26,6 +26,7 @@ mouse_info = pysistence.make_dict({'mouseName': 'testingProtocol',
 # Information for this session (the user should edit this each session)
 session_info                              = collections.OrderedDict()
 session_info['mouseName']                 = mouse_info['mouseName']
+session_info['transitionPhases']          = 1 #variable to signal if it is transitioning phases or not (0 - no transition; 1 - transition)
 session_info['trainingPhase']             = 1
 session_info['weight']                    = 27.3
 session_info['date']                      = datetime.datetime.now().strftime("%Y%m%d")
@@ -255,6 +256,10 @@ try:
             print('Maximum number of rewards reached. Exiting.')
             exit_loop = True
 
+        # evaluate number of rewards and see if it is a transition phase
+        if (session_info['transitionPhases'] == 1) & (total_rewards == 15):
+            session_info['trainingPhase'] += 1
+            session_info['transitionPhases'] = 0
         # optionally add random extra ITI
         time.sleep(random.gauss(session_info['interTrialInterval_mean'], session_info['interTrialInterval_SD']))
 
