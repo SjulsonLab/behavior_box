@@ -26,7 +26,7 @@ mouse_info = pysistence.make_dict({'mouseName': 'testingProtocol',
 # Information for this session (the user should edit this each session)
 session_info                              = collections.OrderedDict()
 session_info['mouseName']                 = mouse_info['mouseName']
-session_info['transitionPhases']          = 1 #variable to signal if it is transitioning phases or not (0 - no transition; 1 - transition)
+session_info['transitionPhases']          = 0 #variable to signal if it is transitioning phases or not (0 - no transition; 1 - transition)
 session_info['trainingPhase']             = 1
 session_info['weight']                    = 27.3
 session_info['date']                      = datetime.datetime.now().strftime("%Y%m%d")
