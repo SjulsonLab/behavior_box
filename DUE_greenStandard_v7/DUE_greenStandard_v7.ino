@@ -282,7 +282,7 @@ void loop() {
       }
 
       // for calibrating the volume levels and cue light brightness
-      if (calibrationLength > 0) {
+      if (calibrationLength > 0 ){//|| activatePump > 0) {
         // setting to max brightness. Voltage drop across resistor should be 10 mV
         setLEDlevel(cueLED1pin, 1023);
         setLEDlevel(cueLED2pin, 1023);
@@ -866,7 +866,22 @@ void loop() {
         playWhiteNoise();  
       }
 
+      if(activatePump == 1){
+//        serLog("You activated the pump");
+        deliverReward_dc(5000, 1000, 5, syringePumpLeft);
+        activatePump = 0;
+      }
+      else if (activatePump == 2){
+        deliverReward_dc(5000, 1000, 5, syringePumpInit);
+        activatePump = 0;
+      }
+      else if (activatePump == 3){
+        deliverReward_dc(5000, 1000, 5, syringePumpRight);
+        activatePump = 0;
+      }
+
       if ((millis() - tempTime) > calibrationLength) {
+        deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
         calibrationLength = 0;
         sndCounter = 0;
         switchTo(standby);
