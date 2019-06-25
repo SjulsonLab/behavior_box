@@ -233,7 +233,7 @@ long highCueVolume   = 128;
 long buzzerVolume    = 128; 
 long WNvolume        = 128; // between 0-255
 long whichSound      = 1;
-
+long activatePump    = 0;
 long cueLED1Brightness   = 255;
 long cueLED2Brightness   = 255;
 long cueLED3Brightness   = 255;
@@ -764,6 +764,7 @@ void processMessage() {
     changeVariableLong("highCueVolume", &highCueVolume, inLine);
     changeVariableLong("buzzerVolume", &buzzerVolume, inLine);
     changeVariableLong("calibrationLength", &calibrationLength, inLine);
+    changeVariableLong("activatePump", &activatePump, inLine); //added by EFO
     changeVariableLong("whichSound", &whichSound, inLine);
 
     changeVariableLong("cueLED1Brightness", &cueLED1Brightness, inLine);
