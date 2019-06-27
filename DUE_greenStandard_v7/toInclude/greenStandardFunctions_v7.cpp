@@ -221,6 +221,8 @@ long extra4rewardCode       = 0;
 long extra5rewardCode       = 0;
 long extra6rewardCode       = 0;
 
+long InterTrialInterval      = 0; // ITI for the TAC task. Implemented by EFO
+
 long laserOnCode            = 0; // FIX: laserOnCode is set twice
 long IopenYN                = 1; // whether to open L nosepoke upon goToPokes fix: should this be 1?
 long LopenYN                = 1;
@@ -753,6 +755,7 @@ void processMessage() {
     // all the variables (ints) go here
     // order has been fixed w.matlab's order
     changeVariableLong("nTrial", &nTrial, inLine);
+    changeVariableLong("InterTrialInterval", &InterTrialInterval, inLine);
     changeVariableLong("resetTimeYN", &resetTimeYN, inLine);
     changeVariableLong("initPokePunishYN", &initPokePunishYN, inLine);
     changeVariableLong("cameraRecordingYN", &cameraRecordingYN, inLine);
