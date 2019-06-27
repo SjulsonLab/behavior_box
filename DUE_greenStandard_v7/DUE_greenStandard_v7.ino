@@ -818,11 +818,12 @@ void loop() {
            serLogNum("initReward_nL", IrewardSize_nL);
            LastTrialTime = millis();
            RandNum = random(0,100);
-           ITItime = (-log( (RandNum/100) )+9)*1000; //this is already in arduino time code
-           while (ITItime > 40*1000){ //here I have problems that the ITI gets huge
-             ITItime = (-log( (RandNum/100) )+9)*1000; //this is already in arduino time code
+           ITItime = (-log( (RandNum/100) )+InterTrialInterval)*1000; //this is already in arduino time code
+           while (ITItime > 120*1000 || ITItime < 6*1000){ //here I have problems that the ITI gets huge
+             ITItime = (-log( (RandNum/100) )+InterTrialInterval)*1000; //this is already in arduino time code
            }
            serLogNum("ITIperiod_ms",ITItime);
+           serLogNum("ITIfixed_s",InterTrialInterval);
            flagITI = true;
            switchTo(letTheAnimalDrink);
         }
