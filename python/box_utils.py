@@ -8,11 +8,11 @@ def set_COM_port(session_info):
     elif session_info['computer_name'].lower() == 'bumbrlik01'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM5'
+        session_info['COM_port'] = 'COM13'
     elif session_info['computer_name'].lower() == 'bumbrlik02'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM4'
+        session_info['COM_port'] = 'COM13'
     elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
@@ -20,7 +20,7 @@ def set_COM_port(session_info):
     elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
         and session_info['box_number'] == 2:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM3'
+        session_info['COM_port'] = 'COM13'
     elif session_info['computer_name'].lower() == 'DESKTOP-RE9G846'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'C:\\Users\\lab\\Desktop\\temp'

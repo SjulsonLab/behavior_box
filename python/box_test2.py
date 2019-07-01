@@ -214,12 +214,12 @@ try:
         #first get variables to compare which poke was first after trial start
         #FIX: PUT THIS AS A SEPARATE FUNCTION IN BOX_UTILS
         if (nTrial >= 2):
-            sideRewardCollected = np.array(getEventTimes(str(nTrial-1)+';letTheAnimalDrink',session_info['basename']+'.txt'))
+            sideRewardCollected = np.array(box_utils.getEventTimes(str(nTrial-1)+';letTheAnimalDrink',session_info['basename']+'.txt'))
             
             if (sideRewardCollected.size == 1):
-                trialStart_ts = np.array(getEventTimes(str(nTrial-1)+';TrialStarted_ms',session_info['basename']+'.txt'))
-                tempL = np.array(getEventTimes(str(nTrial-1)+';leftPokeEntry',session_info['basename']+'.txt'))
-                tempR = np.array(getEventTimes(str(nTrial-1)+';rightPokeEntry',session_info['basename']+'.txt'))
+                trialStart_ts = np.array(box_utils.getEventTimes(str(nTrial-1)+';TrialStarted_ms',session_info['basename']+'.txt'))
+                tempL = np.array(box_utils.getEventTimes(str(nTrial-1)+';leftPokeEntry',session_info['basename']+'.txt'))
+                tempR = np.array(box_utils.getEventTimes(str(nTrial-1)+';rightPokeEntry',session_info['basename']+'.txt'))
                 
         
                 #selecting pokes after trialStart
