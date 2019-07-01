@@ -498,3 +498,27 @@ def append_cue_slot_durations(session_info, total_rewards):
         raise Exception('session_info.trainingPhase needs to be 4 or 5 to use this function')
 
 
+def getEventTimes(textString,fname):
+    
+    # This function searches for textString in the logfile called fname.
+    # It then returns the first column (which is the timestamp for
+    # behavior box log files). 
+    # based on getEventTimes LSjulson made on Matlab
+    fid = open(fname,'r');
+    fiLines = fid.readlines();
+    fid.close()
+    
+    nLin = len(fiLines)
+    c = 0;
+    T = 0;
+    for idx in range(0,nLin):
+        tempLine = fiLines[idx];
+        if textString in tempLine:
+            if c == 0:
+                aux = tempLine.index(';');
+                T = int(tempLine[0:aux]);
+                c += 1;
+            else:
+                aux = tempLine.index(';');
+                T = np.append(T,int(tempLine[0:aux]));
+    return T;
