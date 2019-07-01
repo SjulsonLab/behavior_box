@@ -1,4 +1,5 @@
 # importing stuffimport timeimport datetime
+import numpy as np
 import time
 import datetime
 import os, sys
@@ -27,7 +28,7 @@ mouse_info = pysistence.make_dict({'mouseName': 'testingProtocol',
 session_info                              = collections.OrderedDict()
 session_info['mouseName']                 = mouse_info['mouseName']
 session_info['transitionPhases']          = 0 #variable to signal if it is transitioning phases or not (0 - no transition; 1 - transition)
-session_info['trainingPhase']             = 1
+session_info['trainingPhase']             = 2
 session_info['weight']                    = 27.3
 session_info['date']                      = datetime.datetime.now().strftime("%Y%m%d")
 session_info['time']                      = datetime.datetime.now().strftime('%H%M%S')
@@ -57,7 +58,7 @@ session_info['nTrial']                    = []     # just leave this blank
 
 
 # initializing trial L/R parameters, will set them later
-session_info['trialLRtype']               = [1,3] # (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL).
+session_info['trialLRtype']               = [] # (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL).
 session_info['trialLRtype_info']          = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)'
 session_info['LrewardCode']               = [] # will be set automatically later
 session_info['RrewardCode']               = []
@@ -78,14 +79,14 @@ session_info['IrewardSize_nL']         = [500]
 session_info['rewardSizeMax_nL']       = [3000]
 session_info['rewardSizeMin_nL']       = [500]
 session_info['rewardSizeDelta_nL']     = [500] # the number of nanoliters to adjust reward size by 
-session_info['deliveryDuration_ms']    = 1000
+session_info['deliveryDuration_ms']    = 250
 session_info['syringeSize_mL']         = 5
 
 # time intervals
 session_info['readyToGoLength']        = 1000*10*60
 session_info['punishDelayLength']      = 1000*30
 session_info['goToPokesLength']        = 1000*60
-session_info['rewardCollectionLength'] = 1000*5
+session_info['rewardCollectionLength'] = 5
 
 # cue lengths, etc. - for phases 4 and 5, they are changed below
 session_info['preCueLength']           = [0]
@@ -209,6 +210,43 @@ try:
             # set cue/slot duration cotes for this trial
             box_utils.append_cue_slot_durations(session_info, total_rewards)
 
+        ## look if the previous trial was first poke correct or not, if not repeat the same trial over and over
+        #first get variables to compare which poke was first after trial start
+        #FIX: PUT THIS AS A SEPARATE FUNCTION IN BOX_UTILS
+        if (nTrial >= 2):
+            sideRewardCollected = np.array(getEventTimes(str(nTrial-1)+';letTheAnimalDrink',session_info['basename']+'.txt'))
+            
+            if (sideRewardCollected.size == 1):
+                trialStart_ts = np.array(getEventTimes(str(nTrial-1)+';TrialStarted_ms',session_info['basename']+'.txt'))
+                tempL = np.array(getEventTimes(str(nTrial-1)+';leftPokeEntry',session_info['basename']+'.txt'))
+                tempR = np.array(getEventTimes(str(nTrial-1)+';rightPokeEntry',session_info['basename']+'.txt'))
+                
+        
+                #selecting pokes after trialStart
+                leftPokes = tempL[tempL>trialStart_ts]
+                rightPokes = tempR[tempR>trialStart_ts]
+                
+                #Was it a left (1) or right (3) poke type
+                if (rightPokes.size == 0):
+                    firstPokeType = 1
+                elif (leftPokes.size == 0):
+                    firstPokeType = 3
+                elif (leftPokes[0] < rightPokes[0]):
+                    firstPokeType = 1
+                elif (leftPokes[0] > rightPokes[0]):
+                    firstPokeType = 3
+                
+                #comparing trial types with first poke
+                if (session_info['trialLRtype'][nTrial-2] == 1 and firstPokeType == 3):
+                   session_info['trialLRtype'][nTrial-1] = 1;
+                   session_info['LrewardCode'][nTrial-1] = session_info['LrewardCode'][nTrial-2];
+                   session_info['RrewardCode'][nTrial-1] = session_info['RrewardCode'][nTrial-2];
+                elif (session_info['trialLRtype'][nTrial-2] == 3 and firstPokeType == 1):
+                   session_info['trialLRtype'][nTrial-1] = 3;
+                   session_info['LrewardCode'][nTrial-1] = session_info['LrewardCode'][nTrial-2];
+                   session_info['RrewardCode'][nTrial-1] = session_info['RrewardCode'][nTrial-2];
+                   
+                    
 
         # fix: append new reward size here if it's going to 
 
@@ -260,6 +298,8 @@ try:
         if (session_info['transitionPhases'] == 1) & (total_rewards == 15):
             session_info['trainingPhase'] += 1
             session_info['transitionPhases'] = 0
+        
+        
         # optionally add random extra ITI
         time.sleep(random.gauss(session_info['interTrialInterval_mean'], session_info['interTrialInterval_SD']))
 
