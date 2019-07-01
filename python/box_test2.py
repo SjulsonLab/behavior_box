@@ -241,10 +241,28 @@ try:
                    session_info['trialLRtype'][nTrial-1] = 1;
                    session_info['LrewardCode'][nTrial-1] = session_info['LrewardCode'][nTrial-2];
                    session_info['RrewardCode'][nTrial-1] = session_info['RrewardCode'][nTrial-2];
+                   session_info['slot1_vis'][nTrial-1] = session_info['slot1_vis'][nTrial-2];
+                   session_info['slot1_aud'][nTrial-1] = session_info['slot1_aud'][nTrial-2];
+                   session_info['slot2_vis'][nTrial-1] = session_info['slot2_vis'][nTrial-2];
+                   session_info['slot2_aud'][nTrial-1] = session_info['slot2_aud'][nTrial-2];
+                   session_info['slot3_vis'][nTrial-1] = session_info['slot3_vis'][nTrial-2];
+                   session_info['slot3_aud'][nTrial-1] = session_info['slot3_aud'][nTrial-2];
+                   session_info['slot1Length'][nTrial-1] = session_info['slot1Length'][nTrial-2];
+                   session_info['slot2Length'][nTrial-1] = session_info['slot2Length'][nTrial-2];
+                   session_info['slot3Length'][nTrial-1] = session_info['slot3Length'][nTrial-2];
                 elif (session_info['trialLRtype'][nTrial-2] == 3 and firstPokeType == 1):
                    session_info['trialLRtype'][nTrial-1] = 3;
                    session_info['LrewardCode'][nTrial-1] = session_info['LrewardCode'][nTrial-2];
                    session_info['RrewardCode'][nTrial-1] = session_info['RrewardCode'][nTrial-2];
+                   session_info['slot1_vis'][nTrial-1] = session_info['slot1_vis'][nTrial-2];
+                   session_info['slot1_aud'][nTrial-1] = session_info['slot1_aud'][nTrial-2];
+                   session_info['slot2_vis'][nTrial-1] = session_info['slot2_vis'][nTrial-2];
+                   session_info['slot2_aud'][nTrial-1] = session_info['slot2_aud'][nTrial-2];
+                   session_info['slot3_vis'][nTrial-1] = session_info['slot3_vis'][nTrial-2];
+                   session_info['slot3_aud'][nTrial-1] = session_info['slot3_aud'][nTrial-2];
+                   session_info['slot1Length'][nTrial-1] = session_info['slot1Length'][nTrial-2];
+                   session_info['slot2Length'][nTrial-1] = session_info['slot2Length'][nTrial-2];
+                   session_info['slot3Length'][nTrial-1] = session_info['slot3Length'][nTrial-2];
                    
                     
 
