@@ -27,6 +27,7 @@ mouse_info = pysistence.make_dict({'mouseName': 'testingProtocol',
 # Information for this session (the user should edit this each session)
 session_info                              = collections.OrderedDict()
 session_info['mouseName']                 = mouse_info['mouseName']
+session_info['correctBias']               = 1
 session_info['transitionPhases']          = 0 #variable to signal if it is transitioning phases or not (0 - no transition; 1 - transition)
 session_info['trainingPhase']             = 2
 session_info['weight']                    = 27.3
@@ -212,59 +213,8 @@ try:
 
         ## look if the previous trial was first poke correct or not, if not repeat the same trial over and over
         #first get variables to compare which poke was first after trial start
-        #FIX: PUT THIS AS A SEPARATE FUNCTION IN BOX_UTILS
-        if (nTrial >= 2):
-            sideRewardCollected = np.array(box_utils.getEventTimes(str(nTrial-1)+';letTheAnimalDrink',session_info['basename']+'.txt'))
-            
-            if (sideRewardCollected.size == 1):
-                trialStart_ts = np.array(box_utils.getEventTimes(str(nTrial-1)+';TrialStarted_ms',session_info['basename']+'.txt'))
-                tempL = np.array(box_utils.getEventTimes(str(nTrial-1)+';leftPokeEntry',session_info['basename']+'.txt'))
-                tempR = np.array(box_utils.getEventTimes(str(nTrial-1)+';rightPokeEntry',session_info['basename']+'.txt'))
-                
-        
-                #selecting pokes after trialStart
-                leftPokes = tempL[tempL>trialStart_ts]
-                rightPokes = tempR[tempR>trialStart_ts]
-                
-                #Was it a left (1) or right (3) poke type
-                if (rightPokes.size == 0):
-                    firstPokeType = 1
-                elif (leftPokes.size == 0):
-                    firstPokeType = 3
-                elif (leftPokes[0] < rightPokes[0]):
-                    firstPokeType = 1
-                elif (leftPokes[0] > rightPokes[0]):
-                    firstPokeType = 3
-                
-                #comparing trial types with first poke
-                if (session_info['trialLRtype'][nTrial-2] == 1 and firstPokeType == 3):
-                   session_info['trialLRtype'][nTrial-1] = 1;
-                   session_info['LrewardCode'][nTrial-1] = session_info['LrewardCode'][nTrial-2];
-                   session_info['RrewardCode'][nTrial-1] = session_info['RrewardCode'][nTrial-2];
-                   session_info['slot1_vis'][nTrial-1] = session_info['slot1_vis'][nTrial-2];
-                   session_info['slot1_aud'][nTrial-1] = session_info['slot1_aud'][nTrial-2];
-                   session_info['slot2_vis'][nTrial-1] = session_info['slot2_vis'][nTrial-2];
-                   session_info['slot2_aud'][nTrial-1] = session_info['slot2_aud'][nTrial-2];
-                   session_info['slot3_vis'][nTrial-1] = session_info['slot3_vis'][nTrial-2];
-                   session_info['slot3_aud'][nTrial-1] = session_info['slot3_aud'][nTrial-2];
-                   session_info['slot1Length'][nTrial-1] = session_info['slot1Length'][nTrial-2];
-                   session_info['slot2Length'][nTrial-1] = session_info['slot2Length'][nTrial-2];
-                   session_info['slot3Length'][nTrial-1] = session_info['slot3Length'][nTrial-2];
-                elif (session_info['trialLRtype'][nTrial-2] == 3 and firstPokeType == 1):
-                   session_info['trialLRtype'][nTrial-1] = 3;
-                   session_info['LrewardCode'][nTrial-1] = session_info['LrewardCode'][nTrial-2];
-                   session_info['RrewardCode'][nTrial-1] = session_info['RrewardCode'][nTrial-2];
-                   session_info['slot1_vis'][nTrial-1] = session_info['slot1_vis'][nTrial-2];
-                   session_info['slot1_aud'][nTrial-1] = session_info['slot1_aud'][nTrial-2];
-                   session_info['slot2_vis'][nTrial-1] = session_info['slot2_vis'][nTrial-2];
-                   session_info['slot2_aud'][nTrial-1] = session_info['slot2_aud'][nTrial-2];
-                   session_info['slot3_vis'][nTrial-1] = session_info['slot3_vis'][nTrial-2];
-                   session_info['slot3_aud'][nTrial-1] = session_info['slot3_aud'][nTrial-2];
-                   session_info['slot1Length'][nTrial-1] = session_info['slot1Length'][nTrial-2];
-                   session_info['slot2Length'][nTrial-1] = session_info['slot2Length'][nTrial-2];
-                   session_info['slot3Length'][nTrial-1] = session_info['slot3Length'][nTrial-2];
-                   
-                    
+        if (session_info['trainingPhase']>=2 and session_info['correctBias'] == 1):
+            box_utils.correctBias(session_info,nTrial)
 
         # fix: append new reward size here if it's going to 
 
