@@ -381,7 +381,6 @@ def save_mat_file(filename, dict_to_save, struct_name):
 #             
 
 
-
 def append_cue_slot_durations(session_info, total_rewards):
     import colorama
     from colorama import Fore, Style
@@ -499,7 +498,7 @@ def append_cue_slot_durations(session_info, total_rewards):
 
 
 def getEventTimes(textString,fname):
-    
+    import numpy as np    
     # This function searches for textString in the logfile called fname.
     # It then returns the first column (which is the timestamp for
     # behavior box log files). 
@@ -522,3 +521,57 @@ def getEventTimes(textString,fname):
                 aux = tempLine.index(';');
                 T = np.append(T,int(tempLine[0:aux]));
     return T;
+
+def correctBias(session_info,nTrial):
+    import numpy as np
+    if (nTrial >= 2):
+            sideRewardCollected = np.array(getEventTimes(str(nTrial-1)+';letTheAnimalDrink',session_info['basename']+'.txt'))
+            
+            if (sideRewardCollected.size == 1):
+                trialStart_ts = np.array(getEventTimes(str(nTrial-1)+';TrialStarted_ms',session_info['basename']+'.txt'))
+                tempL = np.array(getEventTimes(str(nTrial-1)+';leftPokeEntry',session_info['basename']+'.txt'))
+                tempR = np.array(getEventTimes(str(nTrial-1)+';rightPokeEntry',session_info['basename']+'.txt'))
+                
+        
+                #selecting pokes after trialStart
+                leftPokes = tempL[tempL>trialStart_ts]
+                rightPokes = tempR[tempR>trialStart_ts]
+                
+                #Was it a left (1) or right (3) poke type
+                if (rightPokes.size == 0):
+                    firstPokeType = 1
+                elif (leftPokes.size == 0):
+                    firstPokeType = 3
+                elif (leftPokes[0] < rightPokes[0]):
+                    firstPokeType = 1
+                elif (leftPokes[0] > rightPokes[0]):
+                    firstPokeType = 3
+                
+                #comparing trial types with first poke
+                if (session_info['trialLRtype'][nTrial-2] == 1 and firstPokeType == 3):
+                   session_info['trialLRtype'][nTrial-1] = 1;
+                   session_info['LrewardCode'][nTrial-1] = session_info['LrewardCode'][nTrial-2];
+                   session_info['RrewardCode'][nTrial-1] = session_info['RrewardCode'][nTrial-2];
+                   session_info['slot1_vis'][nTrial-1] = session_info['slot1_vis'][nTrial-2];
+                   session_info['slot1_aud'][nTrial-1] = session_info['slot1_aud'][nTrial-2];
+                   session_info['slot2_vis'][nTrial-1] = session_info['slot2_vis'][nTrial-2];
+                   session_info['slot2_aud'][nTrial-1] = session_info['slot2_aud'][nTrial-2];
+                   session_info['slot3_vis'][nTrial-1] = session_info['slot3_vis'][nTrial-2];
+                   session_info['slot3_aud'][nTrial-1] = session_info['slot3_aud'][nTrial-2];
+                   session_info['slot1Length'][nTrial-1] = session_info['slot1Length'][nTrial-2];
+                   session_info['slot2Length'][nTrial-1] = session_info['slot2Length'][nTrial-2];
+                   session_info['slot3Length'][nTrial-1] = session_info['slot3Length'][nTrial-2];
+                elif (session_info['trialLRtype'][nTrial-2] == 3 and firstPokeType == 1):
+                   session_info['trialLRtype'][nTrial-1] = 3;
+                   session_info['LrewardCode'][nTrial-1] = session_info['LrewardCode'][nTrial-2];
+                   session_info['RrewardCode'][nTrial-1] = session_info['RrewardCode'][nTrial-2];
+                   session_info['slot1_vis'][nTrial-1] = session_info['slot1_vis'][nTrial-2];
+                   session_info['slot1_aud'][nTrial-1] = session_info['slot1_aud'][nTrial-2];
+                   session_info['slot2_vis'][nTrial-1] = session_info['slot2_vis'][nTrial-2];
+                   session_info['slot2_aud'][nTrial-1] = session_info['slot2_aud'][nTrial-2];
+                   session_info['slot3_vis'][nTrial-1] = session_info['slot3_vis'][nTrial-2];
+                   session_info['slot3_aud'][nTrial-1] = session_info['slot3_aud'][nTrial-2];
+                   session_info['slot1Length'][nTrial-1] = session_info['slot1Length'][nTrial-2];
+                   session_info['slot2Length'][nTrial-1] = session_info['slot2Length'][nTrial-2];
+                   session_info['slot3Length'][nTrial-1] = session_info['slot3Length'][nTrial-2];
+                   
