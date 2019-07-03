@@ -357,7 +357,7 @@ void loop() {
       }
 
       // if mouse pokes the wrong poke in phase 5, go to punishDelay
-      if (trainingPhase >= 5) {
+      if (trainingPhase >= 5 && trainingPhase <= 99) {
         if (leftPoke==1 || rightPoke==1) {
           digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
           serLogNum("ErrorPokeBeforeInit_ms", millis() - trialAvailTime); 

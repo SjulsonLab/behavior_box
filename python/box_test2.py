@@ -29,7 +29,7 @@ session_info                              = collections.OrderedDict()
 session_info['mouseName']                 = mouse_info['mouseName']
 session_info['correctBias']               = 1
 session_info['transitionPhases']          = 0 #variable to signal if it is transitioning phases or not (0 - no transition; 1 - transition)
-session_info['trainingPhase']             = 2
+session_info['trainingPhase']             = 4
 session_info['weight']                    = 27.3
 session_info['date']                      = datetime.datetime.now().strftime("%Y%m%d")
 session_info['time']                      = datetime.datetime.now().strftime('%H%M%S')
@@ -85,8 +85,8 @@ session_info['syringeSize_mL']         = 5
 
 # time intervals
 session_info['readyToGoLength']        = 1000*10*60
-session_info['punishDelayLength']      = 1000*30
-session_info['goToPokesLength']        = 1000*60
+session_info['punishDelayLength']      = 1000*4
+session_info['goToPokesLength']        = 1000*30
 session_info['rewardCollectionLength'] = 5
 
 # cue lengths, etc. - for phases 4 and 5, they are changed below

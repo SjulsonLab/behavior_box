@@ -61,7 +61,7 @@ session_info['nTrial']                    = []     # just leave this blank
 
 
 # initializing trial L/R parameters, will set them later
-session_info['trialLRtype']               = [1,3] # (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL).
+session_info['trialLRtype']               = [] # (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL).
 session_info['trialLRtype_info']          = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)'
 session_info['LrewardCode']               = [] # will be set automatically later
 session_info['RrewardCode']               = []
