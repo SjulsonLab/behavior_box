@@ -16,8 +16,7 @@ function organize_BehavFolders(basedir)
 % created by Eliezyer F. de Oliveira - 2019/07/08
 
 %% TO-DO LIST
-% [] See which folders needs to be created and show to user and ask if they
-% want all of them needs to be created
+% [] See which folders needs to be create
 % [] Spit out name of folders that are potentially empty because of a
 % problem (i.e. doesn't have the two .mat files in it) and that can be
 % deleted
