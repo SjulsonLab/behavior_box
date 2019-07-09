@@ -440,15 +440,17 @@ x1 = xlabel('Time (seconds)');
 xlim([0 50])
 
 %% Fifth subplot 
+
 acc = calc_accuracy_LS(pokes); 
-bsi = bias_index(pokes);
+[bsi,p] = bias_index(pokes);
 s2 = subplot(3, 4, 8);
 x = {'all','left','right'}; 
 c = categorical(x); 
 y = [acc.all,acc.left,acc.right]; 
 bar(c,y); 
-t2 = title(['All, Right and Left poke accuracy- Bias index= ' num2str(bsi.pval,2)]);
+t2 = title(['All, Right and Left poke accuracy- Bias index= ' num2str(bsi,2)]);
 y2 = ylabel('% correct');
+
 
 %% Sixth subplot 
 s3 = subplot(3, 4, 12); 
