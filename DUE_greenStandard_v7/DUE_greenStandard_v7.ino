@@ -254,13 +254,19 @@ void loop() {
       else if (startTrialYN == 1) { // if matlab wants to start a trial
         serLog("TrialAvailable");
         serLogNum("TrainingPhase", trainingPhase);
-        serLogNum("requiredPokeHoldLength_ms", preCueLength + slot1Length + slot2Length + slot3Length + postCueLength);
-        serLogNum("goToPokesLength", goToPokesLength);
-        serLogNum("trialLRtype", trialLRtype);
-        serLogNum("trialAVtype", trialAVtype);
-        serLogNum("Lsize_nL", LrewardSize_nL);
-        serLogNum("Isize_nL", IrewardSize_nL);
-        serLogNum("Rsize_nL", RrewardSize_nL);
+
+        if (trainingPhase < 200){
+          serLogNum("requiredPokeHoldLength_ms", preCueLength + slot1Length + slot2Length + slot3Length + postCueLength);
+          serLogNum("goToPokesLength", goToPokesLength);
+          serLogNum("trialLRtype", trialLRtype);
+          serLogNum("trialAVtype", trialAVtype);
+          serLogNum("Lsize_nL", LrewardSize_nL);
+          serLogNum("Isize_nL", IrewardSize_nL);
+          serLogNum("Rsize_nL", RrewardSize_nL);
+        }
+        else if (trainingPhase > 200 && trainingPhase < 300){
+          serLogNum("rewardSize_nL", IrewardSize_nL);
+        }
 
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
@@ -274,7 +280,7 @@ void loop() {
         //giveRewards(1);
         }
 
-        if (trainingPhase>1) {
+        if (trainingPhase>1 & trainingPhase<200) {
           digitalWrite(whiteNoiseTTL, HIGH); // tell the intan you're going to the readyToGo state/you're about to start the white noise
         }
         switchTo(readyToGo);
@@ -312,7 +318,7 @@ void loop() {
 
     case readyToGo:
 
-	  if (trainingPhase >= 2 & trainingPhase <= 99) {   
+	  if (trainingPhase >= 2 & trainingPhase < 200) {   
         playWhiteNoise();
       }
       
@@ -338,7 +344,7 @@ void loop() {
         tempInit = 1;
       }
 
-      if (tempInit == 1) {
+      if (tempInit == 1 && trainingPhase<200) {
         tempInit = 0;
 
         // if trainingPhase == 0, the arduino wasn't set up properly
@@ -355,9 +361,14 @@ void loop() {
         giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) 
         switchTo(preCue);
       }
+      else if (tempInit == 1 && trainingPhase == 201){
+        tempInit = 0;
+        nosePokeInitTime = millis();
+        sndCounter = 0;
+      }
 
       // if mouse pokes the wrong poke in phase 5, go to punishDelay
-      if (trainingPhase >= 5) {
+      if (trainingPhase >= 5 && trainingPhase <= 99) {
         if (leftPoke==1 || rightPoke==1) {
           digitalWrite(whiteNoiseTTL, LOW); // stop signaling the intan that white noise is playing.
           serLogNum("ErrorPokeBeforeInit_ms", millis() - trialAvailTime); 

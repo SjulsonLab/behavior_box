@@ -321,8 +321,10 @@ def append_random_LR(session_info):
 
     if session_info['trainingPhase'] in [1, 2]:
         options = [1, 3]
-    elif session_info['trainingPhase'] in [3, 4, 5, 6,201]:
+    elif session_info['trainingPhase'] in [3, 4, 5, 6]:
         options = [1, 2, 3, 4, 5, 6]
+    elif session_info['trainingPhase'] in [201]:
+        options = [201]
     else: 
         warnings.warn('Incorrect training phase')
         options = [1]

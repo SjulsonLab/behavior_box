@@ -1,17 +1,11 @@
  function [bsi,p] = bias_index(pokes)
 
-% function acc = calc_accuracy_LS(pokes)
+% function bsi = bias_index(pokes)
 %
-% this function takes as input "pokes" the output from extract_poke_info().
-% It returns "acc", which is a struct containing information about accuracy
-% of behavioral performance.
-%
-% Luke Sjulson, 2019-04-02
+% this function should calculate a bias index from the animal's behavior
 
-% % for testing only
-% clear all
-% close all
-% basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591_20190326_155919';
+
+
  basedir = pwd; 
  pokes = extract_poke_info(basedir);
 % pokes.trialLR_types([1:3:20]) = 6; % just to make sure it handles free choice trials 
@@ -75,6 +69,7 @@ a = length(all_correctYN)-x; % # of 0 of left trial
 b = length(all_correctYN)-y; % # of 0 of right trial 
 %t = table([x;y],[a;b],'VariableNames',{'Correct','Incorrect'},'RowNames',{'Left trial','Right trial'})
 t = [x,y;a,b];
+
 [h,p] = fishertest(t)
 bsi = index;
 % 0 does not reject the null hypothesis of no nonrandom association between the categorical variables
