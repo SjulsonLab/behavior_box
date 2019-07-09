@@ -1,4 +1,4 @@
- function bsi = bias_index(pokes)
+ function [bsi,p] = bias_index(pokes)
 
 % function acc = calc_accuracy_LS(pokes)
 %
@@ -65,7 +65,7 @@ all_accuracy    = sum(all_correctYN) ./ length(all_correctYN);
 left_accuracy   = sum(left_correctYN) ./ length(left_correctYN);
 right_accuracy  = sum(right_correctYN) ./ length(right_correctYN);
 
-% bias inex
+% bias index
 index = right_accuracy-left_accuracy;
 
 % contingency table 
@@ -76,5 +76,5 @@ b = length(all_correctYN)-y; % # of 0 of right trial
 %t = table([x;y],[a;b],'VariableNames',{'Correct','Incorrect'},'RowNames',{'Left trial','Right trial'})
 t = [x,y;a,b];
 [h,p] = fishertest(t)
-
+bsi = index;
 % 0 does not reject the null hypothesis of no nonrandom association between the categorical variables
