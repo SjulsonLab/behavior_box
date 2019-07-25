@@ -32,7 +32,7 @@ def set_COM_port(session_info):
     elif session_info['computer_name'].lower() == 'DESKTOP-0K6KLC7'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'C:\\Users\\fermi\\Data\\testBehavior'
-        session_info['COM_port'] = 'COM3'
+        session_info['COM_port'] = 'COM4'
     else: 
         raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
 

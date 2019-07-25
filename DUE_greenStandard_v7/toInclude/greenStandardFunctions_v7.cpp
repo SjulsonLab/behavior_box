@@ -179,6 +179,7 @@ long readyToGoLength        = 60000;
 long missedLength           = 50;
 long buzzerLength           = 100;
 long punishDelayLength      = 5000;
+long punishSound			= 200;
 long preCueLength           = 50;
 long slot1Length             = 200;
 long slot2Length             = 10;
