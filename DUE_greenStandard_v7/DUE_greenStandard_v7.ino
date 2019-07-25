@@ -712,6 +712,10 @@ void loop() {
     // delay period after error trial
 
     case punishDelay:
+      if ((millis() - tempTime) < punishSound)
+      {
+        playBuzzer();
+      }
       if ((millis() - tempTime) > punishDelayLength) {
         switchTo(standby);
         if (initPokeError == 0) {
@@ -893,7 +897,6 @@ void loop() {
       }
 
       if ((millis() - tempTime) > calibrationLength) {
-        deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
         calibrationLength = 0;
         sndCounter = 0;
         switchTo(standby);
