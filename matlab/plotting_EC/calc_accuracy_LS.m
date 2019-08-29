@@ -13,7 +13,7 @@ function acc = calc_accuracy_LS(pokes)
 % close all
 % basedir = 'G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591_20190326_155919';
  basedir = pwd; 
- pokes = extract_poke_info(basedir);
+%  pokes = extract_poke_info(basedir);
 % pokes.trialLR_types([1:3:20]) = 6; % just to make sure it handles free choice trials 
 
 %% start of actual function

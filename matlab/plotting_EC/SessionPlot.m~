@@ -24,16 +24,16 @@ function SessionPlot(basedir, startdir)
 % nargin = 1;
 visibleON = 1;
 
+%cd('G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930');
+if nargin < 2
+basedir = pwd;
+startdir = fileparts(pwd);
+end
 
 %% start of function
 % tic %added by EFO to track time spent on each period
-if nargin == 1
-    cd(basedir)
-end
 if nargin<2
     startdir = fileparts(pwd);
-end
-if nargin<1
     basedir = pwd;
 end
 
@@ -492,9 +492,8 @@ y3 = ylabel('Number of trials');
 
 cd(startdir);
 flagdir = 1;
-mainDIR = dir;
-if sum(cellfun(@(x) strcmp(x,'figures'),{mainDIR(:).name}))
-    flagdir = 0;
+for i = length(dir)
+    if strcmp(startdir(i),'figures');flagdir = 0;end
 end
 if flagdir;mkdir('figures');end
 

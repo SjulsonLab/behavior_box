@@ -70,6 +70,6 @@ b = length(all_correctYN)-y; % # of 0 of right trial
 %t = table([x;y],[a;b],'VariableNames',{'Correct','Incorrect'},'RowNames',{'Left trial','Right trial'})
 t = [x,y;a,b];
 
-[h,p] = fishertest(t)
+[h,p] = fishertest(t);
 bsi = index;
 % 0 does not reject the null hypothesis of no nonrandom association between the categorical variables
