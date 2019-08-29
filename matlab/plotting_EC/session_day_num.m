@@ -1,4 +1,4 @@
-function N = session_day_num(startdir)
+function SDN = session_day_num(startdir,basedir)
 
 
 if nargin<1
@@ -37,9 +37,12 @@ for idx = idxDir
         % extract times of nosepoke entries
         if flag
         s = s+1;
-        [~,fname] = fileparts(cd);
+        [~,fname]=fileparts(basedir);
         
-        N(s).date = session_info.date;
+        SDN.N(s).date = session_info.date;
+        if strcmp(fname,animalDir(idx).name)
+            SDN.folderNum = s;
+        end
         
         end
       cd(startdir) 
