@@ -24,16 +24,16 @@ function SessionPlot(basedir, startdir)
 % nargin = 1;
 visibleON = 1;
 
-%cd('G:\My Drive\lab-shared\lab_projects\rewardPrediction\behavior\ADR45M591\ADR45M591_20190328_152930');
-if nargin < 2
-basedir = pwd;
-startdir = fileparts(pwd);
-end
 
 %% start of function
 % tic %added by EFO to track time spent on each period
+if nargin == 1
+    cd(basedir)
+end
 if nargin<2
     startdir = fileparts(pwd);
+end
+if nargin<1
     basedir = pwd;
 end
 
@@ -90,6 +90,11 @@ if session_info.trainingPhase > 2
     free_choice.rightNum = length(Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]'));
     free_choice.left = Restrict(pokes.Lreward_pokes,[free_choice.starts; free_choice.stops]');
     free_choice.right = Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]');
+    
+    temp = ismember(pokes.Lreward_pokes,Restrict(pokes.Lreward_pokes,[free_choice.starts; free_choice.stops]'));
+    free_choice.Lreward_size = pokes.Lreward_size(temp);
+    temp = ismember(pokes.Rreward_pokes,Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]'));
+    free_choice.Rreward_size = pokes.Rreward_size(temp);
 end
 
 
@@ -126,7 +131,7 @@ end
 
 
 %% plotting and saving plot to disk
-%
+% you. That way you can have one for each monitor. You should have those labels in the next couple hours. We hope this information is helpful. If you have any questions or need additional assistance, please email us back. Have a great day!
 %  if session_info.trainingPhase > 1
 %      f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,0,trialStart);
 %  else
@@ -488,12 +493,29 @@ if session_info.trainingPhase > 2
 end
 t3 = title('Left and Right poke in free choice');
 y3 = ylabel('Number of trials');
+
+%% write here a second figure for block plots, if the animal is on block trials.
+if session_info.blocks_reward
+    f2 = figure;
+    if ~exist('visibleON') && flagDS == 0
+        f2.Visible = 'off';
+    end
+    
+    %make histogram in time of reward size
+    Lreward_size = mean(pokes.Lreward_size(pokes.Lreward_size>4000)).*(pokes.Lreward_size>4000);
+    Lreward_size = Lreward_size+mean(pokes.Lreward_size(pokes.Lreward_size<4000)).*(pokes.Lreward_size<4000);
+    
+    Rreward_size = mean(pokes.Rreward_size(pokes.Rreward_size>4000)).*(pokes.Rreward_size>4000);
+    Rreward_size = Rreward_size+mean(pokes.Rreward_size(pokes.Rreward_size<4000)).*(pokes.Rreward_size<4000);
+    
+end
 %% Save to disk
 
 cd(startdir);
 flagdir = 1;
-for i = length(dir)
-    if strcmp(startdir(i),'figures');flagdir = 0;end
+mainDIR = dir;
+if sum(cellfun(@(x) strcmp(x,'figures'),{mainDIR(:).name}))
+    flagdir = 0;
 end
 if flagdir;mkdir('figures');end
 
