@@ -90,6 +90,11 @@ if session_info.trainingPhase > 2
     free_choice.rightNum = length(Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]'));
     free_choice.left = Restrict(pokes.Lreward_pokes,[free_choice.starts; free_choice.stops]');
     free_choice.right = Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]');
+    
+    temp = ismember(pokes.Lreward_pokes,Restrict(pokes.Lreward_pokes,[free_choice.starts; free_choice.stops]'));
+    free_choice.Lreward_size = pokes.Lreward_size(temp);
+    temp = ismember(pokes.Rreward_pokes,Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]'));
+    free_choice.Rreward_size = pokes.Rreward_size(temp);
 end
 
 
@@ -126,7 +131,7 @@ end
 
 
 %% plotting and saving plot to disk
-%
+% you. That way you can have one for each monitor. You should have those labels in the next couple hours. We hope this information is helpful. If you have any questions or need additional assistance, please email us back. Have a great day!
 %  if session_info.trainingPhase > 1
 %      f1 = PokePlot(session_info,trialAvailable,Lpokes,Rpokes,Ipokes,basename,Lrewards,Rrewards,0,trialStart);
 %  else
@@ -226,7 +231,11 @@ if isempty(Rhist_correct)
     Rhist_correct = zeros(size(histvec));
 end
 if isempty(Rhist_incorrect)
-    Rhist_incorrect = zeros(size(histvec));
+    Rhist_incorrect = zeros(siY = tsne(cat(2,avgWaveRT_d1d2(:,[idxD1;idxD2])',avgFiringRate_d1d2([idxD1;idxD2])));
+hold off
+plot(Y(:,1),Y(:,2),'ok')
+hold on
+plot(Y(1:length(idxD1),1),Y(1:length(idxD1),2),'og')ze(histvec));
 end
 if isempty(Ihist_correct)
     Ihist_correct = zeros(size(histvec));
@@ -306,7 +315,11 @@ h4 = plot(histvec/hist_scale, cumsum(Thist), 'Color', [0.5 0.5 0.5]);
 % LrewardHist = histc(Lrewards, histvec);
 
 h5 = plot(histvec/hist_scale, cumsum(LrewardHist), 'b');
-h5.Color(4) = 0.5;
+h5.Color(4) = 0.5;Y = tsne(cat(2,avgWaveRT_d1d2(:,[idxD1;idxD2])',avgFiringRate_d1d2([idxD1;idxD2])));
+hold off
+plot(Y(:,1),Y(:,2),'ok')
+hold on
+plot(Y(1:length(idxD1),1),Y(1:length(idxD1),2),'og')
 
 % RrewardHist = histc(Rrewards, histvec);
 h6 = plot(histvec/hist_scale, cumsum(RrewardHist), 'r');
@@ -488,6 +501,27 @@ if session_info.trainingPhase > 2
 end
 t3 = title('Left and Right poke in free choice');
 y3 = ylabel('Number of trials');
+
+%% write here a second figure for block plots, if the animal is on block trials.
+% if session_info.blocks_reward
+%     f2 = figure;
+%     if ~exist('visibleON') && flagDS == 0
+%         f2.Visible = 'off';
+%     end
+%     
+%     %make histogram in time of reward size
+%     Lreward_size = mean(pokes.Lreward_size(pokes.Lreward_size>4000)).*(pokes.Lreward_size>4000);
+%     Lreward_size = Lreward_size+mean(pokes.Lreward_size(pokes.Lreward_size<4000)).*(pokes.Lreward_size<4000);
+%     
+%     Rreward_size = mean(pokes.Rreward_size(pokes.Rreward_size>4000)).*(pokes.Rreward_size>4000);
+%     Rreward_size = Rreward_size+mean(pokes.Rreward_size(pokes.Rreward_size<4000)).*(pokes.Rreward_size<4000);
+%     
+%     aux_startL = pokes.Lreward_pokes(find(diff(Lreward_size)>1)+1);
+%     aux_stopL = pokes.Lreward_pokes(find(diff(Lreward_size)<-1));
+%     aux_startR = pokes.Rreward_pokes(find(diff(Rreward_size)>1)+1);
+%     aux_stopR = pokes.Rreward_pokes(find(diff(Rreward_size)<-1));
+%     
+% end
 %% Save to disk
 
 cd(startdir);
