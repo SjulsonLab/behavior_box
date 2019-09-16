@@ -231,11 +231,7 @@ if isempty(Rhist_correct)
     Rhist_correct = zeros(size(histvec));
 end
 if isempty(Rhist_incorrect)
-    Rhist_incorrect = zeros(siY = tsne(cat(2,avgWaveRT_d1d2(:,[idxD1;idxD2])',avgFiringRate_d1d2([idxD1;idxD2])));
-hold off
-plot(Y(:,1),Y(:,2),'ok')
-hold on
-plot(Y(1:length(idxD1),1),Y(1:length(idxD1),2),'og')ze(histvec));
+    Rhist_incorrect = zeros(size(histvec));
 end
 if isempty(Ihist_correct)
     Ihist_correct = zeros(size(histvec));
