@@ -80,22 +80,28 @@ end
 %pokes = extract_poke_info(basedir,basename);
 pokes = extract_poke_info(basedir);
 
-if session_info.trainingPhase > 2
+if session_info.trainingPhase > 3
     % extract free choice trials
-    aux = find(ismember(session_info.trialLRtype,[5,6]));
-    aux = find(ismember(1:length(pokes.trial_starts),aux));
-    free_choice.starts = pokes.trial_starts(aux);
-    free_choice.stops = pokes.trial_stops(aux);
-    free_choice.leftNum = length(Restrict(pokes.Lreward_pokes,[free_choice.starts; free_choice.stops]'));
-    free_choice.rightNum = length(Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]'));
-    free_choice.left = Restrict(pokes.Lreward_pokes,[free_choice.starts; free_choice.stops]');
-    free_choice.right = Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]');
-    
-    temp = ismember(pokes.Lreward_pokes,Restrict(pokes.Lreward_pokes,[free_choice.starts; free_choice.stops]'));
-    free_choice.Lreward_size = pokes.Lreward_size(temp);
-    temp = ismember(pokes.Rreward_pokes,Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]'));
-    free_choice.Rreward_size = pokes.Rreward_size(temp);
-end
+    if sum(ismember(pokes.trialLR_types,[5,6])) %checking if there were free_choice trials
+        
+        aux = find(ismember(pokes.trialLR_types,[5,6]));
+        aux = find(ismember(1:length(pokes.trial_starts),aux));
+        %     aux = find((session_info.RrewardCode==4 & session_info.LrewardCode==4));
+        %find a way to control for missing trials
+        free_choice.starts = pokes.trial_starts(aux);
+        free_choice.stops = pokes.trial_stops(aux);
+        free_choice.leftNum = length(Restrict(pokes.Lreward_pokes,[free_choice.starts; free_choice.stops]'));
+        free_choice.rightNum = length(Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]'));
+        free_choice.left = Restrict(pokes.Lreward_pokes,[free_choice.starts; free_choice.stops]');
+        free_choice.right = Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]');
+        
+        temp = ismember(pokes.Lreward_pokes,Restrict(pokes.Lreward_pokes,[free_choice.starts; free_choice.stops]'));
+        free_choice.Lreward_size = pokes.Lreward_size(temp);
+        temp = ismember(pokes.Rreward_pokes,Restrict(pokes.Rreward_pokes,[free_choice.starts; free_choice.stops]'));
+        free_choice.Rreward_size = pokes.Rreward_size(temp);
+        
+    end
+end%
 
 
 
@@ -210,7 +216,7 @@ Tshade2 = Tshade * -1;
 
 
 %% first subplot
-a(1) = subplot(3,4,1:3);
+a(1) = subplot(4,4,1:3);
 
 % plot pokes, both correct and incorrect
 Lhist_correct = histc(pokes.Lpokes_correct, histvec);
@@ -297,7 +303,7 @@ end
 
 
 % plot trial availability and starts
-a(2) = subplot(3,4,5:7);
+a(2) = subplot(4,4,5:7);
 Thist = histc(pokes.trial_avails, histvec);
 h4 = plot(histvec/hist_scale, cumsum(Thist), 'k'); hold on
 
@@ -311,11 +317,7 @@ h4 = plot(histvec/hist_scale, cumsum(Thist), 'Color', [0.5 0.5 0.5]);
 % LrewardHist = histc(Lrewards, histvec);
 
 h5 = plot(histvec/hist_scale, cumsum(LrewardHist), 'b');
-h5.Color(4) = 0.5;Y = tsne(cat(2,avgWaveRT_d1d2(:,[idxD1;idxD2])',avgFiringRate_d1d2([idxD1;idxD2])));
-hold off
-plot(Y(:,1),Y(:,2),'ok')
-hold on
-plot(Y(1:length(idxD1),1),Y(1:length(idxD1),2),'og')
+h5.Color(4) = 0.5;
 
 % RrewardHist = histc(Rrewards, histvec);
 h6 = plot(histvec/hist_scale, cumsum(RrewardHist), 'r');
@@ -348,7 +350,7 @@ L3.Location = 'northwest';
 
 
 %% third subplot: bars indicating poke latencies
-a(3) = subplot(3, 4, 9:11);
+a(3) = subplot(4, 4, 9:11);
 barwidth = 10;
 
 I_lat = zeros(size(histvec));
@@ -400,14 +402,52 @@ b1.FaceColor = 'k';
 x1 = xlabel('Minutes');
 y1 = ylabel('Poke latency (s)');
 
+
+%% fourth subplot - plot block behavior
+%I have to do this plot just for free choices
+a(4) = subplot(4, 4, 13:15);
+
+if sum(ismember(pokes.trialLR_types,[5,6])) %do only the rest if there were free choice trials
+    [RLfit] = RLmodel_behavior_ver1([basename '.txt']);
+    x_block1 = sort([pokes.Lreward_pokes,pokes.Rreward_pokes])/(60*1000);
+    rew_block_left = pokes.L_size(sort([pokes.Lreward_poke_trialnum,pokes.Rreward_poke_trialnum]))/1000;
+    rew_block_right = pokes.R_size(sort([pokes.Lreward_poke_trialnum,pokes.Rreward_poke_trialnum]))/1000;
+    
+    aux_rewSize = [free_choice.Lreward_size, free_choice.Rreward_size];
+    time_freechoice = [free_choice.left', free_choice.right'];
+    [~,temp] = sort(time_freechoice);
+    
+    free_choice.rewardSize = aux_rewSize(temp);
+    free_choice.time = time_freechoice(temp);
+    if isfield(session_info,'blocks_reward')
+        if session_info.blocks_reward
+            plot(pokes.trial_avails/(60*1000),RLfit.qlr(:,1),'color',[0.5 0.5 0.9],'linewidth',2)
+            hold on
+            plot(pokes.trial_avails/(60*1000),RLfit.qlr(:,2),'color',[0.9 0.5 0.5],'linewidth',2)
+            plot(x_block1,rew_block_left,'.b','markersize',13);
+            plot(x_block1,rew_block_right,'.r','markersize',13);
+            plot(free_choice.time/(60*1000),free_choice.rewardSize/1000,'^k','markerfacecolor','k')
+            legend('left choice model','right choice model','left reward size','right reward size','animal choice')
+            a(4).YLim = a(4).YLim;
+            b1 = area(histvec/hist_scale, Tshade);
+            b1.EdgeAlpha = 0;
+            b1.FaceAlpha = 0.1;
+            b1.FaceColor = 'k';
+            x1 = xlabel('Minutes');
+            y1 = ylabel('Reward size (ul)');
+        end
+    end
+    
+end
+
 %% link axes etc
 ZoomHandle = zoom(f1);
 set(ZoomHandle, 'Motion', 'horizontal')
 linkaxes(a, 'x');
 
 
-%% fourth subplot
-s1 = subplot(3, 4, 4);
+%% fifth subplot
+s1 = subplot(4, 4, 4);
 binwidth = 0.1;
 
 % making histogram of init poke latencies
@@ -443,7 +483,7 @@ if isempty(Rhist)
     Rhist = zeros(size(LRhistvec));
 end
 
-Lhist(end) = Lhist(end) + N_left_trials_started - sum(Lhist);
+Lhist(end) = Lhist(end) + N_left_trials_started - sum(Lhist); %this is causing the CDF to be >1, I don't understand how can we have less left trails started than left reward collected (EFO)
 Rhist(end) = Rhist(end) + N_right_trials_started - sum(Rhist);
 
 % h1 = histogram(pokes.trial_start_latencies/1000, 'BinWidth', binwidth, 'Normalization', 'cdf', 'DisplayStyle', 'stairs', 'EdgeColor', 'g');
@@ -465,7 +505,7 @@ xlim([0 50])
 
 acc = calc_accuracy_LS(pokes);
 [bsi,p] = bias_index(pokes);
-s2 = subplot(3, 4, 8);
+s2 = subplot(4, 4, 8);
 x = {'all','left','right'};
 c = categorical(x);
 y = [acc.all,acc.left,acc.right];
@@ -481,7 +521,7 @@ text(c,y1,str)
 
 %% Sixth subplot
 % I'm changing this subplot to have the free choice plot
-s3 = subplot(3, 4, 12);
+s3 = subplot(4, 4, 12);
 % x = {'all','left','right'};
 % c = categorical(x);
 % y2 = [acc.all_pval,acc.left_pval,acc.right_pval];
@@ -497,6 +537,8 @@ if session_info.trainingPhase > 2
 end
 t3 = title('Left and Right poke in free choice');
 y3 = ylabel('Number of trials');
+
+%% include here a seventh subplot
 
 %% write here a second figure for block plots, if the animal is on block trials.
 % if session_info.blocks_reward

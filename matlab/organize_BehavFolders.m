@@ -27,6 +27,9 @@ firstPass = [];
 secondPass = [];
 rejectedFolders = [];
 
+if nargin<1
+   basedir = '~/lab@sjulsonlab.org/lab-shared/lab_projects/rewardPrediction/behavior'; 
+end
 cd(basedir)
 behaviorDir = dir;
 
