@@ -8,7 +8,7 @@ def set_COM_port(session_info):
     elif session_info['computer_name'].lower() == 'bumbrlik01'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM13'
+        session_info['COM_port'] = 'COM16'
     elif session_info['computer_name'].lower() == 'bumbrlik02'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
@@ -28,7 +28,7 @@ def set_COM_port(session_info):
     elif session_info['computer_name'].lower() == 'fenrir'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = '//media//elie//SSD//testBehData'
-        session_info['COM_port'] = '/dev/ttyACM1'
+        session_info['COM_port'] = '/dev/ttyACM0'
     elif session_info['computer_name'].lower() == 'DESKTOP-0K6KLC7'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'C:\\Users\\fermi\\Data\\testBehavior'
@@ -322,7 +322,7 @@ def append_random_LR(session_info):
     if session_info['trainingPhase'] in [1, 2]:
         options = [1, 3]
     elif session_info['trainingPhase'] in [3, 4, 5, 6]:
-        options = [1, 2, 3, 4, 5, 6]
+        options = [1, 2, 3, 4, 5, 6, 5, 6]
     elif session_info['trainingPhase'] in [201]:
         options = [201]
     else: 
@@ -492,9 +492,9 @@ def append_cue_slot_durations(session_info, total_rewards):
         ', IOI = ' + str(session_info['interOnsetInterval'][-1]) + Style.RESET_ALL)
         
     elif session_info['trainingPhase'] == 5:
-        session_info['preCueLength'].append(75)
-        session_info['postCueLength'].append(25)
-        session_info['interOnsetInterval'].append(125)
+        session_info['preCueLength']
+        session_info['postCueLength']
+        session_info['interOnsetInterval']
     else:
         raise Exception('session_info.trainingPhase needs to be 4 or 5 to use this function')
 
@@ -550,30 +550,56 @@ def correctBias(session_info,nTrial):
                     firstPokeType = 3
                 
                 #comparing trial types with first poke
-                if (session_info['trialLRtype'][nTrial-2] == 1 and firstPokeType == 3):
-                   session_info['trialLRtype'][nTrial-1] = 1;
-                   session_info['LrewardCode'][nTrial-1] = session_info['LrewardCode'][nTrial-2];
-                   session_info['RrewardCode'][nTrial-1] = session_info['RrewardCode'][nTrial-2];
-                   session_info['slot1_vis'][nTrial-1] = session_info['slot1_vis'][nTrial-2];
-                   session_info['slot1_aud'][nTrial-1] = session_info['slot1_aud'][nTrial-2];
-                   session_info['slot2_vis'][nTrial-1] = session_info['slot2_vis'][nTrial-2];
-                   session_info['slot2_aud'][nTrial-1] = session_info['slot2_aud'][nTrial-2];
-                   session_info['slot3_vis'][nTrial-1] = session_info['slot3_vis'][nTrial-2];
-                   session_info['slot3_aud'][nTrial-1] = session_info['slot3_aud'][nTrial-2];
-                   session_info['slot1Length'][nTrial-1] = session_info['slot1Length'][nTrial-2];
-                   session_info['slot2Length'][nTrial-1] = session_info['slot2Length'][nTrial-2];
-                   session_info['slot3Length'][nTrial-1] = session_info['slot3Length'][nTrial-2];
-                elif (session_info['trialLRtype'][nTrial-2] == 3 and firstPokeType == 1):
-                   session_info['trialLRtype'][nTrial-1] = 3;
-                   session_info['LrewardCode'][nTrial-1] = session_info['LrewardCode'][nTrial-2];
-                   session_info['RrewardCode'][nTrial-1] = session_info['RrewardCode'][nTrial-2];
-                   session_info['slot1_vis'][nTrial-1] = session_info['slot1_vis'][nTrial-2];
-                   session_info['slot1_aud'][nTrial-1] = session_info['slot1_aud'][nTrial-2];
-                   session_info['slot2_vis'][nTrial-1] = session_info['slot2_vis'][nTrial-2];
-                   session_info['slot2_aud'][nTrial-1] = session_info['slot2_aud'][nTrial-2];
-                   session_info['slot3_vis'][nTrial-1] = session_info['slot3_vis'][nTrial-2];
-                   session_info['slot3_aud'][nTrial-1] = session_info['slot3_aud'][nTrial-2];
-                   session_info['slot1Length'][nTrial-1] = session_info['slot1Length'][nTrial-2];
-                   session_info['slot2Length'][nTrial-1] = session_info['slot2Length'][nTrial-2];
-                   session_info['slot3Length'][nTrial-1] = session_info['slot3Length'][nTrial-2];
+                if (session_info['trialLRtype'][-2] in [1,2] and firstPokeType == 3):
+                   session_info['trialLRtype'][-1] = 1;
+                   session_info['LrewardCode'][-1] = session_info['LrewardCode'][-2];
+                   session_info['RrewardCode'][-1] = session_info['RrewardCode'][-2];
+                   session_info['slot1_vis'][-1] = session_info['slot1_vis'][-2];
+                   session_info['slot1_aud'][-1] = session_info['slot1_aud'][-2];
+                   session_info['slot2_vis'][-1] = session_info['slot2_vis'][-2];
+                   session_info['slot2_aud'][-1] = session_info['slot2_aud'][-2];
+                   session_info['slot3_vis'][-1] = session_info['slot3_vis'][-2];
+                   session_info['slot3_aud'][-1] = session_info['slot3_aud'][-2];
+                   session_info['slot1Length'][-1] = session_info['slot1Length'][-2];
+                   session_info['slot2Length'][-1] = session_info['slot2Length'][-2];
+                   session_info['slot3Length'][-1] = session_info['slot3Length'][-2];
+                elif (session_info['trialLRtype'][-2] in [3,4] and firstPokeType == 1):
+                   session_info['trialLRtype'][-1] = 3;
+                   session_info['LrewardCode'][-1] = session_info['LrewardCode'][-2];
+                   session_info['RrewardCode'][-1] = session_info['RrewardCode'][-2];
+                   session_info['slot1_vis'][-1] = session_info['slot1_vis'][-2];
+                   session_info['slot1_aud'][-1] = session_info['slot1_aud'][-2];
+                   session_info['slot2_vis'][-1] = session_info['slot2_vis'][-2];
+                   session_info['slot2_aud'][-1] = session_info['slot2_aud'][-2];
+                   session_info['slot3_vis'][-1] = session_info['slot3_vis'][-2];
+                   session_info['slot3_aud'][-1] = session_info['slot3_aud'][-2];
+                   session_info['slot1Length'][-1] = session_info['slot1Length'][-2];
+                   session_info['slot2Length'][-1] = session_info['slot2Length'][-2];
+                   session_info['slot3Length'][-1] = session_info['slot3Length'][-2];
                    
+
+def assign_random_reward(session_info):
+    import numpy as np
+    session_info['LrewardSize_nL'][-1] = int(np.round(np.random.uniform(session_info['L_nL_mean'][-1]-500,session_info['L_nL_mean'][-1]+500)))
+    session_info['RrewardSize_nL'][-1] = int(np.round(np.random.uniform(session_info['R_nL_mean'][-1]-500,session_info['R_nL_mean'][-1]+500)))
+    
+def reward_blocks(session_info,nTrial):
+    import numpy as np
+    if (nTrial == 1):
+        if np.random.uniform(0,1,1)<=0.5:
+            session_info['L_nL_mean'][-1] = session_info['L_nL_mean'][-1]+2000
+            session_info['R_nL_mean'][-1] = session_info['R_nL_mean'][-1]-1000
+        else:
+            session_info['L_nL_mean'][-1] = session_info['L_nL_mean'][-1]+2000
+            session_info['R_nL_mean'][-1] = session_info['R_nL_mean'][-1]-1000
+    else:
+        if (session_info['L_nL_mean'][-1] < session_info['R_nL_mean'][-1]):
+            session_info['L_nL_mean'][-1] = session_info['L_nL_mean'][-1]+3000
+            session_info['R_nL_mean'][-1] = session_info['R_nL_mean'][-1]-3000
+        else:
+            session_info['L_nL_mean'][-1] = session_info['L_nL_mean'][-1]-3000
+            session_info['R_nL_mean'][-1] = session_info['R_nL_mean'][-1]+3000
+
+def increase_hold_time(session_info):
+#    session_info['preCueLength'] += 7
+    session_info['postCueLength'] += 15

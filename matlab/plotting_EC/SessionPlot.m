@@ -80,7 +80,7 @@ end
 %pokes = extract_poke_info(basedir,basename);
 pokes = extract_poke_info(basedir);
 
-if session_info.trainingPhase > 3
+if session_info.trainingPhase > 2
     % extract free choice trials
     if sum(ismember(pokes.trialLR_types,[5,6])) %checking if there were free_choice trials
         
@@ -407,37 +407,35 @@ y1 = ylabel('Poke latency (s)');
 %I have to do this plot just for free choices
 a(4) = subplot(4, 4, 13:15);
 
-if sum(ismember(pokes.trialLR_types,[5,6])) %do only the rest if there were free choice trials
-    [RLfit] = RLmodel_behavior_ver1([basename '.txt']);
-    x_block1 = sort([pokes.Lreward_pokes,pokes.Rreward_pokes])/(60*1000);
-    rew_block_left = pokes.L_size(sort([pokes.Lreward_poke_trialnum,pokes.Rreward_poke_trialnum]))/1000;
-    rew_block_right = pokes.R_size(sort([pokes.Lreward_poke_trialnum,pokes.Rreward_poke_trialnum]))/1000;
-    
-    aux_rewSize = [free_choice.Lreward_size, free_choice.Rreward_size];
-    time_freechoice = [free_choice.left', free_choice.right'];
-    [~,temp] = sort(time_freechoice);
-    
-    free_choice.rewardSize = aux_rewSize(temp);
-    free_choice.time = time_freechoice(temp);
-    if isfield(session_info,'blocks_reward')
-        if session_info.blocks_reward
-            plot(pokes.trial_avails/(60*1000),RLfit.qlr(:,1),'color',[0.5 0.5 0.9],'linewidth',2)
-            hold on
-            plot(pokes.trial_avails/(60*1000),RLfit.qlr(:,2),'color',[0.9 0.5 0.5],'linewidth',2)
-            plot(x_block1,rew_block_left,'.b','markersize',13);
-            plot(x_block1,rew_block_right,'.r','markersize',13);
-            plot(free_choice.time/(60*1000),free_choice.rewardSize/1000,'^k','markerfacecolor','k')
-            legend('left choice model','right choice model','left reward size','right reward size','animal choice')
-            a(4).YLim = a(4).YLim;
-            b1 = area(histvec/hist_scale, Tshade);
-            b1.EdgeAlpha = 0;
-            b1.FaceAlpha = 0.1;
-            b1.FaceColor = 'k';
-            x1 = xlabel('Minutes');
-            y1 = ylabel('Reward size (ul)');
-        end
+if isfield(session_info,'blocks_reward')
+    if session_info.blocks_reward
+        [RLfit] = RLmodel_behavior_ver1([basename '.txt']);
+        x_block1 = sort([pokes.Lreward_pokes,pokes.Rreward_pokes])/(60*1000);
+        rew_block_left = pokes.L_size(sort([pokes.Lreward_poke_trialnum,pokes.Rreward_poke_trialnum]))/1000;
+        rew_block_right = pokes.R_size(sort([pokes.Lreward_poke_trialnum,pokes.Rreward_poke_trialnum]))/1000;
+        
+        aux_rewSize = [free_choice.Lreward_size, free_choice.Rreward_size];
+        time_freechoice = [free_choice.left', free_choice.right'];
+        [~,temp] = sort(time_freechoice);
+        
+        free_choice.rewardSize = aux_rewSize(temp);
+        free_choice.time = time_freechoice(temp);
+        
+        plot(pokes.trial_avails/(60*1000),RLfit.qlr(:,1),'color',[0.5 0.5 0.9],'linewidth',2)
+        hold on
+        plot(pokes.trial_avails/(60*1000),RLfit.qlr(:,2),'color',[0.9 0.5 0.5],'linewidth',2)
+        plot(x_block1,rew_block_left,'.b','markersize',13);
+        plot(x_block1,rew_block_right,'.r','markersize',13);
+        plot(free_choice.time/(60*1000),free_choice.rewardSize/1000,'^k','markerfacecolor','k')
+        legend('left choice model','right choice model','left reward size','right reward size','animal choice')
+        a(4).YLim = a(4).YLim;
+        b1 = area(histvec/hist_scale, Tshade);
+        b1.EdgeAlpha = 0;
+        b1.FaceAlpha = 0.1;
+        b1.FaceColor = 'k';
+        x1 = xlabel('Minutes');
+        y1 = ylabel('Reward size (ul)');
     end
-    
 end
 
 %% link axes etc
