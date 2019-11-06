@@ -229,7 +229,7 @@ pl =0;qL = 0; qR = 0; LL=0; nL = 0; nR =0; itot =0;
 n_pwindow = 5; cho_free = cho(choicetype==3,:);
 for ii=1:size(cho,1)-1
     
-    if cho(ii,1)==1 && choicetype(ii)==3 %choice 1 = left, choice 2 = right, choice 3 = free choice
+    if cho(ii,1)==1 && choicetype(ii)==3 %choice 1 = left, choice 2 = right, choice 3 = 
         itot=itot+1; % count for free choice
         qL = qfun(qL,rc(ii),xpar(1));
         pl = pfun(eval(regx), xpar);
