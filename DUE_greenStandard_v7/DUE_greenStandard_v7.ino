@@ -714,7 +714,7 @@ void loop() {
     case punishDelay:
       if ((millis() - tempTime) < punishSound)
       {
-        playBuzzer();
+        playHighTone();
       }
       if ((millis() - tempTime) > punishDelayLength) {
         switchTo(standby);

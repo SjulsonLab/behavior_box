@@ -407,7 +407,7 @@ y1 = ylabel('Poke latency (s)');
 %I have to do this plot just for free choices
 a(4) = subplot(4, 4, 13:15);
 
-if isfield(session_info,'blocks_reward')
+if isfield(session_info,'blocks_reward') && session_info.trainingPhase>3
     if session_info.blocks_reward
         [RLfit] = RLmodel_behavior_ver1([basename '.txt']);
         x_block1 = sort([pokes.Lreward_pokes,pokes.Rreward_pokes])/(60*1000);
