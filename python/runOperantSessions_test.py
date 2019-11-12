@@ -45,7 +45,7 @@ resetTimeYN                               = 1      # whether or not to restart a
 box_utils.set_COM_port(session_info)                # looking up the COM port in the list in box_utils.py
 
 # parameters for training in stages 3-4
-phase3_go_to_pokes_length                      = 30 * 1000  # goal is to reduce to 4000 ms
+phase3_go_to_pokes_length                      = 4 * 1000  # goal is to reduce to 4000 ms
 session_info['phase4_num_rewards_to_advance']  = 10
 session_info['phase4_fake_rewards']            = 0
 
@@ -97,10 +97,10 @@ session_info['goToPokesLength']        = 1000*60
 session_info['rewardCollectionLength'] = 1 #000*5
 
 # cue lengths, etc. - for phases 4 and 5, they are changed below
-session_info['preCueLength']           = 100
+session_info['preCueLength']           = 50
 session_info['cue1Length']             = [100]
 session_info['cue2Length']             = [100]
-session_info['interOnsetInterval']     = [0]
+session_info['interOnsetInterval']     = [100]
 session_info['postCueLength']          = 0
 session_info['increase_hold_time' ]    = 1;
 
@@ -228,7 +228,7 @@ try:
         if session_info['blocks_reward']:
             if (trials_since_block>change_point):
                 box_utils.reward_blocks(session_info,nTrial)
-                change_point = int(np.random.uniform(50,75,1))
+                change_point = int(np.random.uniform(15,25,1))
                 trials_since_block = 0
                 
         if session_info['rand_reward_size']:
@@ -261,6 +261,7 @@ try:
             time.sleep(0.010) # to prevent readline() from being called before the entire string is written
             Astr = arduino.readline().decode('utf-8').rstrip()
             if Astr.find('letTheAnimalDrink') >= 0: # meaning a reward was collected
+                trials_since_block += 1
                 total_rewards += 1
                 print(Style.BRIGHT + Astr + '\nTotal Rewards: ' + str(total_rewards) + Style.RESET_ALL)
                 
@@ -279,7 +280,7 @@ try:
         logfile.close()
         print(Fore.GREEN + Style.BRIGHT + 'Trial completed' + Style.RESET_ALL)
         nTrial += 1
-        trials_since_block += 1
+        
         deltaGain = nTrial - total_rewards
         
         

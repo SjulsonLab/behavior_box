@@ -407,7 +407,7 @@ y1 = ylabel('Poke latency (s)');
 %I have to do this plot just for free choices
 a(4) = subplot(4, 4, 13:15);
 
-if isfield(session_info,'blocks_reward')
+if isfield(session_info,'blocks_reward') && session_info.trainingPhase>3
     if session_info.blocks_reward
         [RLfit] = RLmodel_behavior_ver1([basename '.txt']);
         x_block1 = sort([pokes.Lreward_pokes,pokes.Rreward_pokes])/(60*1000);
@@ -428,7 +428,7 @@ if isfield(session_info,'blocks_reward')
         plot(x_block1,rew_block_right,'.r','markersize',13);
         plot(free_choice.time/(60*1000),free_choice.rewardSize/1000,'^k','markerfacecolor','k')
         legend('left choice model','right choice model','left reward size','right reward size','animal choice')
-        a(4).YLim = a(4).YLim;
+        a(4).YLim = [min([rew_block_left rew_block_right]) max([rew_block_left rew_block_right])];
         b1 = area(histvec/hist_scale, Tshade);
         b1.EdgeAlpha = 0;
         b1.FaceAlpha = 0.1;
@@ -495,9 +495,34 @@ h1 = plot(LRhistvec/1000, cumsum(Rhist)./sum(Rhist), 'r');
 
 % h1 = histogram(pokes.Lreward_pokes_latencies/1000, 'BinWidth', binwidth, 'Normalization', 'cdf', 'DisplayStyle', 'stairs', 'EdgeColor', 'b'); hold on
 % h2 = histogram(pokes.Rreward_pokes_latencies/1000, 'BinWidth', binwidth, 'Normalization', 'cdf', 'DisplayStyle', 'stairs', 'EdgeColor', 'r');
-t2 = title('Init, Right and Left poke latency');
+
 x1 = xlabel('Time (seconds)');
 xlim([0 50])
+%making the nosepoke hold plot
+if isfield(pokes,'I_hold_time')
+    ax1 = gca;
+    ax2 = axes('Position',ax1.Position,...
+    'XAxisLocation','top',...
+    'YAxisLocation','right',...
+    'Color','none');
+
+I_hold_histvec = 0:binwidth:max(pokes.I_hold_time);
+I_hold_hist = histc(pokes.I_hold_time, I_hold_histvec);
+
+if isempty(I_hold_histvec)
+    I_hold_histvec = zeros(size(I_hold_histvec));
+end
+
+if isempty(I_hold_hist)
+    I_hold_hist = zeros(size(I_hold_histvec));
+end
+
+line(I_hold_histvec/1000,cumsum(I_hold_hist)./sum(I_hold_hist),'Parent',ax2,'Color','m')
+t2 = title(ax2,'Init, Right and Left poke latency / \color{magenta}Init hold time');
+ax2.XColor = 'm';
+ax2.YColor = 'm';
+end
+
 
 %% Fifth subplot
 

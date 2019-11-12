@@ -25,6 +25,7 @@ cd(basedir);
 L.Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
 L.Rpokes = getEventTimes('rightPokeEntry', [basename '.txt']);
 L.Ipokes = getEventTimes('initPokeEntry', [basename '.txt']);
+L.Ipokes_exit = getEventTimes('initPokeExit_ms', [basename '.txt']);
 [L.Lreward_pokes, ~, L.Lreward_poke_trialnum] =   getEventTimes('leftRewardCollected', [basename '.txt']);
 [L.Rreward_pokes, ~, L.Rreward_poke_trialnum] = getEventTimes('rightRewardCollected', [basename '.txt']);
 % extract times of trial starts
@@ -47,6 +48,15 @@ for idx = 1:length(L.trial_starts)
 	tempvec(tempvec<0) = Inf;
 	L.trial_start_latencies(idx) = min(tempvec); % finding the closest trial_avail that preceded the trial start
 end
+
+if length(L.Ipokes)>length(L.Ipokes_exit) %cutting Ipokes that finished after the session was over
+    L.Ipokes = L.Ipokes(1:end-1); 
+end
+temp = ismember(L.Ipokes,L.trial_starts);
+
+
+%extract how long the animal hold inside the nose poke
+L.I_hold_time = L.Ipokes_exit(temp)-L.Ipokes(temp);
 
 %% extract latencies for each left and right reward collection
 L.Lreward_pokes_latencies = zeros(size(L.Lreward_pokes));
