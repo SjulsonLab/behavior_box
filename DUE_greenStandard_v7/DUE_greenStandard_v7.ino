@@ -151,9 +151,9 @@ void setup() {
   pinMode(initPokeTTL, INPUT);
   pinMode(leftPokeTTL, INPUT);
   pinMode(rightPokeTTL, INPUT);
-  pinMode(extraPoke4TTL, INPUT);
-  pinMode(extraPoke5TTL, INPUT);
-  pinMode(extraPoke6TTL, INPUT);
+//  pinMode(extraPoke4TTL, INPUT);
+//  pinMode(extraPoke5TTL, INPUT);
+//  pinMode(extraPoke6TTL, INPUT);
 
   // signals to the syringe pumps to move.
   pinMode(syringePumpInit, OUTPUT);   // init pump
@@ -179,10 +179,17 @@ void setup() {
   setLEDlevel(cueLED2pin, 0);
   setLEDlevel(cueLED3pin, 0);
   setLEDlevel(cueLED4pin, 0);
-  setLEDlevel(cueLED5pin, 0);
-  setLEDlevel(cueLED6pin, 0);
+//  setLEDlevel(cueLED5pin, 0);
+//  setLEDlevel(cueLED6pin, 0);
   digitalWrite(cameraTrigTTL, LOW);
 
+  // switches pins
+  pinMode(ip1, INPUT_PULLUP);
+  pinMode(ip2, INPUT_PULLUP);
+  pinMode(ip3, INPUT_PULLUP);
+  pinMode(ip4, INPUT_PULLUP);
+  pinMode(button,INPUT); 
+  
   // default state
   state = standby;
 }
@@ -962,4 +969,5 @@ void loop() {
     buttonDetected = 0;
   break;
   
+}
 }
