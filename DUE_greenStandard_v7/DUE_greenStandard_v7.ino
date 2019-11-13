@@ -4,6 +4,8 @@
 
 /*
 
+  Version with priming switches added - by Adam Sugi - adamhsugi@gmail.com
+  
   v7 - by Luke Sjulson, 2018-12-31. Making changes to work with python version
   of client. Will modify to match phase 1
   of the Jaramillo and Zador protocol better (center poke will trigger reward 
@@ -66,6 +68,8 @@
 #define goToPokes       		9  // nosepokes open, animal can approach and collect reward
 #define letTheAnimalDrink  10  // waiting for animal to collect reward
 #define calibration        11  // state for calibrating the sound and light cue levels
+#define testSyringes       12  // test syringes with switches
+#define calibrateButton    13  // calibration button pressed
 #define CSdelivery         201 // state to deliver CS for the animal in Trace apettitive conditioning
 #define TracePeriod        202 // state for the trace period in TAC
 /*
@@ -201,6 +205,8 @@ void loop() {
     checkDoors();   // update door state as per matlab instruction
     checkRewards(); // update reward state as per matlab instruction
     checkPokes();   // check nosepokes
+    checkSwitches(); // checking switches on
+//    checkButton(); // checking button
 
     if (cameraRecordingYN==1) {
       triggerCamera();
@@ -308,6 +314,12 @@ void loop() {
         serLogNum("WNvolume", WNvolume);
       }
 
+//      if (buttonDetected == 1) {
+//        switchTo(calibrateButton)
+//      }
+      if (switches_on > 0){
+        switchTo(testSyringes);
+      }
       break;
 
 
@@ -714,7 +726,7 @@ void loop() {
     case punishDelay:
       if ((millis() - tempTime) < punishSound)
       {
-        playBuzzer();
+        playHighTone();
       }
       if ((millis() - tempTime) > punishDelayLength) {
         switchTo(standby);
@@ -906,5 +918,48 @@ void loop() {
         setLEDlevel(cueLED4pin, 0);
       }
     break;
-  }
+    
+    case testSyringes:
+
+    
+      if (fwd_on==1){
+        if (syringeLeft==1 && syringeRight==0){
+          fwd_syringe(syringePumpLeft);          
+        } else if (syringeLeft==0 &&syringeRight==1){
+          fwd_syringe(syringePumpRight);          
+        } else if (syringeLeft==0 &&syringeRight==0){
+          fwd_syringe(syringePumpInit);          
+        }
+      } else if (bwd_on==1){
+        if (syringeLeft==1 && syringeRight==0){
+          bwd_syringe(syringePumpLeft);          
+        } else if (syringeLeft==0 && syringeRight==1){
+          bwd_syringe(syringePumpRight);          
+        } else if (syringeLeft==0 && syringeRight==0){
+          bwd_syringe(syringePumpInit);          
+        }
+      }
+      fwd_on = 0;
+      bwd_on = 0;
+      switches_on = 0;
+      syringeLeft =0;
+      syringeRight =0;
+      syringeInit =0;
+    
+      switchTo(standby);
+  break;
+
+  case calibrateButton:
+    if (syringeLeft==1 && syringeRight==0){
+      button_press(syringePumpLeft);          
+    } else if (syringeLeft==0 &&syringeRight==1){
+      button_press(syringePumpRight);          
+    } else if (syringeLeft==0 &&syringeRight==0){
+      button_press(syringePumpInit);          
+    }
+
+    switchTo(standby);
+    buttonDetected = 0;
+  break;
+  
 }
