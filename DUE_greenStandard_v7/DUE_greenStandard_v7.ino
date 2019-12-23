@@ -44,16 +44,6 @@
 // tell matlab/python version 7 (changing this so it matches the version in the filename)
 #define VERSION     7
 
-// include dependencies
-#include <Arduino.h>
-//#include "libraries/LED/LED.cpp"   // https://playground.arduino.cc/Code/LED - have to open LED.h and manually change Wprogram.h to Arduino.h
-#include <Servo.h>
-#include "libraries/Timer-master/Event.cpp" // https://playground.arduino.cc/Code/Timer
-#include "libraries/Timer-master/Timer.cpp" // https://playground.arduino.cc/Code/Timer
-//#include <string>
-#include <avr/pgmspace.h> // might be required to store waveforms on flash instead of RAM
-#include "toInclude/greenStandardFunctions_v7.cpp"
-
 // state definitions
 #define standby         		1   // standby - the inactive state
 #define readyToGo       		2   // plays white noise, waits for init poke
@@ -68,6 +58,22 @@
 #define calibration             11  // state for calibrating the sound and light cue levels
 #define CSdelivery              201 // state to deliver CS for the animal in Trace apettitive conditioning
 #define TracePeriod             202 // state for the trace period in TAC
+#define SApreCue                301 // preCue for self-admin
+#define SAcue                   302 // cue state for self-admin
+#define SApostCue               303 // postCue state for self-admin
+
+
+// include dependencies
+#include <Arduino.h>
+//#include "libraries/LED/LED.cpp"   // https://playground.arduino.cc/Code/LED - have to open LED.h and manually change Wprogram.h to Arduino.h
+#include <Servo.h>
+#include "libraries/Timer-master/Event.cpp" // https://playground.arduino.cc/Code/Timer
+#include "libraries/Timer-master/Timer.cpp" // https://playground.arduino.cc/Code/Timer
+//#include <string>
+#include <avr/pgmspace.h> // might be required to store waveforms on flash instead of RAM
+#include "toInclude/greenStandardFunctions_v7.cpp"
+#include "toInclude/SA_states.cpp"
+
 
 /*
 
@@ -396,6 +402,7 @@ void loop() {
 		  deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
           serLogNum("initReward_nL", IrewardSize_nL);
       	}
+      	whichPokeStartedTrial = 2; // 2 for init
       	initPokeCounter   = 0;
       	leftPokeCounter   = 0;
       	rightPokeCounter  = 0;
@@ -404,7 +411,7 @@ void loop() {
       	serLogNum("TrialStartedInitPokes", initPokeCounter);
       	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
         sndCounter = 0;
-        switchTo(preCue);
+        switchTo(SApreCue);
       }
 
       if (trainingPhase == 301 && leftPokesToInitiate > 0 && (leftPokeCounter >= leftPokesToInitiate)) {
@@ -412,6 +419,7 @@ void loop() {
 		  deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
           serLogNum("leftReward_nL", IrewardSize_nL);
       	}
+      	whichPokeStartedTrial = 1; // 1 for left
       	initPokeCounter   = 0;
       	leftPokeCounter   = 0;
       	rightPokeCounter  = 0;
@@ -420,7 +428,7 @@ void loop() {
       	serLogNum("TrialStartedLeftPokes", leftPokeCounter);
       	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
         sndCounter = 0;
-        switchTo(preCue);
+        switchTo(SApreCue);
       }
 
       if (trainingPhase == 301 && rightPokesToInitiate > 0 && (rightPokeCounter >= rightPokesToInitiate)) {
@@ -428,6 +436,7 @@ void loop() {
 		  deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
           serLogNum("rightReward_nL", IrewardSize_nL);
       	}
+      	whichPokeStartedTrial = 3; // 3 for right
       	initPokeCounter   = 0;
       	leftPokeCounter   = 0;
       	rightPokeCounter  = 0;
@@ -436,9 +445,8 @@ void loop() {
       	serLogNum("TrialStartedRightPokes", rightPokeCounter);
       	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
         sndCounter = 0;
-        switchTo(preCue);
+        switchTo(SApreCue);
       }
-
 
       break;
 
@@ -756,6 +764,16 @@ void loop() {
       delayMicroseconds(pauseLengthMicros); 
       break;
 
+    // state for self-admin and cue-induced reinstatement
+    case SApreCue:
+    	SApreCue_fxn();
+    	break;
+    case SAcue:
+    	SAcue_fxn();
+    	break;
+    case SApostCue:
+    	SApostCue_fxn();
+    	break;
 
     ////////////////////
     // PUNISHDELAY

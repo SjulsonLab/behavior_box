@@ -147,6 +147,8 @@ int extraPokeLast6      = 0;
 int extraPokeReading6   = 0;
 int extraPokeDetected6  = 0;
 
+int tempInit            = 0; // temporary variable to simplify code
+
 // for phase 301 (self-admin and cue-induced reinstatement)
 long initPokeCounter       = 0;
 long leftPokeCounter       = 0;
@@ -154,10 +156,15 @@ long rightPokeCounter      = 0;
 long initPokesToInitiate   = 0; // the number of pokes required for reward
 long leftPokesToInitiate   = 0; // for inactive ports, set to 0
 long rightPokesToInitiate  = 0;
-
-
-
-int tempInit            = 0; // temporary variable to simplify code
+int whichPokeStartedTrial  = 0; // 1 for left, 2 for init, 3 for right
+long SA_leftAudCue         = 0;
+long SA_initAudCue         = 0;
+long SA_rightAudCue        = 0;
+long SA_leftVisCue         = 0;
+long SA_initVisCue         = 0;
+long SA_rightVisCue        = 0;
+int SAcue_aud              = 0; // temp variable for which cue plays this trial
+long SAcueLength           = 0;
 
 
 // servos to control nosepoke doors
@@ -348,6 +355,14 @@ void resetDefaults() {
   initPokesToInitiate    = 0; // the number of pokes required for reward
   leftPokesToInitiate    = 0; // for inactive ports, set to 0
   rightPokesToInitiate   = 0;
+  whichPokeStartedTrial  = 0;
+  SA_leftAudCue         = 0;
+  SA_initAudCue         = 0;
+  SA_rightAudCue        = 0;
+  SA_leftVisCue         = 0;
+  SA_initVisCue         = 0;
+  SA_rightVisCue        = 0;
+  SAcueLength           = 0;
 
   laserOnCode            = 0;
   goToStandby            = 0; // set to 1 using matlab to exit goToPokes state
@@ -853,6 +868,14 @@ void processMessage() {
     changeVariableLong("initPokesToInitiate", &initPokesToInitiate, inLine);
     changeVariableLong("leftPokesToInitiate", &leftPokesToInitiate, inLine);
     changeVariableLong("rightPokesToInitiate", &rightPokesToInitiate, inLine);
+    changeVariableLong("SA_leftAudCue", &SA_leftAudCue, inLine);
+    changeVariableLong("SA_initAudCue", &SA_initAudCue, inLine);
+    changeVariableLong("SA_rightAudCue", &SA_rightAudCue, inLine);
+    changeVariableLong("SA_leftVisCue", &SA_leftVisCue, inLine);
+    changeVariableLong("SA_initVisCue", &SA_initVisCue, inLine);
+    changeVariableLong("SA_rightVisCue", &SA_rightVisCue, inLine);
+    changeVariableLong("SAcueLength", &SAcueLength, inLine);
+
 
     // not in matlab:
 
