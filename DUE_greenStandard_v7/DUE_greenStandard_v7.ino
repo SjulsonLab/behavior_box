@@ -335,7 +335,7 @@ void loop() {
 
       // switch state to PRE-CUE if 1) the mouse init pokes, or 2) any poke is activated during phase 1
 
-      if (initPoke == 1) { // init poke activated
+      if (initPoke == 1 && trainingPhase < 301) { // init poke activated
         tempInit = 1;
       }
       if (trainingPhase == 1 && leftPoke == 1 && LrewardCode > 0) {
@@ -388,6 +388,55 @@ void loop() {
         toneTime = millis();
         switchTo(CSdelivery);
         }
+      }
+
+      // stuff for trainingPhase 301 (self-admin and cue-induced reinstatement)
+      if (trainingPhase == 301 && initPokesToInitiate > 0 && (initPokeCounter >= initPokesToInitiate)) {
+      	if (IrewardCode == 2) {
+		  deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
+          serLogNum("initReward_nL", IrewardSize_nL);
+      	}
+      	initPokeCounter   = 0;
+      	leftPokeCounter   = 0;
+      	rightPokeCounter  = 0;
+      	LrewardCode = 0; // this is so that the other pokes don't get rewarded
+      	RrewardCode = 0;
+      	serLogNum("TrialStartedInitPokes", initPokeCounter);
+      	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
+        sndCounter = 0;
+        switchTo(preCue);
+      }
+
+      if (trainingPhase == 301 && leftPokesToInitiate > 0 && (leftPokeCounter >= leftPokesToInitiate)) {
+      	if (LrewardCode == 2) {
+		  deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+          serLogNum("leftReward_nL", IrewardSize_nL);
+      	}
+      	initPokeCounter   = 0;
+      	leftPokeCounter   = 0;
+      	rightPokeCounter  = 0;
+      	IrewardCode = 0; // this is so that the other pokes don't get rewarded
+      	RrewardCode = 0;
+      	serLogNum("TrialStartedLeftPokes", leftPokeCounter);
+      	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
+        sndCounter = 0;
+        switchTo(preCue);
+      }
+
+      if (trainingPhase == 301 && rightPokesToInitiate > 0 && (rightPokeCounter >= rightPokesToInitiate)) {
+      	if (RrewardCode == 2) {
+		  deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+          serLogNum("rightReward_nL", IrewardSize_nL);
+      	}
+      	initPokeCounter   = 0;
+      	leftPokeCounter   = 0;
+      	rightPokeCounter  = 0;
+      	IrewardCode = 0; // this is so that the other pokes don't get rewarded
+      	LrewardCode = 0;
+      	serLogNum("TrialStartedRightPokes", rightPokeCounter);
+      	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
+        sndCounter = 0;
+        switchTo(preCue);
       }
 
 

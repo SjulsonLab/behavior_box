@@ -121,19 +121,16 @@ int initPoke          = 0;
 int initPokeLast      = 0;
 int initPokeReading   = 0;
 int initPokeDetected  = 0;
-int initPokeCounter   = 0;
 
 int leftPoke          = 0;
 int leftPokeLast      = 0;
 int leftPokeReading   = 0;
 int leftPokeDetected  = 0;
-int leftPokeCounter   = 0;
 
 int rightPoke          = 0;
 int rightPokeLast      = 0;
 int rightPokeReading   = 0;
 int rightPokeDetected  = 0;
-int rightPokeCounter   = 0;
 
 int extraPoke4          = 0;
 int extraPokeLast4      = 0;
@@ -149,6 +146,16 @@ int extraPoke6          = 0;
 int extraPokeLast6      = 0;
 int extraPokeReading6   = 0;
 int extraPokeDetected6  = 0;
+
+// for phase 301 (self-admin and cue-induced reinstatement)
+long initPokeCounter       = 0;
+long leftPokeCounter       = 0;
+long rightPokeCounter      = 0;
+long initPokesToInitiate   = 0; // the number of pokes required for reward
+long leftPokesToInitiate   = 0; // for inactive ports, set to 0
+long rightPokesToInitiate  = 0;
+
+
 
 int tempInit            = 0; // temporary variable to simplify code
 
@@ -338,6 +345,9 @@ void resetDefaults() {
   initPokeCounter        = 0;
   leftPokeCounter        = 0;
   rightPokeCounter       = 0;
+  initPokesToInitiate    = 0; // the number of pokes required for reward
+  leftPokesToInitiate    = 0; // for inactive ports, set to 0
+  rightPokesToInitiate   = 0;
 
   laserOnCode            = 0;
   goToStandby            = 0; // set to 1 using matlab to exit goToPokes state
@@ -839,6 +849,10 @@ void processMessage() {
     changeVariableLong("trialLRtype", &trialLRtype, inLine);
     changeVariableLong("trialAVtype", &trialAVtype, inLine);
 
+    // for phase 301 (self-admin and cue-induced reinstatement)
+    changeVariableLong("initPokesToInitiate", &initPokesToInitiate, inLine);
+    changeVariableLong("leftPokesToInitiate", &leftPokesToInitiate, inLine);
+    changeVariableLong("rightPokesToInitiate", &rightPokesToInitiate, inLine);
 
     // not in matlab:
 
