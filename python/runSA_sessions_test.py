@@ -20,18 +20,18 @@ import numpy as np
 
 # defining immutable mouse dict (once defined for a mouse, this should never change)
 mouse_info = pysistence.make_dict({'mouseName': 'test',
-                 'requiredVersion': 8,
-                 'leftVisCue': 3,
+                 'requiredVersion': 7,
+                 'leftVisCue': 0,
                  'rightVisCue': 0,
-                 'leftAudCue': 0,
-                 'rightAudCue': 3,
-                 'initVisCue': 1,
-                 'initAudCue': 2})
+                 'initVisCue': 0,
+                 'leftAudCue': 1,
+                 'rightAudCue': 2,
+                 'initAudCue': 3})
 
 # Information for this session (the user should edit this each session)
 session_info                              = collections.OrderedDict()
 session_info['mouseName']                 = mouse_info['mouseName']
-session_info['trainingPhase']             = 4
+session_info['trainingPhase']             = 301
 session_info['weight']                    = 32.18
 session_info['date']                      = datetime.datetime.now().strftime("%Y%m%d")
 session_info['time']                      = datetime.datetime.now().strftime('%H%M%S')
@@ -46,40 +46,34 @@ resetTimeYN                               = 1      # whether or not to restart a
 
 box_utils.set_COM_port(session_info)                # looking up the COM port in the list in box_utils.py
 
-# parameters for training in stages 3-4
-phase3_go_to_pokes_length                      = 4 * 1000  # goal is to reduce to 4000 ms
-session_info['phase4_num_rewards_to_advance']  = 10
-session_info['phase4_fake_rewards']            = 0
-
 # other parameters
 session_info['maxSessionLength_min']      = 60     # in minutes
 session_info['maxTrials']                 = 1000   # program terminates when either maxSessionLength_min or maxTrials is reached
 session_info['maxRewards']                = 1000    # program also terminates if maxRewards is reached
 session_info['interTrialInterval_mean']   = 0      # number of extra seconds between trials
 session_info['interTrialInterval_SD']     = 0    # standard deviation of seconds between trials
-session_info['punishForErrorPokeYN']      = 0      # 0 = no, 1 = yes for stage 5 only
-session_info['cueWithdrawalPunishYN']     = 0      # only 1 in phase 4-5
 session_info['initPokePunishYN']          = 0      # whether to punish for init poke between trials
-nTrial                                    = 1      # the number of the first trial
+nTrial                                    = 1      # the number of the first trial - in case you have to restart in the middle
 session_info['nTrial']                    = []     # just leave this blank
 
 
 # initializing trial L/R parameters, will set them later
 session_info['trialLRtype']               = [1,3] # (1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL).
 session_info['trialLRtype_info']          = '(1 = LX, 2 = XL, 3 = RX, 4 = XR, 5 = LR, 6 = RL)'
-session_info['LrewardCode']               = [] # will be set automatically later
-session_info['RrewardCode']               = []
-session_info['IrewardCode']               = []
+session_info['LrewardCode']               = [3] 
+session_info['RrewardCode']               = [3]
+session_info['IrewardCode']               = [3]
 
-# this is planning for the future, when we will likely want two auditory
-# stimuli and two visual stimuli. For now, just leave it as all 3's
-session_info['trialAVtype']               = [3]  # 1 = auditory only, 2 = visual only, 3 = both aud + vis
-session_info['trialAVtype_info']          = '1 = auditory only, 2 = visual only, 3 = both aud + vis'
+
+# # this is planning for the future, when we will likely want multiple
+# # auditory and visual stimuli
+# session_info['trialAVtype']               = [1]  # 1 = auditory only, 2 = visual only, 3 = both aud + vis
+# session_info['trialAVtype_info']          = '1 = auditory only, 2 = visual only, 3 = both aud + vis'
 
 # will use this later, when we do optogenetic manipulation
 session_info['laserOnCode']            = [0]
 
-# reward parameters for first trial
+# reward parameters for changing rewards
 session_info['LrewardSize_nL']         = [5000] # the starting value, which will be updated over time
 session_info['RrewardSize_nL']         = [5000]
 session_info['IrewardSize_nL']         = [0000]
@@ -92,19 +86,16 @@ session_info['deliveryDuration_ms']    = 250
 session_info['syringeSize_mL']         = 5
 session_info['rand_reward_size']       = 1
 
-# time intervals
+# time intervals - all in ms
 session_info['readyToGoLength']        = 1000*10*60
 session_info['punishDelayLength']      = 1000*4
 session_info['goToPokesLength']        = 1000*60
-session_info['rewardCollectionLength'] = 1 #000*5
+session_info['rewardCollectionLength'] = 1000*5
 
 # cue lengths, etc. - for phases 4 and 5, they are changed below
 session_info['preCueLength']           = 50
-session_info['cue1Length']             = [100]
-session_info['cue2Length']             = [100]
-session_info['interOnsetInterval']     = [100]
+session_info['SAcueLength']            = [200]
 session_info['postCueLength']          = 0
-session_info['increase_hold_time' ]    = 1;
 
 # cue volume and brightness
 session_info['WNvolume']               = 50     # volumes are 0-255
@@ -117,44 +108,27 @@ session_info['cueLED3Brightness']      = 1023
 session_info['cueLED4Brightness']      = 1023
 
 # setting parameters based on training phase
-if session_info['trainingPhase'] == 1:
-	session_info['punishForErrorPokeYN']      = 0 # 0 = no, 1 = yes for stage 5 only
-	session_info['cueWithdrawalPunishYN']     = 0 # only 1 in phase 4-5
-	session_info['goToPokesLength']           = 60 * 1000
-elif session_info['trainingPhase'] == 2:
-	session_info['punishForErrorPokeYN']      = 0 # 0 = no, 1 = yes for stage 5 only
-	session_info['cueWithdrawalPunishYN']     = 1 # only 1 in phase 4-5
-	session_info['goToPokesLength']           = 60 * 1000
-elif session_info['trainingPhase'] == 3:
-	session_info['punishForErrorPokeYN']      = 0 # 0 = no, 1 = yes for stage 5 only
-	session_info['cueWithdrawalPunishYN']     = 1 # only 1 in phase 4-5
-	session_info['goToPokesLength']           = phase3_go_to_pokes_length
-elif session_info['trainingPhase'] == 4:
-	session_info['punishForErrorPokeYN']      = 1 # 0 = no, 1 = yes for stage 5 only
-	session_info['cueWithdrawalPunishYN']     = 1 # only 1 in phase 4-5
-	session_info['goToPokesLength']           = 4 * 1000
-elif session_info['trainingPhase'] == 5:
-	session_info['punishForErrorPokeYN']      = 1 # 0 = no, 1 = yes for stage 5 only
-	session_info['cueWithdrawalPunishYN']     = 1 # only 1 in phase 4-5
-	session_info['goToPokesLength']           = 4 * 1000
-    
-# initializing the cue/slot parameters
-session_info['slot1_vis'] = []
-session_info['slot1_aud'] = []
-session_info['slot2_vis'] = []
-session_info['slot2_aud'] = []
-session_info['slot3_vis'] = []
-session_info['slot3_aud'] = []
-session_info['slot1Length'] = []
-session_info['slot2Length'] = []
-session_info['slot3Length'] = []
+session_info['punishForErrorPokeYN']      = 0 # 0 = no, 1 = yes for stage 5 only
+session_info['cueWithdrawalPunishYN']     = 0 # only 1 in phase 4-5
+session_info['goToPokesLength']           = 60 * 1000
 
-if session_info['trainingPhase'] == 5:
-    box_utils.append_cue_slot_durations(session_info, 0)
+# setting the auditory cues
+session_info['SA_leftAudCue'] = mouse_info['leftAudCue']
+session_info['SA_initAudCue'] = mouse_info['initAudCue']
+session_info['SA_rightAudCue'] = mouse_info['rightAudCue']
 
-# # figure out the COM port
-# basedir  = 'C:\\Users\\lukes\\Desktop\\temp'
-# COM_port = 'COM5'  # fix: update this later
+# self-administration stuff
+session_info['initPokesToInitiate']    = 10  # zero means that poke is inactive
+session_info['leftPokesToInitiate']    = 0
+session_info['rightPokesToInitiate']   = 0
+
+
+
+
+
+
+
+
 
 # make directory to store logfile in
 os.chdir(session_info['basedir'])
@@ -212,39 +186,15 @@ try:
         ## these get updated every trial
         # setting trial number
         session_info['nTrial'].append(nTrial)
-        # for stages 1-2, this should be [1 3]. For stage 3 and higher, it should be [1:6]
-        # i.e. no free choice until stage 3
-        box_utils.append_random_LR(session_info)
-        # set reward codes for this trial
-        box_utils.append_reward_code(session_info)
-        # set cue/slot identity codes for this trial
-        box_utils.append_cue_codes(session_info, mouse_info)
 
-        #if session_info['trainingPhase'] == 4:
-            # set cue/slot duration cotes for this trial
-           # box_utils.append_cue_slot_durations(session_info, total_rewards)
 
-        if(session_info['trainingPhase']>=2 and session_info['correctBias'] == 1):
-            box_utils.correctBias(session_info,nTrial)
-        # fix: append new reward size here if it's going to 
-        if session_info['blocks_reward']:
-            if (trials_since_block>change_point):
-                box_utils.reward_blocks(session_info,nTrial)
-                change_point = int(np.random.uniform(15,25,1))
-                trials_since_block = 0
-                
-        if session_info['rand_reward_size']:
-            box_utils.assign_random_reward(session_info)
-            
-        if nTrial != 1:
-            if (deltaGain == kDelta) and (reward_inRow<=5):
-                reward_inRow += 1
-            elif (deltaGain != kDelta):
-                kDelta = deltaGain
-                reward_inRow = 0
-            elif (deltaGain == kDelta) and (reward_inRow>5):
-                reward_inRow = 0
-        
+        # # for stages 1-2, this should be [1 3]. For stage 3 and higher, it should be [1:6]
+        # # i.e. no free choice until stage 3
+        # box_utils.append_random_LR(session_info)
+        # # set reward codes for this trial
+        # box_utils.append_reward_code(session_info)
+        # # set cue/slot identity codes for this trial
+        # box_utils.append_cue_codes(session_info, mouse_info)
 
         # send session_info to arduino
         box_utils.send_dict_to_arduino(session_info, arduino)
@@ -285,10 +235,6 @@ try:
         
         deltaGain = nTrial - total_rewards
         
-        
-        
-        
-        
         # evaluate whether or not to exit the loop
         if time.time() - start_time > session_info['maxSessionLength_min']*60:
             print('Session reached maximum duration. Exiting.')
@@ -301,11 +247,11 @@ try:
             exit_loop = True
 
         # optionally add random extra ITI
-        time.sleep(random.gauss(session_info['interTrialInterval_mean'], session_info['interTrialInterval_SD']))
-        if session_info['increase_hold_time']:
-            #print(Style.BRIGHT +'\nRewards in a row: ' + str(reward_inRow) + Style.RESET_ALL)
-            if reward_inRow > 5:
-                box_utils.increase_hold_time(session_info)
+        # time.sleep(random.gauss(session_info['interTrialInterval_mean'], session_info['interTrialInterval_SD']))
+        # if session_info['increase_hold_time']:
+        #     #print(Style.BRIGHT +'\nRewards in a row: ' + str(reward_inRow) + Style.RESET_ALL)
+        #     if reward_inRow > 5:
+        #         box_utils.increase_hold_time(session_info)
 
 
     # end of loop

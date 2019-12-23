@@ -4,7 +4,7 @@ def set_COM_port(session_info):
     if session_info['computer_name'].lower() == 'Luke-HP-laptop'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'C:\\Users\\lukes\\Desktop\\temp'
-        session_info['COM_port'] = 'COM5'
+        session_info['COM_port'] = 'COM6'
     elif session_info['computer_name'].lower() == 'bumbrlik01'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
@@ -318,6 +318,7 @@ def append_reward_code(session_info):
 
 def append_random_LR(session_info):
     import random
+    import warnings
 
     if session_info['trainingPhase'] in [1, 2]:
         options = [1, 3]

@@ -8,6 +8,7 @@
   of client. Will modify to match phase 1
   of the Jaramillo and Zador protocol better (center poke will trigger reward 
   release at side ports)	
+  2019-12-23: also added stuff for drug self-admin (SA) and cue-induced reinstatement
 
   v6 - by Luke Sjulson, 2018-11-15. Now correctly follows modified version of the 
   Jaramillo and Zador protocol. Center poke is never rewarded.
@@ -275,6 +276,9 @@ void loop() {
           serLogNum("rewardSize_nL", IrewardSize_nL);
         }
 
+        // fix: need to put any SA-relevant code here
+
+
         sndCounter = 0; // reset sound counter
         startTrialYN = 0; // reset startTrial
         trialAvailTime = millis(); // assign time in ms when trial becomes available/when you're switching to readyToGo state.
@@ -403,13 +407,13 @@ void loop() {
           serLogNum("initReward_nL", IrewardSize_nL);
       	}
       	whichPokeStartedTrial = 2; // 2 for init
+      	serLogNum("TrialStartedInitPokes", initPokeCounter);
+      	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
       	initPokeCounter   = 0;
       	leftPokeCounter   = 0;
       	rightPokeCounter  = 0;
       	LrewardCode = 0; // this is so that the other pokes don't get rewarded
       	RrewardCode = 0;
-      	serLogNum("TrialStartedInitPokes", initPokeCounter);
-      	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
         sndCounter = 0;
         switchTo(SApreCue);
       }
@@ -420,13 +424,13 @@ void loop() {
           serLogNum("leftReward_nL", IrewardSize_nL);
       	}
       	whichPokeStartedTrial = 1; // 1 for left
+      	serLogNum("TrialStartedLeftPokes", leftPokeCounter);
+      	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
       	initPokeCounter   = 0;
       	leftPokeCounter   = 0;
       	rightPokeCounter  = 0;
       	IrewardCode = 0; // this is so that the other pokes don't get rewarded
       	RrewardCode = 0;
-      	serLogNum("TrialStartedLeftPokes", leftPokeCounter);
-      	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
         sndCounter = 0;
         switchTo(SApreCue);
       }
@@ -437,13 +441,13 @@ void loop() {
           serLogNum("rightReward_nL", IrewardSize_nL);
       	}
       	whichPokeStartedTrial = 3; // 3 for right
+      	serLogNum("TrialStartedRightPokes", rightPokeCounter);
+      	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
       	initPokeCounter   = 0;
       	leftPokeCounter   = 0;
       	rightPokeCounter  = 0;
       	IrewardCode = 0; // this is so that the other pokes don't get rewarded
       	LrewardCode = 0;
-      	serLogNum("TrialStartedRightPokes", rightPokeCounter);
-      	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
         sndCounter = 0;
         switchTo(SApreCue);
       }

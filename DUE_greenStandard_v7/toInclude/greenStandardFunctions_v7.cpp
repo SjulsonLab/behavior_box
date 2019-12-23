@@ -9,7 +9,7 @@ TO DO:
 */
 
 // for debugging
-//#define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
+#define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
 #ifdef DEBUG    //Macros are usually in all capital letters.
 #define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
 #define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
@@ -512,21 +512,18 @@ void checkPokes()
   initPokeReading = digitalRead(initPokeTTL);
   if (initPokeDetected==0 && initPokeReading==1)  { // if a poke is detected in this time window
     initPokeDetected = 1; 
-    initPokeCounter += 1;
     uncollectedInitRewardYN = 0; // this is in case the animal collects the reward between trials
   }
 
   leftPokeReading = digitalRead(leftPokeTTL);
   if (leftPokeDetected==0 && leftPokeReading==1)  { // if a poke is detected in this time window
     leftPokeDetected = 1;
-    leftPokeCounter += 1;
     uncollectedLeftRewardYN = 0; // this is in case the animal collects the reward between trials
   }
 
   rightPokeReading = digitalRead(rightPokeTTL);
   if (rightPokeDetected==0 && rightPokeReading==1)  { // if a poke is detected in this time window
     rightPokeDetected = 1; 
-    rightPokeCounter += 1;
     uncollectedRightRewardYN = 0; // this is in case the animal collects the reward between trials
   }
 
@@ -557,6 +554,7 @@ void checkPokes()
     	initPokeLast = initPokeDetected;
     	initPoke = 1;
       initPokeEntryTime = millis();
+      initPokeCounter += 1;
     }
     else if ((initPokeLast==1) && (initPokeDetected==0)) { // init poke exit
     	serLogNum("initPokeExit_ms", millis() - initPokeEntryTime);
@@ -570,6 +568,7 @@ void checkPokes()
     	leftPokeLast = leftPokeDetected;
     	leftPoke = 1;
       leftPokeEntryTime = millis();
+      leftPokeCounter += 1;
     }
     else if ((leftPokeLast==1) && (leftPokeDetected==0)) { // left poke exit
     	serLogNum("leftPokeExit_ms", millis() - leftPokeEntryTime);
@@ -582,6 +581,7 @@ void checkPokes()
     	rightPokeLast = rightPokeDetected;
     	rightPoke = 1;
       rightPokeEntryTime = millis();
+      rightPokeCounter += 1;
     }
     else if ((rightPokeLast==1) && (rightPokeDetected==0)) { // right poke exit
     	serLogNum("rightPokeExit_ms", millis() - rightPokeEntryTime);

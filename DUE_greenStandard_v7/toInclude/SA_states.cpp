@@ -40,10 +40,9 @@ void SApreCue_fxn() {
     if (1) { // use the if statement in the future, if we don't want to play the aud cue
       digitalWrite(auditoryCueTTL, HIGH);
     }
+    switchTo(SAcue);
   }
-
   delayMicroseconds(pauseLengthMicros); 
-  switchTo(SAcue);
 }
 
 
