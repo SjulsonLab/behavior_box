@@ -43,7 +43,7 @@ session_info['blocks_reward']             = 1      #flag to do blocks of reward,
 trials_since_block                        = 1      #number of trials since block change
 change_point                              = 0      #when to change the block of different rewards
 resetTimeYN                               = 1      # whether or not to restart arduino timer at beginning of session
-session_info['debugMode']                 = 0      # set to 1 to turn on arduino debugging messages
+session_info['debugMode']                 = 1      # set to 1 to turn on arduino debugging messages
 
 box_utils.set_COM_port(session_info)                # looking up the COM port in the list in box_utils.py
 
