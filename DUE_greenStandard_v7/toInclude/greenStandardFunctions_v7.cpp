@@ -8,15 +8,15 @@ TO DO:
 
 */
 
-// for debugging
-//#define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
-#ifdef DEBUG    //Macros are usually in all capital letters.
-#define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
-#define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
-#else
-#define DPRINT(...)     //now defines a blank line
-#define DPRINTLN(...)   //now defines a blank line
-#endif 
+// // for debugging
+// //#define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
+// #ifdef DEBUG    //Macros are usually in all capital letters.
+// #define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
+// #define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
+// #else
+// #define DPRINT(...)     //now defines a blank line
+// #define DPRINTLN(...)   //now defines a blank line
+// #endif 
 
 using namespace std;
 
@@ -148,6 +148,7 @@ int extraPokeReading6   = 0;
 int extraPokeDetected6  = 0;
 
 int tempInit            = 0; // temporary variable to simplify code
+long debugMode          = 0;
 
 // for phase 301 (self-admin and cue-induced reinstatement)
 long initPokeCounter       = 0;
@@ -374,6 +375,11 @@ void resetDefaults() {
   trialAVtype       = 0; 
 
 
+}
+
+// debugging function that prints something only when debugging mode is on
+void DPRINTLN(String tempStr) {
+  if (debugMode==1) Serial.println(tempStr);
 }
 
 // this function changes the variable referred to by *ptr whenever varName is present in inLine
@@ -790,6 +796,7 @@ void processMessage() {
 
     // all the variables (ints) go here
     // order has been fixed w.matlab's order
+    changeVariableLong("debugMode", &debugMode, inLine);    
     changeVariableLong("nTrial", &nTrial, inLine);
     changeVariableLong("InterTrialInterval", &InterTrialInterval, inLine);
     changeVariableLong("resetTimeYN", &resetTimeYN, inLine);
