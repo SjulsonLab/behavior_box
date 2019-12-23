@@ -121,16 +121,19 @@ int initPoke          = 0;
 int initPokeLast      = 0;
 int initPokeReading   = 0;
 int initPokeDetected  = 0;
+int initPokeCounter   = 0;
 
 int leftPoke          = 0;
 int leftPokeLast      = 0;
 int leftPokeReading   = 0;
 int leftPokeDetected  = 0;
+int leftPokeCounter   = 0;
 
 int rightPoke          = 0;
 int rightPokeLast      = 0;
 int rightPokeReading   = 0;
 int rightPokeDetected  = 0;
+int rightPokeCounter   = 0;
 
 int extraPoke4          = 0;
 int extraPokeLast4      = 0;
@@ -332,6 +335,10 @@ void resetDefaults() {
   extra5rewardCode       = 0;
   extra6rewardCode       = 0; //fix: make this extra 6
 
+  initPokeCounter        = 0;
+  leftPokeCounter        = 0;
+  rightPokeCounter       = 0;
+
   laserOnCode            = 0;
   goToStandby            = 0; // set to 1 using matlab to exit goToPokes state
   giveRewardNow          = 0;
@@ -478,20 +485,23 @@ void checkPokes()
   
   // read all the pokes
   initPokeReading = digitalRead(initPokeTTL);
-  if ((initPokeDetected==0) && (initPokeReading==1))  { // if a poke is detected in this time window
+  if (initPokeDetected==0 && initPokeReading==1)  { // if a poke is detected in this time window
     initPokeDetected = 1; 
+    initPokeCounter += 1;
     uncollectedInitRewardYN = 0; // this is in case the animal collects the reward between trials
   }
 
   leftPokeReading = digitalRead(leftPokeTTL);
-  if ((leftPokeDetected==0) && (leftPokeReading==1))  { // if a poke is detected in this time window
+  if (leftPokeDetected==0 && leftPokeReading==1)  { // if a poke is detected in this time window
     leftPokeDetected = 1;
+    leftPokeCounter += 1;
     uncollectedLeftRewardYN = 0; // this is in case the animal collects the reward between trials
   }
 
   rightPokeReading = digitalRead(rightPokeTTL);
-  if ((rightPokeDetected==0) && (rightPokeReading==1))  { // if a poke is detected in this time window
+  if (rightPokeDetected==0 && rightPokeReading==1)  { // if a poke is detected in this time window
     rightPokeDetected = 1; 
+    rightPokeCounter += 1;
     uncollectedRightRewardYN = 0; // this is in case the animal collects the reward between trials
   }
 
