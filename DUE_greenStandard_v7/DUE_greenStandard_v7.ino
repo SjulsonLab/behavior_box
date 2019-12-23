@@ -55,19 +55,20 @@
 #include "toInclude/greenStandardFunctions_v7.cpp"
 
 // state definitions
-#define standby         		1  // standby - the inactive state
-#define readyToGo       		2  // plays white noise, waits for init poke
-#define punishDelay     		3  // timeout period after animal makes mistake
-#define preCue          		4  // time delay between white noise and cue
-#define slot1               5  // first cue slot
-#define slot2               6  // second cue slot
-#define slot3               7  // third cue slot
-#define postCue         		8  // additional time delay
-#define goToPokes       		9  // nosepokes open, animal can approach and collect reward
-#define letTheAnimalDrink  10  // waiting for animal to collect reward
-#define calibration        11  // state for calibrating the sound and light cue levels
-#define CSdelivery         201 // state to deliver CS for the animal in Trace apettitive conditioning
-#define TracePeriod        202 // state for the trace period in TAC
+#define standby         		1   // standby - the inactive state
+#define readyToGo       		2   // plays white noise, waits for init poke
+#define punishDelay     		3   // timeout period after animal makes mistake
+#define preCue          		4   // time delay between white noise and cue
+#define slot1                   5   // first cue slot
+#define slot2                   6   // second cue slot
+#define slot3                   7   // third cue slot
+#define postCue         		8   // additional time delay
+#define goToPokes       		9   // nosepokes open, animal can approach and collect reward
+#define letTheAnimalDrink       10  // waiting for animal to collect reward
+#define calibration             11  // state for calibrating the sound and light cue levels
+#define CSdelivery              201 // state to deliver CS for the animal in Trace apettitive conditioning
+#define TracePeriod             202 // state for the trace period in TAC
+
 /*
 
 phases 1 and 2 are different in v6, but the rest are the same as in v5
@@ -86,7 +87,7 @@ phase 1xx (e.g.: 101,102) I'm saving for the head-fixed 2AFC [EFO]
 
 phase 201 is for trace appetitive conditioning in head-fixed [EFO]
 
-
+phase 301 is for drug self-admin, cue-induced reinstatement, etc.
 
 reward codes - they are independent of which poke is rewarded
  -1 - punish for incorrect nosepoke during goToPokes
@@ -792,6 +793,21 @@ void loop() {
           serLogNum("punishDelayLength_ms", punishDelayLength);
           switchTo(punishDelay);
         }
+      }
+
+      // if init poke occurs in trainingPhase 301, pass through this state
+      if (initPoke==1 && trainingPhase==301) {
+
+        // if reward is delivered upon nosepoke
+        if (IrewardCode==2 || IrewardCode==3 || IrewardCode==4) {
+          if (IrewardCode==4) {
+            deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+            serLogNum("initReward_nL", IrewardSize_nL);
+          }
+          serLog("initRewardCollected");
+          serLogNum("letTheAnimalDrink_ms", rewardCollectionLength);
+          switchTo(letTheAnimalDrink);
+        }        
       }
 
       // go to standby (instructed by either above code or by matlab)
