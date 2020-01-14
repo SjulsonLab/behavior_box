@@ -260,8 +260,7 @@ def set_box_defaults(arduino):
     for i in box_params:
     #    print(bytes(i + ';' + str(box_params[i]) + '\n', 'utf-8'))
         arduino.write(bytes(i + ';' + str(box_params[i]) + '\n',encoding ='utf-8'))
-        time.sleep(0.010) # this is necessary to prevent buffer overrun
-
+        time.sleep(0.002) # this is necessary to prevent buffer overrun
 
 
 def send_dict_to_arduino(send_this, arduino):
@@ -281,7 +280,7 @@ def send_dict_to_arduino(send_this, arduino):
             pass
         else: 
             warnings.warn(i + 'not recognized as acceptable variable type')
-        time.sleep(0.010) # this is necessary to prevent buffer overrun
+        time.sleep(0.002) # this is necessary to prevent buffer overrun
 
 
 def append_reward_code(session_info):
