@@ -1,6 +1,6 @@
-names = {'Black_F','D1R106F699','D1R114F826','D1R114F827','D1R114F829','D1R114F831','D1R114F834','D1R114M828','D1R114M832'};
-todaysdate = [20190912]%[datestr(now,'yyyymmdd')];
-basedir = cd;
+names = {'ADRAI32001F293','ADRAI32001F299','ADRAI32001M300'};
+todaysdate = ['20200303'];%[datestr(now,'yyyymmdd')];
+basedir = pwd;
 
 for idx = 1:length(names)
     cd([basedir filesep names{idx}])

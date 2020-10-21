@@ -21,12 +21,21 @@ N = 10000; % number of permutations to calculate
 
 %% making cell array of which poke occurred first 
 first_poke = {};
-for idx = 1:length(pokes.trial_starts)
-	t = 10; % also keeping pokes that occur within 10 ms before start and after end of trial
-	Ltemp = Restrict(pokes.Lpokes, [pokes.trial_starts(idx)-t pokes.trial_stops(idx)+t]);
-	Rtemp = Restrict(pokes.Rpokes, [pokes.trial_starts(idx)-t pokes.trial_stops(idx)+t]);
+if pokes.cueWithdrawalPunishYN
+    starts     = pokes.trial_starts_valid;
+    stops      = pokes.trial_stops_valid;
+else
+    starts     = pokes.trial_starts;
+    stops      = pokes.trial_stops;
+end
 
-	if isempty(Rtemp) && isempty(Ltemp)
+t = 10; % also keeping pokes that occur within t/2 ms before start and after end of trial
+for idx = 1:length(starts) %looping through trial_starts
+    
+  	Ltemp = Restrict(pokes.Lpokes, [starts(idx)-t/2 stops(idx)+t/2]);
+  	Rtemp = Restrict(pokes.Rpokes, [starts(idx)-t/2 stops(idx)+t/2]);
+
+	if isempty(Rtemp) && isempty(Ltemp) %if Ltemp and Rtemp is empty there was no poke
 		first_poke{idx} = 'none';
 	elseif isempty(Ltemp)
 		first_poke{idx} = 'right';
@@ -41,11 +50,21 @@ for idx = 1:length(pokes.trial_starts)
 end
 
 %% figure out what the accuracies are
-trial_type = pokes.trialLR_types(pokes.trial_start_nums); % extracting only trials that the animal initiated successfully
+% trial_type = pokes.trialLR_types(pokes.trial_start_nums); % extracting only trials that the animal initiated successfully
+if pokes.cueWithdrawalPunishYN
+    trial_type = pokes.trialLR_types(pokes.valid_trials_logic);
+else
+    trial_type = pokes.trialLR_types; 
+end
 
 L_YN    = trial_type == 1 | trial_type == 2;
 R_YN    = trial_type == 3 | trial_type == 4;
 % free_YN = trial_type == 5 | trial_type == 6;
+
+%HERE I HAVE TO SEPARATE ONLY IF THE ANIMAL HOLD THE NOSE POKE MORE THAN
+%THE CRITERIA SELECTED
+%that means I have to include in poke structure whether the animal was
+%punished or not for holding the poke (cueWithdrawalPunishYN
 
 % extract what the first pokes and trial types were
 all_trials_types  = trial_type(L_YN | R_YN);

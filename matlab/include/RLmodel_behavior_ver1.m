@@ -59,7 +59,7 @@ qstr = 'Q(t)+alpha*(R(t)-Q(t))';
 pfun = @ (x,par) 1./(1+exp(-par(end)*x));
 %RPE = rt-qt;
 
-ipar = [0.5,0.5,0.5];
+ipar = [0.61,0.742,0.39];
 
 op=optimset('fminsearch');
 op.MaxFunEvals = 1000000;
