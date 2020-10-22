@@ -2,15 +2,7 @@ void SApreCue_fxn() {
 
   // figure out which cues to turn on, etc.
   // just doing auditory for now
-  if (whichPokeStartedTrial == 1) { // left poke
-    SAcue_aud = SA_leftAudCue;
-  }
-  if (whichPokeStartedTrial == 2) { // init poke
-    SAcue_aud = SA_initAudCue;
-  }
-  if (whichPokeStartedTrial == 3) { // right poke
-    SAcue_aud = SA_rightAudCue;
-  }
+
 
 
   // turn on visual cues, go to SAcue state
@@ -35,6 +27,22 @@ void SApreCue_fxn() {
       setLEDlevel(cueLED4pin, cueLED4Brightness);
       digitalWrite(visualCueTTL, HIGH);
     } */
+
+    if (whichPokeStartedTrial == 1) { // left poke
+//      SAcue_aud = SA_leftAudCue; // old
+      SAcue_aud = 3; // using buzzer for all
+      setLEDlevel(cueLED5pin, cueLED5Brightness);
+      digitalWrite(visualCueTTL, HIGH);
+    }
+    if (whichPokeStartedTrial == 2) { // init poke
+      SAcue_aud = SA_initAudCue;
+    }
+    if (whichPokeStartedTrial == 3) { // right poke
+//      SAcue_aud = SA_rightAudCue; // old
+      SAcue_aud = 3; // using buzzer for all
+      setLEDlevel(cueLED6pin, cueLED6Brightness);
+      digitalWrite(visualCueTTL, HIGH);
+    }
 
     // turn on auditory cue TTL
     if (1) { // use the if statement in the future, if we don't want to play the aud cue
@@ -66,12 +74,15 @@ void SAcue_fxn() {
   // start one of the cues when slot3Length time elapsed.
   if ((millis() - tempTime) > SAcueLength) {
 
-/*    // turn off any visual cues
+    // turn off any visual cues
     setLEDlevel(cueLED1pin, 0);
     setLEDlevel(cueLED2pin, 0);
     setLEDlevel(cueLED3pin, 0);
     setLEDlevel(cueLED4pin, 0);
-    digitalWrite(visualCueTTL, LOW); */
+    setLEDlevel(cueLED5pin, 0);
+    setLEDlevel(cueLED6pin, 0);
+
+    digitalWrite(visualCueTTL, LOW); 
 
     // turn off auditory cue TTL
     digitalWrite(auditoryCueTTL, LOW);

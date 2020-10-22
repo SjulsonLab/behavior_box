@@ -305,6 +305,9 @@ void loop() {
         setLEDlevel(cueLED2pin, 1023);
         setLEDlevel(cueLED3pin, 1023);
         setLEDlevel(cueLED4pin, 1023);
+		setLEDlevel(cueLED5pin, 1023);
+        setLEDlevel(cueLED6pin, 1023);
+
 
         switchTo(calibration);
         serLog("during calibration, LEDs are active with maximum intensity");
@@ -402,7 +405,7 @@ void loop() {
 
       // stuff for trainingPhase 301 (self-admin and cue-induced reinstatement)
       if (trainingPhase == 301 && initPokesToInitiate > 0 && (initPokeCounter >= initPokesToInitiate)) {
-      	if (IrewardCode == 2) {
+      	if (IrewardCode == 2) { // wotan - use giveRewards() here instead
 		  deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
           serLogNum("initReward_nL", IrewardSize_nL);
       	}
@@ -620,6 +623,9 @@ void loop() {
         setLEDlevel(cueLED2pin, 0);
         setLEDlevel(cueLED3pin, 0);
         setLEDlevel(cueLED4pin, 0);
+        setLEDlevel(cueLED5pin, 0);
+        setLEDlevel(cueLED6pin, 0);
+
         digitalWrite(visualCueTTL, LOW);
         digitalWrite(auditoryCueTTL, LOW);
 
@@ -640,6 +646,8 @@ void loop() {
           setLEDlevel(cueLED2pin, 0);
           setLEDlevel(cueLED3pin, 0);
           setLEDlevel(cueLED4pin, 0);
+          setLEDlevel(cueLED5pin, 0);
+	      setLEDlevel(cueLED6pin, 0);
           digitalWrite(visualCueTTL, LOW);
         }
         else if (slot3_vis==1) {
@@ -647,6 +655,8 @@ void loop() {
           setLEDlevel(cueLED2pin, cueLED2Brightness);
           setLEDlevel(cueLED3pin, 0);
           setLEDlevel(cueLED4pin, 0);
+          setLEDlevel(cueLED5pin, 0);
+	      setLEDlevel(cueLED6pin, 0);
           digitalWrite(visualCueTTL, HIGH);
         }
         else if (slot3_vis==2) {
@@ -654,6 +664,8 @@ void loop() {
           setLEDlevel(cueLED2pin, 0);
           setLEDlevel(cueLED3pin, cueLED3Brightness);
           setLEDlevel(cueLED4pin, cueLED4Brightness);
+          setLEDlevel(cueLED5pin, 0);
+	      setLEDlevel(cueLED6pin, 0);
           digitalWrite(visualCueTTL, HIGH);
         }
         else if (slot3_vis==3) {
@@ -661,6 +673,8 @@ void loop() {
           setLEDlevel(cueLED2pin, cueLED2Brightness);
           setLEDlevel(cueLED3pin, cueLED3Brightness);
           setLEDlevel(cueLED4pin, cueLED4Brightness);
+          setLEDlevel(cueLED5pin, 0);
+	      setLEDlevel(cueLED6pin, 0);
           digitalWrite(visualCueTTL, HIGH);
         }
 
@@ -704,6 +718,8 @@ void loop() {
         setLEDlevel(cueLED2pin, 0);
         setLEDlevel(cueLED3pin, 0);
         setLEDlevel(cueLED4pin, 0);
+        setLEDlevel(cueLED5pin, 0);
+        setLEDlevel(cueLED6pin, 0);
         digitalWrite(visualCueTTL, LOW);
         digitalWrite(auditoryCueTTL, LOW);
 
@@ -721,6 +737,8 @@ void loop() {
         setLEDlevel(cueLED2pin, 0);
         setLEDlevel(cueLED3pin, 0);
         setLEDlevel(cueLED4pin, 0);
+        setLEDlevel(cueLED5pin, 0);
+        setLEDlevel(cueLED6pin, 0);
         digitalWrite(visualCueTTL, LOW);
 
         // turn off auditory cue TTL
@@ -991,6 +1009,9 @@ void loop() {
         setLEDlevel(cueLED2pin, 0);
         setLEDlevel(cueLED3pin, 0);
         setLEDlevel(cueLED4pin, 0);
+        setLEDlevel(cueLED5pin, 0);
+        setLEDlevel(cueLED6pin, 0);
+
       }
     break;
   }
