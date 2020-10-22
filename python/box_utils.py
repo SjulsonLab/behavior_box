@@ -4,7 +4,7 @@ def set_COM_port(session_info):
     if session_info['computer_name'].lower() == 'Luke-HP-laptop'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'C:\\Users\\lukes\\Desktop\\temp'
-        session_info['COM_port'] = 'COM5'
+        session_info['COM_port'] = 'COM6'
     elif session_info['computer_name'].lower() == 'bumbrlik01'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
@@ -260,8 +260,7 @@ def set_box_defaults(arduino):
     for i in box_params:
     #    print(bytes(i + ';' + str(box_params[i]) + '\n', 'utf-8'))
         arduino.write(bytes(i + ';' + str(box_params[i]) + '\n',encoding ='utf-8'))
-        time.sleep(0.010) # this is necessary to prevent buffer overrun
-
+        time.sleep(0.002) # this is necessary to prevent buffer overrun
 
 
 def send_dict_to_arduino(send_this, arduino):
@@ -281,7 +280,7 @@ def send_dict_to_arduino(send_this, arduino):
             pass
         else: 
             warnings.warn(i + 'not recognized as acceptable variable type')
-        time.sleep(0.010) # this is necessary to prevent buffer overrun
+        time.sleep(0.002) # this is necessary to prevent buffer overrun
 
 
 def append_reward_code(session_info):
@@ -318,6 +317,7 @@ def append_reward_code(session_info):
 
 def append_random_LR(session_info):
     import random
+    import warnings
 
     if session_info['trainingPhase'] in [1, 2]:
         options = [1, 3]

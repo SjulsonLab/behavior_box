@@ -8,15 +8,15 @@ TO DO:
 
 */
 
-// for debugging
-//#define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
-#ifdef DEBUG    //Macros are usually in all capital letters.
-#define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
-#define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
-#else
-#define DPRINT(...)     //now defines a blank line
-#define DPRINTLN(...)   //now defines a blank line
-#endif 
+// // for debugging
+// //#define DEBUG   //If you comment out this line, the DPRINT & DPRINTLN lines are defined as blank.
+// #ifdef DEBUG    //Macros are usually in all capital letters.
+// #define DPRINT(...)    Serial.print(__VA_ARGS__)     //DPRINT is a macro, debug print
+// #define DPRINTLN(...)  Serial.println(__VA_ARGS__)   //DPRINTLN is a macro, debug print with new line
+// #else
+// #define DPRINT(...)     //now defines a blank line
+// #define DPRINTLN(...)   //now defines a blank line
+// #endif 
 
 using namespace std;
 
@@ -155,6 +155,24 @@ int extraPokeReading6   = 0;
 int extraPokeDetected6  = 0;
 
 int tempInit            = 0; // temporary variable to simplify code
+long debugMode          = 0;
+
+// for phase 301 (self-admin and cue-induced reinstatement)
+long initPokeCounter       = 0;
+long leftPokeCounter       = 0;
+long rightPokeCounter      = 0;
+long initPokesToInitiate   = 0; // the number of pokes required for reward
+long leftPokesToInitiate   = 0; // for inactive ports, set to 0
+long rightPokesToInitiate  = 0;
+int whichPokeStartedTrial  = 0; // 1 for left, 2 for init, 3 for right
+long SA_leftAudCue         = 0;
+long SA_initAudCue         = 0;
+long SA_rightAudCue        = 0;
+long SA_leftVisCue         = 0;
+long SA_initVisCue         = 0;
+long SA_rightVisCue        = 0;
+int SAcue_aud              = 0; // temp variable for which cue plays this trial
+long SAcueLength           = 0;
 
 
 // servos to control nosepoke doors
@@ -358,6 +376,21 @@ void resetDefaults() {
   extra5rewardCode       = 0;
   extra6rewardCode       = 0; //fix: make this extra 6
 
+  initPokeCounter        = 0;
+  leftPokeCounter        = 0;
+  rightPokeCounter       = 0;
+  initPokesToInitiate    = 0; // the number of pokes required for reward
+  leftPokesToInitiate    = 0; // for inactive ports, set to 0
+  rightPokesToInitiate   = 0;
+  whichPokeStartedTrial  = 0;
+  SA_leftAudCue         = 0;
+  SA_initAudCue         = 0;
+  SA_rightAudCue        = 0;
+  SA_leftVisCue         = 0;
+  SA_initVisCue         = 0;
+  SA_rightVisCue        = 0;
+  SAcueLength           = 0;
+
   laserOnCode            = 0;
   goToStandby            = 0; // set to 1 using matlab to exit goToPokes state
   giveRewardNow          = 0;
@@ -368,6 +401,11 @@ void resetDefaults() {
   trialAVtype       = 0; 
 
 
+}
+
+// debugging function that prints something only when debugging mode is on
+void DPRINTLN(String tempStr) {
+  if (debugMode==1) Serial.println(tempStr);
 }
 
 // this function changes the variable referred to by *ptr whenever varName is present in inLine
@@ -504,19 +542,19 @@ void checkPokes()
   
   // read all the pokes
   initPokeReading = digitalRead(initPokeTTL);
-  if ((initPokeDetected==0) && (initPokeReading==1))  { // if a poke is detected in this time window
+  if (initPokeDetected==0 && initPokeReading==1)  { // if a poke is detected in this time window
     initPokeDetected = 1; 
     uncollectedInitRewardYN = 0; // this is in case the animal collects the reward between trials
   }
 
   leftPokeReading = digitalRead(leftPokeTTL);
-  if ((leftPokeDetected==0) && (leftPokeReading==1))  { // if a poke is detected in this time window
+  if (leftPokeDetected==0 && leftPokeReading==1)  { // if a poke is detected in this time window
     leftPokeDetected = 1;
     uncollectedLeftRewardYN = 0; // this is in case the animal collects the reward between trials
   }
 
   rightPokeReading = digitalRead(rightPokeTTL);
-  if ((rightPokeDetected==0) && (rightPokeReading==1))  { // if a poke is detected in this time window
+  if (rightPokeDetected==0 && rightPokeReading==1)  { // if a poke is detected in this time window
     rightPokeDetected = 1; 
     uncollectedRightRewardYN = 0; // this is in case the animal collects the reward between trials
   }
@@ -548,6 +586,7 @@ void checkPokes()
     	initPokeLast = initPokeDetected;
     	initPoke = 1;
       initPokeEntryTime = millis();
+      initPokeCounter += 1;
     }
     else if ((initPokeLast==1) && (initPokeDetected==0)) { // init poke exit
     	serLogNum("initPokeExit_ms", millis() - initPokeEntryTime);
@@ -561,6 +600,7 @@ void checkPokes()
     	leftPokeLast = leftPokeDetected;
     	leftPoke = 1;
       leftPokeEntryTime = millis();
+      leftPokeCounter += 1;
     }
     else if ((leftPokeLast==1) && (leftPokeDetected==0)) { // left poke exit
     	serLogNum("leftPokeExit_ms", millis() - leftPokeEntryTime);
@@ -573,6 +613,7 @@ void checkPokes()
     	rightPokeLast = rightPokeDetected;
     	rightPoke = 1;
       rightPokeEntryTime = millis();
+      rightPokeCounter += 1;
     }
     else if ((rightPokeLast==1) && (rightPokeDetected==0)) { // right poke exit
     	serLogNum("rightPokeExit_ms", millis() - rightPokeEntryTime);
@@ -781,6 +822,7 @@ void processMessage() {
 
     // all the variables (ints) go here
     // order has been fixed w.matlab's order
+    changeVariableLong("debugMode", &debugMode, inLine);    
     changeVariableLong("nTrial", &nTrial, inLine);
     changeVariableLong("InterTrialInterval", &InterTrialInterval, inLine);
     changeVariableLong("resetTimeYN", &resetTimeYN, inLine);
@@ -854,6 +896,18 @@ void processMessage() {
     // solely for reporting these variables to the text output
     changeVariableLong("trialLRtype", &trialLRtype, inLine);
     changeVariableLong("trialAVtype", &trialAVtype, inLine);
+
+    // for phase 301 (self-admin and cue-induced reinstatement)
+    changeVariableLong("initPokesToInitiate", &initPokesToInitiate, inLine);
+    changeVariableLong("leftPokesToInitiate", &leftPokesToInitiate, inLine);
+    changeVariableLong("rightPokesToInitiate", &rightPokesToInitiate, inLine);
+    changeVariableLong("SA_leftAudCue", &SA_leftAudCue, inLine);
+    changeVariableLong("SA_initAudCue", &SA_initAudCue, inLine);
+    changeVariableLong("SA_rightAudCue", &SA_rightAudCue, inLine);
+    changeVariableLong("SA_leftVisCue", &SA_leftVisCue, inLine);
+    changeVariableLong("SA_initVisCue", &SA_initVisCue, inLine);
+    changeVariableLong("SA_rightVisCue", &SA_rightVisCue, inLine);
+    changeVariableLong("SAcueLength", &SAcueLength, inLine);
 
 
     // not in matlab:
