@@ -33,6 +33,9 @@ def set_COM_port(session_info):
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'C:\\Users\\fermi\\Data\\testBehavior'
         session_info['COM_port'] = 'COM4'
+    elif session_info['computer_name'].lower() == 'macbook-pro.local':
+        session_info['basedir'] = '/Users/lukesjulson/Desktop/temp'
+        session_info['COM_port'] = '/dev/cu.usbmodem44201'
     else: 
         raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
 
