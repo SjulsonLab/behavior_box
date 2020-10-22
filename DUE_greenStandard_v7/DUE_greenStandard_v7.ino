@@ -405,10 +405,11 @@ void loop() {
 
       // stuff for trainingPhase 301 (self-admin and cue-induced reinstatement)
       if (trainingPhase == 301 && initPokesToInitiate > 0 && (initPokeCounter >= initPokesToInitiate)) {
-      	if (IrewardCode == 2) { // wotan - use giveRewards() here instead
-		  deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
-          serLogNum("initReward_nL", IrewardSize_nL);
-      	}
+    //   	if (IrewardCode == 2) { // wotan - use giveRewards() here instead
+		  // deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
+    //       serLogNum("initReward_nL", IrewardSize_nL);
+    //   	}
+      	giveRewards(2);
       	whichPokeStartedTrial = 2; // 2 for init
       	serLogNum("TrialStartedInitPokes", initPokeCounter);
       	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
@@ -422,10 +423,11 @@ void loop() {
       }
 
       if (trainingPhase == 301 && leftPokesToInitiate > 0 && (leftPokeCounter >= leftPokesToInitiate)) {
-      	if (LrewardCode == 2) {
-		  deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
-          serLogNum("leftReward_nL", IrewardSize_nL);
-      	}
+    //   	if (LrewardCode == 2) {
+		  // deliverReward_dc(LrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpLeft);
+    //       serLogNum("leftReward_nL", IrewardSize_nL);
+    //   	}
+      	giveRewards(2);
       	whichPokeStartedTrial = 1; // 1 for left
       	serLogNum("TrialStartedLeftPokes", leftPokeCounter);
       	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
@@ -439,10 +441,11 @@ void loop() {
       }
 
       if (trainingPhase == 301 && rightPokesToInitiate > 0 && (rightPokeCounter >= rightPokesToInitiate)) {
-      	if (RrewardCode == 2) {
-		  deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
-          serLogNum("rightReward_nL", IrewardSize_nL);
-      	}
+    //   	if (RrewardCode == 2) {
+		  // deliverReward_dc(RrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpRight);
+    //       serLogNum("rightReward_nL", IrewardSize_nL);
+    //   	}
+      	giveRewards(2);
       	whichPokeStartedTrial = 3; // 3 for right
       	serLogNum("TrialStartedRightPokes", rightPokeCounter);
       	serLogNum("TrialStarted_ms", millis() - trialAvailTime);
