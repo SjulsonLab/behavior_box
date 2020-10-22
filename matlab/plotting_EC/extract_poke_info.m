@@ -20,6 +20,7 @@ function L = extract_poke_info(basedir)
 cd(basedir);
 [~,basename] = fileparts(pwd);
 
+load('session_info.mat')%to get whether poke withdrawal was punished + times
 
 % extract times of nosepoke entries
 L.Lpokes = getEventTimes('leftPokeEntry', [basename '.txt']);
@@ -32,6 +33,10 @@ L.Ipokes_exit = getEventTimes('initPokeExit_ms', [basename '.txt']);
 L.trial_avails = getEventTimes('TrialAvailable', [basename '.txt']);
 [L.trial_starts, ~, L.trial_start_nums] = getEventTimes('TrialStarted', [basename '.txt']);
 L.trial_stops = [];
+
+% extract times of early withdrawal
+L.withdrawal = getEventTimes('Withdrawal', [basename '.txt']);
+
 % extract reward size for each poke
 [~,L.Ireward_size] = getEventTimes('initReward_nL', [basename '.txt']); %init poke reward size
 [~,L.Lreward_size] = getEventTimes('leftReward_nL', [basename '.txt']); %left poke reward size
@@ -56,7 +61,18 @@ temp = ismember(L.Ipokes,L.trial_starts);
 
 
 %extract how long the animal hold inside the nose poke
-L.I_hold_time = L.Ipokes_exit(temp)-L.Ipokes(temp);
+aux = [];
+for a = 1:length(L.Ipokes)
+   temp = Restrict(L.trial_starts,[L.Ipokes(a) L.Ipokes_exit(a)]);
+   if ~isempty(temp)
+       aux = [aux a];
+   end
+end
+    
+L.I_hold_time = L.Ipokes_exit(aux)-L.Ipokes(aux);
+%% figure out which init pokes actually initiated a trial
+L.Ipokes_correct = L.Ipokes(aux);
+L.Ipokes_incorrect = L.Ipokes(~ismember(1:length(L.Ipokes),aux));
 
 %% extract latencies for each left and right reward collection
 L.Lreward_pokes_latencies = zeros(size(L.Lreward_pokes));
@@ -79,7 +95,9 @@ L.trial_start_latencies = L.trial_start_latencies;
 
 %% figure out which pokes are correct vs. incorrect
 
+%% 
 [~, L.trialLR_types] = getEventTimes('trialLRtype', [basename '.txt']);
+[~,L.requiredInitHold] = getEventTimes('requiredPokeHoldLength_ms', [basename '.txt']);
 miss_before_start = getEventTimes('TrialMissedBeforeInit_ms', [basename '.txt']);
 miss_after_start = getEventTimes('TrialMissedAfterInit_ms', [basename '.txt']);
 standby     = getEventTimes('Standby', [basename '.txt']);
@@ -90,7 +108,8 @@ left_incorrect = L.Lpokes;
 right_incorrect = L.Rpokes;
 left_correct = [];
 right_correct = [];
-
+left_pokes_wrong = [];
+right_pokes_wrong = [];
 for idx = 1:length(L.trial_starts)
 	ntrial = L.trial_start_nums(idx);
 	tempstart = L.trial_starts(idx);
@@ -100,36 +119,60 @@ for idx = 1:length(L.trial_starts)
 	tempstop = all_stops(i);
 	L.trial_stops(idx) = tempstop;
 	
-	if any(L.trialLR_types(ntrial) == [1 2 5 6]) % left pokes are correct
+	if any(L.trialLR_types(idx) == [1 2 5 6]) % left pokes are correct
 		left_correct = [left_correct, left_incorrect(left_incorrect >= tempstart & left_incorrect <= tempstop)];
 		left_incorrect = left_incorrect(left_incorrect < tempstart | left_incorrect > tempstop);
 	end
 	
-	if any(L.trialLR_types(ntrial) == [3 4 5 6]) % right pokes are correct
+	if any(L.trialLR_types(idx) == [3 4 5 6]) % right pokes are correct
 		right_correct = [right_correct, right_incorrect(right_incorrect >= tempstart & right_incorrect <= tempstop)];
 		right_incorrect = right_incorrect(right_incorrect < tempstart | right_incorrect > tempstop);
-	end
-	
+    end
+    
+    %getting pokes that were the opposite of what was instructed
+    if any(L.trialLR_types(idx) == [1 2])%left poke instruction
+        right_pokes_wrong = [right_pokes_wrong, right_incorrect(right_incorrect>=tempstart & right_incorrect<=tempstop)];
+		right_incorrect = right_incorrect(right_incorrect < tempstart | right_incorrect > tempstop);
+    end
+    
+    if any(L.trialLR_types(idx) == [3 4])%right poke instruction
+        left_pokes_wrong = [left_pokes_wrong, left_incorrect(left_incorrect>=tempstart & left_incorrect<=tempstop)];
+		left_incorrect = left_incorrect(left_incorrect < tempstart | left_incorrect > tempstop);
+    end
 end
 
-L.Lpokes_correct = sort(left_correct);
+L.cueWithdrawalPunishYN = session_info.cueWithdrawalPunishYN;
+L.Lpokes_correct   = sort(left_correct);
 L.Lpokes_incorrect = sort(left_incorrect);
-L.Rpokes_correct = sort(right_correct);
+L.Lpokes_wrong     = sort(left_pokes_wrong);
+L.Rpokes_correct   = sort(right_correct);
 L.Rpokes_incorrect = sort(right_incorrect);
-
-%% figure out which init pokes actually initiated a trial
-L.Ipokes_incorrect = L.Ipokes;
-L.Ipokes_correct = [];
+L.Rpokes_wrong     = sort(right_pokes_wrong);
 
 
-for idx = 1:length(L.trial_starts)
-	tempstart = L.trial_starts(idx) - 20;  % if it's within 20 ms before trial start, it's ok
-	tempstop  = L.trial_starts(idx) + 500; % if it's within 500 ms of trial start, it's ok
-	correct_bool = L.Ipokes_incorrect >= tempstart & L.Ipokes_incorrect <= tempstop;
-	L.Ipokes_correct = [L.Ipokes_correct, L.Ipokes_incorrect(correct_bool)];
-	L.Ipokes_incorrect = L.Ipokes_incorrect(~correct_bool);
-	
+if session_info.cueWithdrawalPunishYN
+    holdTime = session_info.preCueLength+session_info.cue1Length+session_info.postCueLength;
+    idx = ismember(L.Ipokes,L.Ipokes_correct);
+    temp2 = (L.Ipokes_exit(idx)-L.Ipokes(idx)) > holdTime;
+    L.Ipokes_valid = L.Ipokes_correct(temp2);
+    L.trial_starts_valid = L.trial_starts(temp2);
+    L.trial_stops_valid = L.trial_stops(temp2);
+    L.valid_trials_logic = temp2;
+else
+    L.Ipokes_valid = nan;
+    L.trial_starts_valid = nan;
+    L.trial_stops_valid = nan;
+    L.valid_trials_logic = nan;
 end
+
+L.info_wrong_incorrect = ['pokes_wrong are nose pokes that were cued' ...
+' to the other poke. e.g. left poke cue and the animal did right poke.' ...
+'Incorrect pokes are any side pokes that are outside of the trial, i.e., '...
+'side poke before init poke or side poke after the trial is completed/during punishment'];
+
+
+
+
 
 
 

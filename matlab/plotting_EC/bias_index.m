@@ -35,8 +35,8 @@ for idx = 1:length(pokes.trial_starts)
 end
 
 %% figure out what the accuracies are
-trial_type = pokes.trialLR_types(pokes.trial_start_nums); % extracting only trials that the animal initiated successfully
-
+% trial_type = pokes.trialLR_types(pokes.trial_start_nums); % extracting only trials that the animal initiated successfully
+trial_type = pokes.trialLR_types;
 L_YN    = trial_type == 1 | trial_type == 2;
 R_YN    = trial_type == 3 | trial_type == 4;
 % free_YN = trial_type == 5 | trial_type == 6;

@@ -1,7 +1,7 @@
 /*
 Daniela Cassataro v3 7/13/18
 Luke Sjulson v4 9/6/2018
-
+Adam Sugi v5 11/13/2019 - version adding priming switches
 TO DO:
   . ctrl+f "FIX:" 
 
@@ -37,8 +37,8 @@ using namespace std;
 #define cueLED2pin          12
 #define cueLED3pin          11
 #define cueLED4pin          10
-#define cueLED5pin          9
-#define cueLED6pin          8
+//#define cueLED5pin          9
+//#define cueLED6pin          8
 
 // syringe pumps - will add fourth syringe pump dedicated for init poke later
 #define syringePumpInit        24  // connected to init pump
@@ -63,9 +63,9 @@ using namespace std;
 #define initPokeTTL         27
 #define leftPokeTTL         29
 #define rightPokeTTL        31
-#define extraPoke4TTL       33  // not connected
-#define extraPoke5TTL       35  // not connected
-#define extraPoke6TTL       37  // not connected
+//#define extraPoke4TTL       33  // not connected
+//#define extraPoke5TTL       35  // not connected
+//#define extraPoke6TTL       37  // not connected
 
 // pulsepal pins(2)
 #define pulsePal1           51
@@ -82,6 +82,13 @@ using namespace std;
 // last two(2)
 #define cameraTrigTTL       45
 #define triggerPin          46
+
+// switches inputs
+#define ip1    8 
+#define ip2    9
+#define ip3    33
+#define ip4    35
+#define button 37
 
 long doorCloseSpeed        = 1;    // original speed was 10 - can decrease if there are problems
 
@@ -280,6 +287,25 @@ int ITItime = 0;
 int toneTime = 0;
 int LastTrialTime = 0;
 bool flagITI = true;
+
+// test syringe variables
+int reading_switch1;
+int reading_switch2;
+int reading_switch3;
+int reading_switch4;
+
+int switch1_on = 0;
+int switch2_on = 0;
+int switch3_on = 0;
+int switch4_on = 0;
+int switches_on = 0;
+int fwd_on = 0;
+int bwd_on = 0;
+int syringeLeft = 0;
+int syringeRight = 0;
+int syringeInit = 0;
+int buttonReading = 0;
+int buttonDetected = 0;
 
 
 /*
@@ -964,4 +990,85 @@ void setLEDlevel(int whichPin, int whichLevel) {
   analogWrite(whichPin, whichLevel);
   analogWriteResolution(12);  
 }
+
+// function to allow matlab to open/close doors, e.g. if matlab sets leftOpenNow to be 1, it will open the door
+void checkSwitches() {  
+  reading_switch1 = digitalRead(ip1);
+  reading_switch2 = digitalRead(ip2);
+  reading_switch3 = digitalRead(ip3);
+  reading_switch4 = digitalRead(ip4);
+
+  if (reading_switch1==0){
+    switch1_on = 1;
+    switch2_on = 0;
+  } else {switch1_on = 0;}
+  if (reading_switch2==0){
+    switch2_on = 1;
+    switch1_on = 0;
+  } else {switch2_on = 0;}
+  if (reading_switch3==0){
+    switch3_on = 1;
+  } else {switch3_on = 0;}
+  if (reading_switch4==0){
+    switch4_on = 1;
+  } else {switch4_on = 0;}
+   
+  switches_on = switch1_on + switch2_on;
+  fwd_on = switch1_on;
+  bwd_on = switch2_on;
+  syringeLeft = switch3_on;
+  syringeRight = switch4_on;
+  syringeInit = switch3_on*switch4_on;
+  // digitalWrite(syringePumpLeft,LOW);
+  // digitalWrite(syringePumpRight,LOW);
+  // digitalWrite(syringePumpInit,LOW);
+
+  // // t.oscillate(syringePumpLeft, 10, LOW, 10);
+  // // t.oscillate(syringePumpRight, 10, LOW, 10);
+  // t.oscillate(syringePumpInit, 10, LOW, 10);
+
+  // Serial.println(reading_switch1);
+  // Serial.println(reading_switch2);
+  // Serial.println(reading_switch3);
+  // Serial.println(reading_switch4);
+  }
+
+  void fwd_syringe(int whichPump) {
+    if (fwd_on==1){
+     t.oscillate(whichPump, 10, HIGH, 10); 
+     // delay(16)
+     // delay(1);
+      // digitalWrite(whichPump,HIGH);
+   } else {
+    // t.oscillate(whichPump, 10, LOW, 750);
+    // digitalWrite(whichPump,LOW);
+  }
+    
+    // delay(1000);
+  }
+
+  void bwd_syringe(int whichPump) {
+    if (bwd_on==1){
+     // t.oscillate(whichPump, 1000, HIGH, 100); 
+      // digitalWrite(whichPump,HIGH);
+   } else {
+    // digitalWrite(whichPump,LOW);
+  }
+}
+
+void checkButton() //checking if the button was pressed
+{
+  
+  // read all the pokes
+  buttonReading = digitalRead(button);
+  if ((buttonReading==1))  { // if a poke is detected in this time window
+    buttonDetected = 1; 
+  }
+}
+
+void button_press(int whichPump)
+{
+ t.oscillate(whichPump, 2, LOW, 400);
+}
+    
 
