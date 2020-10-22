@@ -17,6 +17,12 @@ from sys import platform
 import numpy as np
 
 
+# for self-admin, to switch which side is the active poke
+leftPokesToInitiate    = 0
+rightPokesToInitiate   = 1
+
+
+
 # defining immutable mouse dict (once defined for a mouse, this should never change)
 mouse_info = pysistence.make_dict({'mouseName': 'test',
                  'requiredVersion': 7,
@@ -74,9 +80,9 @@ session_info['IrewardCode']               = [2] # 2 means give upon trial initia
 session_info['laserOnCode']            = [0]
 
 # reward parameters for changing rewards
-session_info['LrewardSize_nL']         = [5000] # the starting value, which will be updated over time
-session_info['RrewardSize_nL']         = [5000]
-session_info['IrewardSize_nL']         = [0000]
+session_info['LrewardSize_nL']         = [0] # the starting value, which will be updated over time
+session_info['RrewardSize_nL']         = [0]
+session_info['IrewardSize_nL']         = [5000]
 session_info['L_nL_mean']              = [3000]
 session_info['R_nL_mean']              = [3000]
 session_info['rewardSizeMax_nL']       = [3000]
@@ -106,6 +112,9 @@ session_info['cueLED1Brightness']      = 1023   # brightness is 0-1023
 session_info['cueLED2Brightness']      = 1023
 session_info['cueLED3Brightness']      = 1023
 session_info['cueLED4Brightness']      = 1023
+session_info['cueLED5Brightness']      = 1023
+session_info['cueLED6Brightness']      = 1023
+
 
 # setting parameters based on training phase
 session_info['punishForErrorPokeYN']      = 0 # 0 = no, 1 = yes for stage 5 only
@@ -119,8 +128,8 @@ session_info['SA_rightAudCue'] = mouse_info['rightAudCue']
 
 # self-administration stuff
 session_info['initPokesToInitiate']    = 0  # zero means that poke is inactive
-session_info['leftPokesToInitiate']    = 0
-session_info['rightPokesToInitiate']   = 1
+session_info['leftPokesToInitiate']    = leftPokesToInitiate
+session_info['rightPokesToInitiate']   = rightPokesToInitiate
 
 
 

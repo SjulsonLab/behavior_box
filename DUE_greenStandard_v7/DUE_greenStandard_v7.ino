@@ -405,7 +405,7 @@ void loop() {
 
       // stuff for trainingPhase 301 (self-admin and cue-induced reinstatement)
       if (trainingPhase == 301 && initPokesToInitiate > 0 && (initPokeCounter >= initPokesToInitiate)) {
-    //   	if (IrewardCode == 2) { // wotan - use giveRewards() here instead
+    //   	if (IrewardCode == 2) { 
 		  // deliverReward_dc(IrewardSize_nL, deliveryDuration_ms, syringeSize_mL, syringePumpInit);
     //       serLogNum("initReward_nL", IrewardSize_nL);
     //   	}
