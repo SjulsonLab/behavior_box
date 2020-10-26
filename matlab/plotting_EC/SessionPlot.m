@@ -37,6 +37,16 @@ if nargin<1
     basedir = pwd;
 end
 
+
+
+try
+    load ./mouse_info.mat %load ./mouseStr.mat
+    load ./session_info.mat %load ./sessionStr.mat
+catch
+    warning(['Unable to find .mat files in ' basedir]);
+    return
+end
+
 cd(startdir);
 
 
@@ -66,15 +76,6 @@ sessionNum = doy(SDN.folderNum) - doy(1);
 
 cd(basedir);
 [~, basename] = fileparts(pwd);
-
-try
-    load ./mouse_info.mat %load ./mouseStr.mat
-    load ./session_info.mat %load ./sessionStr.mat
-catch
-    warning(['Unable to find .mat files in ' basedir]);
-    return
-end
-
 
 % extract info about nosepokes
 %pokes = extract_poke_info(basedir,basename);
@@ -307,12 +308,38 @@ a(2) = subplot(4,4,5:7);
 Thist = histc(pokes.trial_avails, histvec);
 h4 = plot(histvec/hist_scale, cumsum(Thist), 'k'); hold on
 
-Thist = histc(pokes.trial_starts, histvec);
-if isempty(Thist)
-    Thist = zeros(size(histvec));
-end
-h4 = plot(histvec/hist_scale, cumsum(Thist), 'Color', [0.5 0.5 0.5]);
+%plotting initpokes that were valid in case nosepoke hold is required
+if session_info.cueWithdrawalPunishYN
 
+%     c = 0;
+%     removeIdx = [];
+%     for idx = 1:length(pokes.withdrawal)
+%         aux = pokes.Ipokes_correct - pokes.withdrawal(idx);
+%         temp = find(aux>-1*holdTime & aux<0);
+%         if ~isempty(temp)
+%             c = c+1;
+%             removeIdx(c) = temp;
+%         end
+%     end
+%     temp = 1:length(pokes.Ipokes_correct);
+    
+%     if ~isempty(removeIdx)
+%         keep = temp(~ismember(temp,removeIdx));
+%         pokes.Ipokes_valid = pokes.Ipokes_correct(keep);
+%     end
+    InitCorrect = histc(pokes.Ipokes_valid, histvec);
+    if isempty(InitCorrect)
+        InitCorrect = zeros(size(histvec));
+    end
+    h4 = plot(histvec/hist_scale, cumsum(InitCorrect), 'Color', [0.5 0.5 0.5]);
+    
+else
+    InitCorrect = histc(pokes.Ipokes_correct, histvec);
+    if isempty(InitCorrect)
+        InitCorrect = zeros(size(histvec));
+    end
+    h4 = plot(histvec/hist_scale, cumsum(InitCorrect), 'Color', [0.5 0.5 0.5]);
+end
 % plot rewards
 % LrewardHist = histc(Lrewards, histvec);
 
@@ -345,7 +372,7 @@ b1.FaceAlpha = 0.1;
 b1.FaceColor = 'k';
 a(2).XTickLabel = [];
 
-L3 = legend('Trial Available', 'Trial Started', 'L rewards', 'R rewards', 'all rewards');
+L3 = legend('Trial Available', 'Trial valid', 'L rewards', 'R rewards', 'all rewards');
 L3.Location = 'northwest';
 
 
@@ -407,7 +434,7 @@ y1 = ylabel('Poke latency (s)');
 %I have to do this plot just for free choices
 a(4) = subplot(4, 4, 13:15);
 
-if isfield(session_info,'blocks_reward') && session_info.trainingPhase>3
+if isfield(session_info,'blocks_reward') && session_info.trainingPhase>2
     if session_info.blocks_reward
         [RLfit] = RLmodel_behavior_ver1([basename '.txt']);
         x_block1 = sort([pokes.Lreward_pokes,pokes.Rreward_pokes])/(60*1000);
@@ -518,13 +545,14 @@ if isempty(I_hold_hist)
 end
 
 line(I_hold_histvec/1000,cumsum(I_hold_hist)./sum(I_hold_hist),'Parent',ax2,'Color','m')
+xlim([0 1])
 t2 = title(ax2,'Init, Right and Left poke latency / \color{magenta}Init hold time');
 ax2.XColor = 'm';
 ax2.YColor = 'm';
 end
 
 
-%% Fifth subplot
+%% sixtieth subplot
 
 acc = calc_accuracy_LS(pokes);
 [bsi,p] = bias_index(pokes);
@@ -554,7 +582,7 @@ s3 = subplot(4, 4, 12);
 
 x = {'left','right'};
 c = categorical(x);
-if session_info.trainingPhase > 2
+if session_info.trainingPhase > 2 && exist('free_choice')
     y2 = [free_choice.leftNum,free_choice.rightNum];
     bar(c,y2)
 end
