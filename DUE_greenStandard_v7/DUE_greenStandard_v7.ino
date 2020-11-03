@@ -315,7 +315,7 @@ void loop() {
         setLEDlevel(cueLED2pin, 1023);
         setLEDlevel(cueLED3pin, 1023);
         setLEDlevel(cueLED4pin, 1023);
-		setLEDlevel(cueLED5pin, 1023);
+	    	setLEDlevel(cueLED5pin, 1023);
         setLEDlevel(cueLED6pin, 1023);
 
 
