@@ -1040,7 +1040,7 @@ void loop() {
 
     case letTheAnimalDrink:
 
-      if ((millis() - tempTime) > rewardCollectionLength) {
+      if ((millis() - tempTime) > rewardCollectionLength || (trainingPhase==301 && initPoke==1)) {
         closePoke("all");
         serLog("Standby");
         switchTo(standby);
