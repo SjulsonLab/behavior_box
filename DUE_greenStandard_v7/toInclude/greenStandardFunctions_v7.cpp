@@ -37,8 +37,8 @@ using namespace std;
 #define cueLED2pin          12
 #define cueLED3pin          11
 #define cueLED4pin          10
-//#define cueLED5pin          9
-//#define cueLED6pin          8
+#define cueLED5pin          9
+#define cueLED6pin          8
 
 // syringe pumps - will add fourth syringe pump dedicated for init poke later
 #define syringePumpInit        24  // connected to init pump
@@ -84,8 +84,8 @@ using namespace std;
 #define triggerPin          46
 
 // switches inputs
-#define ip1    8 
-#define ip2    9
+// #define ip1    8 
+// #define ip2    9
 #define ip3    33
 #define ip4    35
 #define button 37
