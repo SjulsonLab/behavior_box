@@ -52,8 +52,8 @@ using namespace std;
 #define syringePumpENABLE   47      // we thought about using this pin to enable/disable the syringe pump driver, but for now it's not in use
 #define extraTTL2           48
 #define extraTTL3           49
-#define extraTTL4           50
-#define extraTTL5           52
+// #define extraTTL4           ##
+// #define extraTTL5           ##
 
 //////////////////////////////////////////////////////////
 // all the pins below are sampled by the Intan:
@@ -84,8 +84,8 @@ using namespace std;
 #define triggerPin          46
 
 // switches inputs
-// #define ip1    8 
-// #define ip2    9
+#define ip1    52 
+#define ip2    50
 #define ip3    33
 #define ip4    35
 #define button 37
