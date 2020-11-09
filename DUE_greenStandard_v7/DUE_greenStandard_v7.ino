@@ -157,9 +157,9 @@ void setup() {
   pinMode(initPokeTTL, INPUT);
   pinMode(leftPokeTTL, INPUT);
   pinMode(rightPokeTTL, INPUT);
-  pinMode(extraPoke4TTL, INPUT);
-  pinMode(extraPoke5TTL, INPUT);
-  pinMode(extraPoke6TTL, INPUT);
+  // pinMode(extraPoke4TTL, INPUT);
+  // pinMode(extraPoke5TTL, INPUT);
+  // pinMode(extraPoke6TTL, INPUT);
 
   // signals to the syringe pumps to move.
   pinMode(syringePumpInit, OUTPUT);   // init pump
