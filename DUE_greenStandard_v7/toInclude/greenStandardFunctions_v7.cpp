@@ -212,6 +212,8 @@ long slot3Length             = 10;
 long postCueLength          = 50;
 long goToPokesLength        = 60000;
 long rewardCollectionLength = 3000;
+long interTrialInterval_mean = 10000;
+long interTrialInterval_SD = 0;
 
 
 // which cues get played
@@ -868,7 +870,9 @@ void processMessage() {
     changeVariableLong("postCueLength", &postCueLength, inLine);
     changeVariableLong("goToPokesLength", &goToPokesLength, inLine);
     changeVariableLong("rewardCollectionLength", &rewardCollectionLength, inLine);
-
+    changeVariableLong("interTrialInterval_mean", &interTrialInterval_mean, inLine);
+    changeVariableLong("interTrialInterval_SD", &interTrialInterval_SD, inLine);
+    
     changeVariableLong("slot1_vis", &slot1_vis, inLine);
     changeVariableLong("slot2_vis", &slot2_vis, inLine);
     changeVariableLong("slot3_vis", &slot3_vis, inLine);

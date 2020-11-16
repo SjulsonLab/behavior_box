@@ -4,38 +4,35 @@ def set_COM_port(session_info):
     if session_info['computer_name'].lower() == 'Luke-HP-laptop'.lower() \
         and session_info['box_number'] == 1:
         session_info['basedir'] = 'C:\\Users\\lukes\\Desktop\\temp'
-        session_info['COM_port'] = 'COM6'
+        session_info['COM_port'] = 'COM5'
     elif session_info['computer_name'].lower() == 'bumbrlik01'.lower() \
         and session_info['box_number'] == 1:
-        session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
+        session_info['basedir'] = 'C:\\Users\\lab\\Documents\\FSA'
         session_info['COM_port'] = 'COM16'
     elif session_info['computer_name'].lower() == 'bumbrlik02'.lower() \
         and session_info['box_number'] == 1:
-        session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
+        session_info['basedir'] = 'C:\\Users\\lab\\Documents\\FSA'
         session_info['COM_port'] = 'COM13'
     elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
         and session_info['box_number'] == 1:
-        session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM4'
+        session_info['basedir'] = 'C:\\Users\\lab\\Documents\\FSA'
+        session_info['COM_port'] = 'COM5'
     elif session_info['computer_name'].lower() == 'bumbrlik03'.lower() \
         and session_info['box_number'] == 2:
-        session_info['basedir'] = 'G:\\My Drive\\lab-shared\\lab_projects\\rewardPrediction\\behavior'
-        session_info['COM_port'] = 'COM13'
+        session_info['basedir'] = 'C:\\Users\\lab\\Documents\\FSA'
+        session_info['COM_port'] = 'COM4'
     elif session_info['computer_name'].lower() == 'DESKTOP-RE9G846'.lower() \
         and session_info['box_number'] == 1:
-        session_info['basedir'] = 'C:\\Users\\lab\\Desktop\\temp'
+        session_info['basedir'] = 'C:\\Users\\lab\\Documents\\FSA'
         session_info['COM_port'] = 'COM11'
     elif session_info['computer_name'].lower() == 'fenrir'.lower() \
         and session_info['box_number'] == 1:
-        session_info['basedir'] = '//media//elie//SSD//testBehData'
+        session_info['basedir'] = 'C:\\Users\\lab\\Documents\\FSA'
         session_info['COM_port'] = '/dev/ttyACM0'
     elif session_info['computer_name'].lower() == 'DESKTOP-0K6KLC7'.lower() \
         and session_info['box_number'] == 1:
-        session_info['basedir'] = 'C:\\Users\\fermi\\Data\\testBehavior'
+        session_info['basedir'] = 'C:\\Users\\lab\\Documents\\FSA'
         session_info['COM_port'] = 'COM4'
-    elif session_info['computer_name'].lower() == 'macbook-pro.local':
-        session_info['basedir'] = '/Users/lukesjulson/Desktop/temp'
-        session_info['COM_port'] = '/dev/cu.usbmodem44201'
     else: 
         raise Exception('Correct combination of computer_name and box_number not found. Please see box_utils.py')
 
@@ -222,7 +219,8 @@ def set_box_defaults(arduino):
     box_params['initPokePunishYN'] =      0 # setting to 1 enables punishment for initpoke during standby
     box_params['cueWithdrawalPunishYN'] = 0 # setting to 1 enables punishment for poke withdrawal during cues
 
-    box_params['WNvolume'] =      50
+
+    box_params['WNvolume'] =      0
     box_params['lowCueVolume'] =  120
     box_params['highCueVolume'] = 120
     box_params['buzzerVolume'] =  90
@@ -231,8 +229,8 @@ def set_box_defaults(arduino):
     box_params['laserOnCode'] = 0
 
     # these are all in milliseconds
-    box_params['readyToGoLength'] =        1000*30
-    box_params['punishDelayLength'] =      1000*6
+    box_params['readyToGoLength'] =        1000*10*60
+    box_params['punishDelayLength'] =      1000*100*60
     box_params['preCueLength'] =           10
     box_params['slot1Length'] =             5
     box_params['slot2Length'] =             5
@@ -241,7 +239,11 @@ def set_box_defaults(arduino):
     box_params['goToPokesLength'] =        1000*60
     box_params['rewardCollectionLength'] = 1000*5
 
-    # box_params['IrewardCode'] =  0
+    # number of extra seconds between trials
+    box_params['interTrialInterval_mean'] = 1000*10 
+    box_params['interTrialInterval_SD'] =   0 # standard deviation of seconds between trials
+	
+    box_params['IrewardCode'] =  2
     box_params['LrewardCode'] =  0
     box_params['RrewardCode'] =  0
     # box_params['extra4rewardCode'] =  0
@@ -254,10 +256,10 @@ def set_box_defaults(arduino):
     box_params['deliveryDuration_ms'] =  1000
     box_params['syringeSize_mL'] =       5
 
-    box_params['cueLED1Brightness'] =       1023
-    box_params['cueLED2Brightness'] =       1023
-    box_params['cueLED3Brightness'] =       1023
-    box_params['cueLED4Brightness'] =       1023
+    box_params['cueLED1Brightness'] =       500
+    box_params['cueLED2Brightness'] =       500
+    box_params['cueLED3Brightness'] =       500
+    box_params['cueLED4Brightness'] =       500
 
     # send box_params to arduino
     for i in box_params:
@@ -298,7 +300,7 @@ def append_reward_code(session_info):
 #    if session_info['trainingPhase'] in [1, 2]:
 #        Rnum = 3 # reward code of 3 for phases 1 or 2 - reward at end of cue delivery
 #    else:
-    Rnum = 4
+    Rnum = 0
         
     # set code for Left poke
     if session_info['trialLRtype'][-1] in [1, 2, 5, 6]:

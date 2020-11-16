@@ -64,7 +64,7 @@
 #define SApreCue                301 // preCue for self-admin
 #define SAcue                   302 // cue state for self-admin
 #define SApostCue               303 // postCue state for self-admin
-
+#define selfAdminITI            304 // ITI for self-admin
 
 // include dependencies
 #include <Arduino.h>
@@ -346,7 +346,7 @@ void loop() {
 
     case readyToGo:
 
-	  if (trainingPhase >= 1 & trainingPhase < 200) {   
+	  if (trainingPhase >= 1 && trainingPhase < 200) {   
         playWhiteNoise();
       }
       
@@ -397,16 +397,7 @@ void loop() {
         sndCounter = 0;
       }
 
-       if (cueWithdrawalPunishYN==0){ //added by EFO to avoid rewarding before 
-          giveRewards(2); // give a reward to the location(s) with reward codes "2" (init at time of mouse poke) //EFO: I think we need to move this 
-        } 
-        switchTo(preCue); 
-      } 
-      else if (tempInit == 1 && trainingPhase == 201){ 
-        tempInit = 0; 
-        nosePokeInitTime = millis(); 
-        sndCounter = 0; 
-      } 
+  
  
       // if mouse pokes the wrong poke in phase 5, go to punishDelay 
       if (trainingPhase >= 5 && trainingPhase <= 10 && trainingPhase >= 12 && trainingPhase <= 99) { 
@@ -499,7 +490,7 @@ void loop() {
     case preCue:
 
       // if mouse withdraws nose too early, switch state to punishDelay
-      if (initPoke == 0 && leftPoke==0 && rightPoke==0 && cueWithdrawalPunishYN==1) {
+      if (initPoke == 0 && leftPoke==0 && rightPoke==0 && cueWithdrawalPunishYN==1 && trainingPhase < 300) {
         serLogNum("PreCueWithdrawal_ms", millis() - nosePokeInitTime);
         serLogNum("punishDelayLength_ms", punishDelayLength);
         switchTo(punishDelay);
@@ -568,7 +559,7 @@ void loop() {
 
 
       // if mouse withdraws nose too early, switch state to punishDelay
-      if (initPoke == 0 && leftPoke==0 && rightPoke==0 && cueWithdrawalPunishYN==1) { // EFO: added leftPoke and rightPoke 
+      if (initPoke == 0 && leftPoke==0 && rightPoke==0 && cueWithdrawalPunishYN==1 && trainingPhase < 300 ) { // EFO: added leftPoke and rightPoke 
         // turn off any visual cues
         setLEDlevel(cueLED1pin, 0);
         setLEDlevel(cueLED2pin, 0);
@@ -1038,13 +1029,51 @@ void loop() {
     // LETTHEANIMALDRINK
     // delay while animal collects reward
 
-    case letTheAnimalDrink:
+  case letTheAnimalDrink:
 
-      if ((millis() - tempTime) > rewardCollectionLength || (trainingPhase==301 && initPoke==1)) {
+      if ((millis() - tempTime) > rewardCollectionLength && trainingPhase < 301)  {
         closePoke("all");
         serLog("Standby");
         switchTo(standby);
       }
+      
+      if (trainingPhase == 301 && initPoke == 1)  {
+        initPokeCounter = 0; // this is so that the other pokes don't get rewarded
+        leftPokeCounter   = 0;
+        rightPokeCounter  = 0;
+        IrewardCode = 0; 
+        LrewardCode = 0;
+        RrewardCode = 0;
+        sndCounter = 0;
+        closePoke("all");
+        serLog("selfAdminITI_start");
+        switchTo(selfAdminITI);
+      }
+      
+      delayMicroseconds(pauseLengthMicros);
+    break;
+
+    ////////////////////
+    // SELFADMINITI
+    // delay while animal collects reward
+
+  case selfAdminITI:
+  
+     if ((millis() - tempTime) > interTrialInterval_mean) {
+       initPokeCounter = 0; // this is so that the other pokes don't get rewarded
+       leftPokeCounter   = 0;
+       rightPokeCounter  = 0;
+       IrewardCode = 0; 
+       LrewardCode = 0;
+       RrewardCode = 0;
+       sndCounter = 0;
+       closePoke("all");
+       serLog("selfAdminITI_end");
+       serLogNum("selfAdminITI_end", interTrialInterval_mean);
+       serLog("Standby");
+       switchTo(standby);
+      }
+
       delayMicroseconds(pauseLengthMicros);
     break;
 

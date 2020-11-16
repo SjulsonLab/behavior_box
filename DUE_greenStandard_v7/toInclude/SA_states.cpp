@@ -30,7 +30,7 @@ void SApreCue_fxn() {
 
     if (whichPokeStartedTrial == 1) { // left poke
 //      SAcue_aud = SA_leftAudCue; // old
-      SAcue_aud = 3; // using buzzer for all
+      SAcue_aud = 2; // using buzzer for all
       setLEDlevel(cueLED5pin, cueLED5Brightness);
       digitalWrite(visualCueTTL, HIGH);
     }
@@ -39,7 +39,7 @@ void SApreCue_fxn() {
     }
     if (whichPokeStartedTrial == 3) { // right poke
 //      SAcue_aud = SA_rightAudCue; // old
-      SAcue_aud = 3; // using buzzer for all
+      SAcue_aud = 2; // using buzzer for all
       setLEDlevel(cueLED6pin, cueLED6Brightness);
       digitalWrite(visualCueTTL, HIGH);
     }
